@@ -4,17 +4,20 @@
   <meta charset="UTF-8" />
   <title>Cleaning Survey Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- AdminLTE & dependencies (CDN) -->
+
+  <!-- AdminLTE & dependencies -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
 
-  <!-- Optional: custom styles -->
+  <!-- Chart.js (NEW) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     .content-wrapper { padding: 1rem; }
     .table-responsive { max-height: 70vh; overflow-y: auto; }
   </style>
 </head>
+
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
@@ -23,7 +26,7 @@
     <span class="navbar-brand mb-0 h5">Cleaning Survey Dashboard</span>
   </nav>
 
-  <!-- Sidebar (minimal) -->
+  <!-- Sidebar -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="#" class="brand-link">
       <span class="brand-text font-weight-light">Cleaning Logs</span>
@@ -53,18 +56,29 @@
             <label>Room</label>
             <input id="filter-room" class="form-control" placeholder="e.g. Room 12">
           </div>
+
           <div class="col-md-3">
             <label>Staff</label>
             <input id="filter-staff" class="form-control" placeholder="e.g. John">
           </div>
+
           <div class="col-md-3">
             <label>Shift</label>
             <input id="filter-shift" class="form-control" placeholder="Morning/Evening/Night">
           </div>
-          <div class="col-md-3 d-flex align-items-end">
-            <button id="btn-refresh" class="btn btn-primary btn-block">
+
+          <div class="col-md-3 d-flex flex-column justify-content-end">
+
+            <!-- Refresh button -->
+            <button id="btn-refresh" class="btn btn-primary btn-block mb-2">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
+
+            <!-- CSV Export button (NEW) -->
+            <button id="btn-export" class="btn btn-success btn-block">
+              <i class="fas fa-file-csv"></i> Export CSV
+            </button>
+
           </div>
         </div>
 
@@ -93,6 +107,16 @@
           </div>
         </div>
 
+        <!-- Compliance Chart (NEW) -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3 class="card-title">Daily Cleaning Compliance</h3>
+          </div>
+          <div class="card-body">
+            <canvas id="complianceChart" height="120"></canvas>
+          </div>
+        </div>
+
       </div>
     </section>
   </div>
@@ -104,6 +128,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 
+<!-- Dashboard logic -->
 <script src="dashboard.js"></script>
+
 </body>
 </html>
