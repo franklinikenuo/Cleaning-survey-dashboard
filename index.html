@@ -9,8 +9,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
 
-  <!-- Chart.js (NEW) -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- PDF Export Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     .content-wrapper { padding: 1rem; }
@@ -69,67 +73,32 @@
 
           <div class="col-md-3 d-flex flex-column justify-content-end">
 
-            <!-- Refresh button -->
+            <!-- Refresh -->
             <button id="btn-refresh" class="btn btn-primary btn-block mb-2">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
 
-            <!-- CSV Export button (NEW) -->
-            <button id="btn-export" class="btn btn-success btn-block">
+            <!-- CSV Export -->
+            <button id="btn-export" class="btn btn-success btn-block mb-2">
               <i class="fas fa-file-csv"></i> Export CSV
+            </button>
+
+            <!-- PDF Export -->
+            <button id="btn-pdf" class="btn btn-danger btn-block">
+              <i class="fas fa-file-pdf"></i> Export PDF
             </button>
 
           </div>
         </div>
 
-        <!-- Table -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Survey Submissions</h3>
-          </div>
-          <div class="card-body table-responsive p-0">
-            <table class="table table-hover text-nowrap" id="survey-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Room</th>
-                  <th>Staff</th>
-                  <th>Shift</th>
-                  <th>Tasks Completed</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Filled by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- SUMMARY CARDS -->
+        <div class="row mb-4">
 
-        <!-- Compliance Chart (NEW) -->
-        <div class="card mt-4">
-          <div class="card-header">
-            <h3 class="card-title">Daily Cleaning Compliance</h3>
-          </div>
-          <div class="card-body">
-            <canvas id="complianceChart" height="120"></canvas>
-          </div>
-        </div>
-
-      </div>
-    </section>
-  </div>
-
-</div>
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
-
-<!-- Dashboard logic -->
-<script src="dashboard.js"></script>
-
-</body>
-</html>
+          <div class="col-md-4">
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3>
+                  <span id="todayCompliance">0%</span>
+                  <span id="todayTrend" style="font-size:22px; margin-left:6px;"></span>
+                </h3>
+                <p>Today's Compliance
