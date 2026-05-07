@@ -58,6 +58,12 @@ function renderTable(surveys) {
           .join("<br>")
       : "";
 
+    const allDone = Object.values(s.tasks_completed || {}).every(v => v === true);
+
+    const badge = allDone
+      ? `<span class="badge badge-success">✔ Clean</span>`
+      : `<span class="badge badge-danger">✖ Issues</span>`;
+
     tr.innerHTML = `
       <td>${s.id}</td>
       <td>${s.date || ""}</td>
@@ -65,6 +71,7 @@ function renderTable(surveys) {
       <td>${s.staff_name || ""}</td>
       <td>${s.shift || ""}</td>
       <td>${tasks}</td>
+      <td>${badge}</td>
       <td>${s.notes || ""}</td>
     `;
     tbody.appendChild(tr);
@@ -73,19 +80,17 @@ function renderTable(surveys) {
 
 
 // ===============================
-// BUILD COMPLIANCE CHART
+// COMPLIANCE CHART
 // ===============================
 let complianceChartInstance = null;
 
 function buildComplianceChart(surveys) {
   const ctx = document.getElementById("complianceChart").getContext("2d");
 
-  // Destroy old chart if it exists
   if (complianceChartInstance) {
     complianceChartInstance.destroy();
   }
 
-  // Group by date
   const grouped = {};
   surveys.forEach(s => {
     if (!s.date) return;
@@ -101,90 +106,4 @@ function buildComplianceChart(surveys) {
   });
 
   const labels = Object.keys(grouped);
-  const values = labels.map(d => {
-    const g = grouped[d];
-    return Math.round((g.completed / g.total) * 100);
-  });
-
-  complianceChartInstance = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "Compliance %",
-        data: values,
-        borderColor: "#007bff",
-        backgroundColor: "rgba(0,123,255,0.2)",
-        borderWidth: 2,
-        fill: true
-      }]
-    },
-    options: {
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
-    }
-  });
-}
-
-
-// ===============================
-// CSV EXPORT
-// ===============================
-function exportCSV(surveys) {
-  const rows = [
-    ["ID", "Date", "Room", "Staff", "Shift", "Tasks Completed", "Notes"]
-  ];
-
-  surveys.forEach(s => {
-    rows.push([
-      s.id,
-      s.date,
-      s.room,
-      s.staff_name,
-      s.shift,
-      JSON.stringify(s.tasks_completed),
-      s.notes || ""
-    ]);
-  });
-
-  let csvContent = "data:text/csv;charset=utf-8," 
-    + rows.map(e => e.join(",")).join("\n");
-
-  const link = document.createElement("a");
-  link.setAttribute("href", encodeURI(csvContent));
-  link.setAttribute("download", "cleaning_surveys.csv");
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-}
-
-
-// ===============================
-// MAIN LOAD FUNCTION
-// ===============================
-async function loadAndRender() {
-  const surveys = await fetchSurveys();
-  renderTable(surveys);
-  buildComplianceChart(surveys);
-}
-
-
-// ===============================
-// EVENT LISTENERS
-// ===============================
-document.getElementById("btn-refresh").addEventListener("click", loadAndRender);
-document.getElementById("btn-export").addEventListener("click", async () => {
-  const surveys = await fetchSurveys();
-  exportCSV(surveys);
-});
-
-document.getElementById("filter-room").addEventListener("input", loadAndRender);
-document.getElementById("filter-staff").addEventListener("input", loadAndRender);
-document.getElementById("filter-shift").addEventListener("input", loadAndRender);
-
-
-// ===============================
-// INITIAL LOAD
-// ===============================
-loadAndRender();
+  const values = labels.map(d =>
