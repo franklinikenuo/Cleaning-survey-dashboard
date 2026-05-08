@@ -134,10 +134,61 @@ function buildComplianceChart(surveys) {
 
 
 // ===============================
+// ROOM-BY-ROOM ANALYTICS
+// ===============================
+let roomChartInstance = null;
+
+function buildRoomChart(surveys) {
+  const canvas = document.getElementById("roomChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  if (roomChartInstance) {
+    roomChartInstance.destroy();
+  }
+
+  const rooms = {};
+  surveys.forEach(s => {
+    if (!s.room) return;
+    if (!rooms[s.room]) rooms[s.room] = { total: 0, clean: 0 };
+    rooms[s.room].total += 1;
+
+    const allDone = Object.values(s.tasks_completed || {}).every(v => v === true);
+    if (allDone) rooms[s.room].clean += 1;
+  });
+
+  const labels = Object.keys(rooms);
+  const values = labels.map(r =>
+    Math.round((rooms[r].clean / rooms[r].total) * 100)
+  );
+
+  roomChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Compliance %",
+        data: values,
+        backgroundColor: "#17a2b8"
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      }
+    }
+  });
+}
+
+
+// ===============================
 // SUMMARY CARDS + TREND ARROWS
 // ===============================
 function setTrend(elementId, current, previous) {
   const el = document.getElementById(elementId);
+
+  if (!el) return;
 
   if (previous === 0) {
     el.innerText = "→";
@@ -177,13 +228,17 @@ function updateSummaryCards(surveys) {
     return Math.round((completed / filtered.length) * 100);
   }
 
-  const todayVal = calcCompliance(s => s.date.startsWith(today));
-  const weekVal = calcCompliance(s => s.date >= weekStart);
-  const monthVal = calcCompliance(s => s.date.startsWith(month));
+  const todayVal = calcCompliance(s => s.date && s.date.startsWith(today));
+  const weekVal = calcCompliance(s => s.date && s.date >= weekStart);
+  const monthVal = calcCompliance(s => s.date && s.date.startsWith(month));
 
-  document.getElementById("todayCompliance").innerText = todayVal + "%";
-  document.getElementById("weekCompliance").innerText = weekVal + "%";
-  document.getElementById("monthCompliance").innerText = monthVal + "%";
+  const todayEl = document.getElementById("todayCompliance");
+  const weekEl = document.getElementById("weekCompliance");
+  const monthEl = document.getElementById("monthCompliance");
+
+  if (todayEl) todayEl.innerText = todayVal + "%";
+  if (weekEl) weekEl.innerText = weekVal + "%";
+  if (monthEl) monthEl.innerText = monthVal + "%";
 
   setTrend("todayTrend", todayVal, weekVal);
   setTrend("weekTrend", weekVal, monthVal);
@@ -224,12 +279,13 @@ function exportCSV(surveys) {
 
 
 // ===============================
-// PDF EXPORT
+// FULL DASHBOARD PDF EXPORT
 // ===============================
 document.getElementById("btn-pdf").addEventListener("click", async () => {
   const { jsPDF } = window.jspdf;
 
   const dashboard = document.querySelector(".content-wrapper");
+  if (!dashboard) return;
 
   html2canvas(dashboard, { scale: 2 }).then(canvas => {
     const imgData = canvas.toDataURL("image/png");
@@ -245,6 +301,64 @@ document.getElementById("btn-pdf").addEventListener("click", async () => {
 
 
 // ===============================
+// MONTHLY REPORT PDF EXPORT
+// ===============================
+document.getElementById("btn-monthly-report")?.addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const surveys = await fetchSurveys();
+
+  const month = new Date().toISOString().slice(0, 7);
+  const monthly = surveys.filter(s => s.date && s.date.startsWith(month));
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  let y = 10;
+
+  pdf.setFontSize(18);
+  pdf.text("Monthly Cleaning Report", 10, y);
+  y += 10;
+
+  pdf.setFontSize(12);
+  pdf.text(`Month: ${month}`, 10, y);
+  y += 8;
+
+  pdf.text(`Total Submissions: ${monthly.length}`, 10, y);
+  y += 8;
+
+  const completed = monthly.filter(s =>
+    Object.values(s.tasks_completed || {}).every(v => v === true)
+  ).length;
+
+  const compliance = monthly.length
+    ? Math.round((completed / monthly.length) * 100)
+    : 0;
+
+  pdf.text(`Overall Compliance: ${compliance}%`, 10, y);
+  y += 12;
+
+  pdf.setFontSize(14);
+  pdf.text("Room Breakdown", 10, y);
+  y += 8;
+
+  const rooms = {};
+  monthly.forEach(s => {
+    if (!rooms[s.room]) rooms[s.room] = { total: 0, clean: 0 };
+    rooms[s.room].total++;
+    if (Object.values(s.tasks_completed || {}).every(v => v)) rooms[s.room].clean++;
+  });
+
+  pdf.setFontSize(12);
+  Object.keys(rooms).forEach(room => {
+    const r = rooms[room];
+    const pct = Math.round((r.clean / r.total) * 100);
+    pdf.text(`${room}: ${pct}% (${r.clean}/${r.total})`, 10, y);
+    y += 6;
+  });
+
+  pdf.save(`cleaning_report_${month}.pdf`);
+});
+
+
+// ===============================
 // MAIN LOAD FUNCTION
 // ===============================
 async function loadAndRender() {
@@ -252,6 +366,7 @@ async function loadAndRender() {
   renderTable(surveys);
   buildComplianceChart(surveys);
   updateSummaryCards(surveys);
+  buildRoomChart(surveys);
 }
 
 
