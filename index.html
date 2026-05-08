@@ -72,22 +72,17 @@
           </div>
 
           <div class="col-md-3 d-flex flex-column justify-content-end">
-
-            <!-- Refresh -->
             <button id="btn-refresh" class="btn btn-primary btn-block mb-2">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
 
-            <!-- CSV Export -->
             <button id="btn-export" class="btn btn-success btn-block mb-2">
               <i class="fas fa-file-csv"></i> Export CSV
             </button>
 
-            <!-- PDF Export -->
             <button id="btn-pdf" class="btn btn-danger btn-block">
               <i class="fas fa-file-pdf"></i> Export PDF
             </button>
-
           </div>
         </div>
 
@@ -101,4 +96,87 @@
                   <span id="todayCompliance">0%</span>
                   <span id="todayTrend" style="font-size:22px; margin-left:6px;"></span>
                 </h3>
-                <p>Today's Compliance
+                <p>Today's Compliance</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3>
+                  <span id="weekCompliance">0%</span>
+                  <span id="weekTrend" style="font-size:22px; margin-left:6px;"></span>
+                </h3>
+                <p>This Week's Compliance</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3>
+                  <span id="monthCompliance">0%</span>
+                  <span id="monthTrend" style="font-size:22px; margin-left:6px;"></span>
+                </h3>
+                <p>This Month's Compliance</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CHART -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Compliance Trend</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="complianceChart" height="120"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Survey Submissions</h5>
+              </div>
+              <div class="card-body table-responsive">
+                <table id="survey-table" class="table table-bordered table-striped">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Date</th>
+                      <th>Room</th>
+                      <th>Staff</th>
+                      <th>Shift</th>
+                      <th>Tasks Completed</th>
+                      <th>Status</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<!-- Load your dashboard logic -->
+<script src="dashboard.js"></script>
+
+</body>
+</html>
