@@ -72,6 +72,7 @@
           </div>
 
           <div class="col-md-3 d-flex flex-column justify-content-end">
+
             <button id="btn-refresh" class="btn btn-primary btn-block mb-2">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
@@ -80,9 +81,20 @@
               <i class="fas fa-file-csv"></i> Export CSV
             </button>
 
-            <button id="btn-pdf" class="btn btn-danger btn-block">
+            <button id="btn-pdf" class="btn btn-danger btn-block mb-2">
               <i class="fas fa-file-pdf"></i> Export PDF
             </button>
+
+            <!-- ⭐ NEW: Monthly Report -->
+            <button id="btn-monthly-report" class="btn btn-dark btn-block mb-2">
+              <i class="fas fa-file-alt"></i> Monthly Report
+            </button>
+
+            <!-- ⭐ NEW: Weekly Email Report Trigger -->
+            <button id="btn-weekly-email" class="btn btn-warning btn-block">
+              <i class="fas fa-envelope"></i> Send Weekly Email Report
+            </button>
+
           </div>
         </div>
 
@@ -127,7 +139,7 @@
 
         </div>
 
-        <!-- CHART -->
+        <!-- COMPLIANCE TREND CHART -->
         <div class="row mb-4">
           <div class="col-12">
             <div class="card">
@@ -136,6 +148,20 @@
               </div>
               <div class="card-body">
                 <canvas id="complianceChart" height="120"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⭐ ROOM-BY-ROOM ANALYTICS -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Room-by-Room Analytics</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="roomChart" height="120"></canvas>
               </div>
             </div>
           </div>
