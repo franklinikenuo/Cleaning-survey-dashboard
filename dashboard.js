@@ -1,7 +1,7 @@
 // ===============================
 // CONFIG
 // ===============================
-const API_BASE = "https://cleaning-survey-backend.onrender.com";
+const API_BASE = "https://cleaning-survey-api.onrender.com";
 
 let allSurveys = [];
 let roomChart;
@@ -32,7 +32,7 @@ async function loadSurveys() {
 
     allSurveys = Array.isArray(data) ? data : [];
 
-    applyFilters(); // will render table + charts + summary
+    applyFilters();
   } catch (err) {
     console.error("Failed to load surveys", err);
     tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Error loading data</td></tr>";
@@ -50,21 +50,10 @@ function applyFilters() {
   const shift = document.getElementById("filter-shift").value;
   const date = document.getElementById("filter-date").value;
 
-  if (room !== "all") {
-    filtered = filtered.filter(s => s.room === room);
-  }
-
-  if (staff !== "all") {
-    filtered = filtered.filter(s => s.staff_name === staff);
-  }
-
-  if (shift !== "all") {
-    filtered = filtered.filter(s => s.shift === shift);
-  }
-
-  if (date) {
-    filtered = filtered.filter(s => (s.timestamp || "").startsWith(date));
-  }
+  if (room !== "all") filtered = filtered.filter(s => s.room === room);
+  if (staff !== "all") filtered = filtered.filter(s => s.staff_name === staff);
+  if (shift !== "all") filtered = filtered.filter(s => s.shift === shift);
+  if (date) filtered = filtered.filter(s => (s.timestamp || "").startsWith(date));
 
   renderTable(filtered);
   updateSummary(filtered);
@@ -98,17 +87,16 @@ function renderTable(surveys) {
     return;
   }
 
-  // newest first
   const sorted = [...surveys].sort((a, b) => {
-    const ta = new Date(a.timestamp || a.date || "").getTime();
-    const tb = new Date(b.timestamp || b.date || "").getTime();
+    const ta = new Date(a.timestamp || "").getTime();
+    const tb = new Date(b.timestamp || "").getTime();
     return tb - ta;
   });
 
   sorted.forEach(s => {
     const tasks = s.tasks_completed || {};
     const allDone = Object.values(tasks).every(v => v === true);
-    const ts = s.timestamp || s.date || "";
+    const ts = s.timestamp || "";
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -154,7 +142,6 @@ function updateSummary(surveys) {
   const compliance = Math.round((cleanCount / surveys.length) * 100);
   overallEl.textContent = `${compliance}%`;
 
-  // average tasks completed
   let totalTasksCompleted = 0;
   let totalTasksPossible = 0;
 
@@ -168,7 +155,6 @@ function updateSummary(surveys) {
   const avg = totalTasksPossible === 0 ? 0 : (totalTasksCompleted / surveys.length);
   avgTasksEl.textContent = `${avg.toFixed(1)} / 8`;
 
-  // top shift
   const shiftCounts = {};
   surveys.forEach(s => {
     if (!s.shift) return;
@@ -255,7 +241,7 @@ function updateTrendChart(surveys) {
   const grouped = {};
 
   surveys.forEach(s => {
-    const ts = s.timestamp || s.date;
+    const ts = s.timestamp;
     if (!ts) return;
     const day = new Date(ts).toISOString().split("T")[0];
     if (!grouped[day]) grouped[day] = [];
@@ -399,7 +385,7 @@ function exportCSV() {
 
   surveys.forEach(s => {
     const t = s.tasks_completed || {};
-    const ts = s.timestamp || s.date || "";
+    const ts = s.timestamp || "";
     csv += [
       ts,
       s.room || "",
@@ -479,4 +465,4 @@ function attachEventListeners() {
   document.getElementById("btn-export-weekly-pdf").addEventListener("click", exportWeeklyPDF);
   document.getElementById("btn-export-monthly-pdf").addEventListener("click", exportMonthlyPDF);
   document.getElementById("btn-export-dashboard-pdf").addEventListener("click", exportDashboardPDF);
-        }
+      }
