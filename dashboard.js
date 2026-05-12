@@ -1,468 +1,276 @@
-// ===============================
-// CONFIG
-// ===============================
+/* ============================================================
+   CLEANING COMPLIANCE DASHBOARD (CLINICAL UPGRADE)
+   ============================================================ */
+
 const API_BASE = "https://cleaning-survey-api.onrender.com";
 
-let allSurveys = [];
-let roomChart;
+/* DOM ELEMENTS */
+const totalSubmissionsEl = document.getElementById("totalSubmissions");
+const overallComplianceEl = document.getElementById("overallCompliance");
+const avgTasksCompletedEl = document.getElementById("avgTasksCompleted");
+const topShiftEl = document.getElementById("topShift");
+const tableBody = document.getElementById("survey-table-body");
+const tableCountLabel = document.getElementById("table-count-label");
+
+/* FILTERS */
+const filterRoom = document.getElementById("filter-room");
+const filterStaff = document.getElementById("filter-staff");
+const filterShift = document.getElementById("filter-shift");
+const filterDate = document.getElementById("filter-date");
+
+/* CHART INSTANCES */
+let roomComplianceChart;
 let trendChart;
-let taskChart;
+let taskBreakdownChart;
 let shiftChart;
 
-// ===============================
-// MAIN LOAD
-// ===============================
-async function initDashboard() {
-  await loadSurveys();
-  attachEventListeners();
+/* ============================================================
+   FETCH DATA
+   ============================================================ */
+
+async function fetchData() {
+  const res = await fetch(`${API_BASE}/all`);
+  const data = await res.json();
+  return data;
 }
 
-window.addEventListener("DOMContentLoaded", initDashboard);
+/* ============================================================
+   APPLY FILTERS
+   ============================================================ */
 
-// ===============================
-// LOAD SURVEYS
-// ===============================
-async function loadSurveys() {
-  const tbody = document.getElementById("survey-table-body");
-  tbody.innerHTML = "<tr><td colspan='6'>Loading...</td></tr>";
-
-  try {
-    const res = await fetch(`${API_BASE}/submissions`);
-    const data = await res.json();
-
-    allSurveys = Array.isArray(data) ? data : [];
-
-    applyFilters();
-  } catch (err) {
-    console.error("Failed to load surveys", err);
-    tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Error loading data</td></tr>";
-  }
-}
-
-// ===============================
-// FILTERS
-// ===============================
-function applyFilters() {
-  let filtered = [...allSurveys];
-
-  const room = document.getElementById("filter-room").value;
-  const staff = document.getElementById("filter-staff").value;
-  const shift = document.getElementById("filter-shift").value;
-  const date = document.getElementById("filter-date").value;
-
-  if (room !== "all") filtered = filtered.filter(s => s.room === room);
-  if (staff !== "all") filtered = filtered.filter(s => s.staff_name === staff);
-  if (shift !== "all") filtered = filtered.filter(s => s.shift === shift);
-  if (date) filtered = filtered.filter(s => (s.timestamp || "").startsWith(date));
-
-  renderTable(filtered);
-  updateSummary(filtered);
-  updateRoomChart(filtered);
-  updateTrendChart(filtered);
-  updateTaskBreakdownChart(filtered);
-  updateShiftChart(filtered);
-  populateFilters();
-}
-
-function clearFilters() {
-  document.getElementById("filter-room").value = "all";
-  document.getElementById("filter-staff").value = "all";
-  document.getElementById("filter-shift").value = "all";
-  document.getElementById("filter-date").value = "";
-  applyFilters();
-}
-
-// ===============================
-// TABLE
-// ===============================
-function renderTable(surveys) {
-  const tbody = document.getElementById("survey-table-body");
-  const label = document.getElementById("table-count-label");
-
-  tbody.innerHTML = "";
-  label.textContent = `${surveys.length} record${surveys.length === 1 ? "" : "s"}`;
-
-  if (surveys.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='6'>No records found</td></tr>";
-    return;
-  }
-
-  const sorted = [...surveys].sort((a, b) => {
-    const ta = new Date(a.timestamp || "").getTime();
-    const tb = new Date(b.timestamp || "").getTime();
-    return tb - ta;
-  });
-
-  sorted.forEach(s => {
-    const tasks = s.tasks_completed || {};
-    const allDone = Object.values(tasks).every(v => v === true);
-    const ts = s.timestamp || "";
-
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${ts ? new Date(ts).toLocaleString() : "–"}</td>
-      <td>${s.room || "–"}</td>
-      <td>${s.staff_name || "–"}</td>
-      <td>${s.shift || "–"}</td>
-      <td>
-        <span class="compliance-pill ${allDone ? "good" : "bad"}">
-          ${allDone ? "✔️ Clean" : "❌ Not Clean"}
-        </span>
-      </td>
-      <td>${s.notes || ""}</td>
-    `;
-    tbody.appendChild(row);
+function applyFilters(data) {
+  return data.filter(entry => {
+    if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
+    if (filterStaff.value !== "all" && entry.staff_name !== filterStaff.value) return false;
+    if (filterShift.value !== "all" && entry.shift !== filterShift.value) return false;
+    if (filterDate.value && !entry.timestamp.startsWith(filterDate.value)) return false;
+    return true;
   });
 }
 
-// ===============================
-// SUMMARY
-// ===============================
-function updateSummary(surveys) {
-  const totalEl = document.getElementById("totalSubmissions");
-  const overallEl = document.getElementById("overallCompliance");
-  const avgTasksEl = document.getElementById("avgTasksCompleted");
-  const topShiftEl = document.getElementById("topShift");
+/* ============================================================
+   SUMMARY METRICS
+   ============================================================ */
 
-  if (surveys.length === 0) {
-    totalEl.textContent = "0";
-    overallEl.textContent = "0%";
-    avgTasksEl.textContent = "0 / 8";
+function updateSummary(filtered) {
+  totalSubmissionsEl.textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    overallComplianceEl.textContent = "0%";
+    avgTasksCompletedEl.textContent = "0 / 8";
     topShiftEl.textContent = "–";
     return;
   }
 
-  totalEl.textContent = surveys.length;
+  let totalCompliance = 0;
+  let totalTasks = 0;
+  const shiftCount = {};
 
-  const cleanCount = surveys.filter(s => {
-    const tasks = s.tasks_completed || {};
-    return Object.values(tasks).every(v => v === true);
-  }).length;
+  filtered.forEach(entry => {
+    const tasks = Object.values(entry.tasks_completed);
+    const completed = tasks.filter(t => t).length;
+    const compliance = (completed / tasks.length) * 100;
 
-  const compliance = Math.round((cleanCount / surveys.length) * 100);
-  overallEl.textContent = `${compliance}%`;
+    totalCompliance += compliance;
+    totalTasks += completed;
 
-  let totalTasksCompleted = 0;
-  let totalTasksPossible = 0;
-
-  surveys.forEach(s => {
-    const tasks = s.tasks_completed || {};
-    const values = Object.values(tasks);
-    totalTasksPossible += values.length;
-    totalTasksCompleted += values.filter(v => v === true).length;
+    shiftCount[entry.shift] = (shiftCount[entry.shift] || 0) + 1;
   });
 
-  const avg = totalTasksPossible === 0 ? 0 : (totalTasksCompleted / surveys.length);
-  avgTasksEl.textContent = `${avg.toFixed(1)} / 8`;
+  overallComplianceEl.textContent = `${Math.round(totalCompliance / filtered.length)}%`;
+  avgTasksCompletedEl.textContent = `${Math.round(totalTasks / filtered.length)} / 8`;
 
-  const shiftCounts = {};
-  surveys.forEach(s => {
-    if (!s.shift) return;
-    shiftCounts[s.shift] = (shiftCounts[s.shift] || 0) + 1;
-  });
-
-  const topShift = Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0];
+  const topShift = Object.entries(shiftCount).sort((a, b) => b[1] - a[1])[0];
   topShiftEl.textContent = topShift ? topShift[0] : "–";
 }
 
-// ===============================
-// FILTER OPTIONS
-// ===============================
-function populateFilters() {
-  const roomSelect = document.getElementById("filter-room");
-  const staffSelect = document.getElementById("filter-staff");
+/* ============================================================
+   TABLE RENDERING
+   ============================================================ */
 
-  const rooms = [...new Set(allSurveys.map(s => s.room).filter(Boolean))];
-  const staff = [...new Set(allSurveys.map(s => s.staff_name).filter(Boolean))];
+function renderTable(filtered) {
+  tableBody.innerHTML = "";
 
-  const currentRoom = roomSelect.value;
-  const currentStaff = staffSelect.value;
+  filtered.forEach(entry => {
+    const tasks = Object.values(entry.tasks_completed);
+    const completed = tasks.filter(t => t).length;
+    const compliance = Math.round((completed / tasks.length) * 100);
 
-  roomSelect.innerHTML = `<option value="all">All Rooms</option>`;
-  rooms.forEach(r => {
-    const opt = document.createElement("option");
-    opt.value = r;
-    opt.textContent = r;
-    roomSelect.appendChild(opt);
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${entry.timestamp}</td>
+      <td>${entry.room}</td>
+      <td>${entry.staff_name}</td>
+      <td>${entry.shift}</td>
+      <td>
+        <span class="compliance-pill ${compliance >= 75 ? "good" : "bad"}">
+          ${compliance}%
+        </span>
+      </td>
+      <td>${entry.notes || "–"}</td>
+    `;
+
+    tableBody.appendChild(row);
   });
-  if (rooms.includes(currentRoom)) roomSelect.value = currentRoom;
 
-  staffSelect.innerHTML = `<option value="all">All Staff</option>`;
-  staff.forEach(st => {
-    const opt = document.createElement("option");
-    opt.value = st;
-    opt.textContent = st;
-    staffSelect.appendChild(opt);
-  });
-  if (staff.includes(currentStaff)) staffSelect.value = currentStaff;
+  tableCountLabel.textContent = `${filtered.length} records`;
 }
 
-// ===============================
-// CHARTS
-// ===============================
-function updateRoomChart(surveys) {
-  const ctx = document.getElementById("roomComplianceChart").getContext("2d");
+/* ============================================================
+   CHART HELPERS (CLINICAL COLORS)
+   ============================================================ */
 
-  const rooms = [...new Set(surveys.map(s => s.room).filter(Boolean))];
+const clinicalColors = {
+  primary: "#0f3d91",
+  primaryLight: "#e3edff",
+  accent: "#1abc9c",
+  danger: "#e11d48",
+  softBlue: "#d6e4ff",
+  softGreen: "#dcfce7",
+  softRed: "#fee2e2"
+};
 
-  const complianceData = rooms.map(room => {
-    const roomSurveys = surveys.filter(s => s.room === room);
-    if (roomSurveys.length === 0) return 0;
-    const cleanCount = roomSurveys.filter(s => {
-      const tasks = s.tasks_completed || {};
-      return Object.values(tasks).every(v => v === true);
-    }).length;
-    return Math.round((cleanCount / roomSurveys.length) * 100);
+/* ============================================================
+   CHART RENDERING
+   ============================================================ */
+
+function renderCharts(filtered) {
+  const rooms = {};
+  const dates = {};
+  const tasks = {};
+  const shifts = {};
+
+  filtered.forEach(entry => {
+    // Room compliance
+    const completed = Object.values(entry.tasks_completed).filter(t => t).length;
+    const compliance = Math.round((completed / 8) * 100);
+    rooms[entry.room] = rooms[entry.room] || [];
+    rooms[entry.room].push(compliance);
+
+    // Daily trend
+    const day = entry.timestamp.split(" ")[0];
+    dates[day] = dates[day] || [];
+    dates[day].push(compliance);
+
+    // Task breakdown
+    Object.entries(entry.tasks_completed).forEach(([task, done]) => {
+      tasks[task] = tasks[task] || 0;
+      if (done) tasks[task]++;
+    });
+
+    // Shift distribution
+    shifts[entry.shift] = (shifts[entry.shift] || 0) + 1;
   });
 
-  if (roomChart) roomChart.destroy();
+  /* Destroy old charts */
+  if (roomComplianceChart) roomComplianceChart.destroy();
+  if (trendChart) trendChart.destroy();
+  if (taskBreakdownChart) taskBreakdownChart.destroy();
+  if (shiftChart) shiftChart.destroy();
 
-  roomChart = new Chart(ctx, {
+  /* Room Compliance Chart */
+  roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
     type: "bar",
     data: {
-      labels: rooms,
+      labels: Object.keys(rooms),
       datasets: [{
         label: "Compliance (%)",
-        data: complianceData,
-        backgroundColor: "#1f6feb"
+        data: Object.values(rooms).map(arr => Math.round(arr.reduce((a, b) => a + b) / arr.length)),
+        backgroundColor: clinicalColors.primary,
+        borderRadius: 8
       }]
     },
-    options: {
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
-    }
-  });
-}
-
-function updateTrendChart(surveys) {
-  const ctx = document.getElementById("trendChart").getContext("2d");
-
-  const grouped = {};
-
-  surveys.forEach(s => {
-    const ts = s.timestamp;
-    if (!ts) return;
-    const day = new Date(ts).toISOString().split("T")[0];
-    if (!grouped[day]) grouped[day] = [];
-    grouped[day].push(s);
+    options: { responsive: true }
   });
 
-  const dates = Object.keys(grouped).sort();
-
-  const compliance = dates.map(d => {
-    const daySurveys = grouped[d];
-    const cleanCount = daySurveys.filter(s => {
-      const tasks = s.tasks_completed || {};
-      return Object.values(tasks).every(v => v === true);
-    }).length;
-    return Math.round((cleanCount / daySurveys.length) * 100);
-  });
-
-  if (trendChart) trendChart.destroy();
-
-  trendChart = new Chart(ctx, {
+  /* Trend Chart */
+  trendChart = new Chart(document.getElementById("trendChart"), {
     type: "line",
     data: {
-      labels: dates,
+      labels: Object.keys(dates),
       datasets: [{
-        label: "Daily Compliance (%)",
-        data: compliance,
-        borderColor: "#1f6feb",
-        backgroundColor: "rgba(31, 111, 235, 0.1)",
+        label: "Daily Compliance",
+        data: Object.values(dates).map(arr => Math.round(arr.reduce((a, b) => a + b) / arr.length)),
+        borderColor: clinicalColors.primary,
+        backgroundColor: clinicalColors.primaryLight,
         fill: true,
         tension: 0.3
       }]
     },
-    options: {
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
-    }
-  });
-}
-
-function updateTaskBreakdownChart(surveys) {
-  const ctx = document.getElementById("taskBreakdownChart").getContext("2d");
-
-  const taskNames = [
-    "floor_cleaned",
-    "trash_removed",
-    "surfaces_wiped",
-    "equipment_sanitized",
-    "supplies_restocked",
-    "sweep",
-    "linen_change",
-    "vacuum"
-  ];
-
-  const counts = {};
-  taskNames.forEach(t => (counts[t] = 0));
-
-  surveys.forEach(s => {
-    const tasks = s.tasks_completed || {};
-    taskNames.forEach(t => {
-      if (tasks[t]) counts[t] += 1;
-    });
+    options: { responsive: true }
   });
 
-  const labels = [
-    "Floor",
-    "Trash",
-    "Surfaces",
-    "Equipment",
-    "Supplies",
-    "Sweep",
-    "Linen",
-    "Vacuum"
-  ];
+  /* Task Breakdown */
+  taskBreakdownChart = new Chart(document.getElementById("taskBreakdownChart"), {
+    type: "bar",
+    data: {
+      labels: Object.keys(tasks),
+      datasets: [{
+        label: "Completed",
+        data: Object.values(tasks),
+        backgroundColor: clinicalColors.accent,
+        borderRadius: 8
+      }]
+    },
+    options: { responsive: true }
+  });
 
-  const data = taskNames.map(t => counts[t]);
-
-  if (taskChart) taskChart.destroy();
-
-  taskChart = new Chart(ctx, {
+  /* Shift Distribution */
+  shiftChart = new Chart(document.getElementById("shiftChart"), {
     type: "pie",
     data: {
-      labels,
+      labels: Object.keys(shifts),
       datasets: [{
-        data,
+        data: Object.values(shifts),
         backgroundColor: [
-          "#1f6feb",
-          "#22c55e",
-          "#f97316",
-          "#e11d48",
-          "#6366f1",
-          "#14b8a6",
-          "#a855f7",
-          "#0ea5e9"
+          clinicalColors.primary,
+          clinicalColors.accent,
+          clinicalColors.danger
         ]
       }]
-    }
+    },
+    options: { responsive: true }
   });
 }
 
-function updateShiftChart(surveys) {
-  const ctx = document.getElementById("shiftChart").getContext("2d");
+/* ============================================================
+   MAIN INIT
+   ============================================================ */
 
-  const shiftCounts = { Morning: 0, Evening: 0, Night: 0 };
+async function init() {
+  const data = await fetchData();
 
-  surveys.forEach(s => {
-    if (shiftCounts[s.shift] !== undefined) {
-      shiftCounts[s.shift] += 1;
-    }
+  /* Populate filters */
+  [...new Set(data.map(d => d.room))].forEach(room => {
+    filterRoom.innerHTML += `<option value="${room}">${room}</option>`;
   });
 
-  if (shiftChart) shiftChart.destroy();
-
-  shiftChart = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["Morning", "Evening", "Night"],
-      datasets: [{
-        data: [
-          shiftCounts.Morning,
-          shiftCounts.Evening,
-          shiftCounts.Night
-        ],
-        backgroundColor: ["#1f6feb", "#22c55e", "#f97316"]
-      }]
-    }
+  [...new Set(data.map(d => d.staff_name))].forEach(staff => {
+    filterStaff.innerHTML += `<option value="${staff}">${staff}</option>`;
   });
-}
 
-// ===============================
-// CSV EXPORT
-// ===============================
-function exportCSV() {
-  const surveys = allSurveys;
-  if (!surveys.length) {
-    alert("No data to export");
-    return;
+  function refresh() {
+    const filtered = applyFilters(data);
+    updateSummary(filtered);
+    renderTable(filtered);
+    renderCharts(filtered);
   }
 
-  let csv = "timestamp,room,staff,shift,floor_cleaned,trash_removed,surfaces_wiped,equipment_sanitized,supplies_restocked,sweep,linen_change,vacuum,notes\n";
+  refresh();
 
-  surveys.forEach(s => {
-    const t = s.tasks_completed || {};
-    const ts = s.timestamp || "";
-    csv += [
-      ts,
-      s.room || "",
-      s.staff_name || "",
-      s.shift || "",
-      t.floor_cleaned || false,
-      t.trash_removed || false,
-      t.surfaces_wiped || false,
-      t.equipment_sanitized || false,
-      t.supplies_restocked || false,
-      t.sweep || false,
-      t.linen_change || false,
-      t.vacuum || false,
-      (s.notes || "").replace(/,/g, ";")
-    ].join(",") + "\n";
+  /* Filter listeners */
+  [filterRoom, filterStaff, filterShift, filterDate].forEach(el =>
+    el.addEventListener("change", refresh)
+  );
+
+  document.getElementById("btn-clear-filters").addEventListener("click", () => {
+    filterRoom.value = "all";
+    filterStaff.value = "all";
+    filterShift.value = "all";
+    filterDate.value = "";
+    refresh();
   });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "cleaning_data.csv";
-  a.click();
 }
 
-// ===============================
-// WEEKLY / MONTHLY PDF (backend)
-// ===============================
-async function exportWeeklyPDF() {
-  try {
-    await fetch(`${API_BASE}/send-weekly-report`);
-    alert("Weekly PDF report requested.");
-  } catch (err) {
-    alert("Failed to request weekly PDF.");
-  }
-}
-
-async function exportMonthlyPDF() {
-  try {
-    await fetch(`${API_BASE}/send-monthly-report`);
-    alert("Monthly PDF report requested.");
-  } catch (err) {
-    alert("Failed to request monthly PDF.");
-  }
-}
-
-// ===============================
-// DASHBOARD PDF (front-end)
-// ===============================
-async function exportDashboardPDF() {
-  const element = document.getElementById("dashboard-root");
-  const { jsPDF } = window.jspdf;
-
-  const canvas = await html2canvas(element, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
-
-  const pdf = new jsPDF("p", "mm", "a4");
-  const width = pdf.internal.pageSize.getWidth();
-  const height = (canvas.height * width) / canvas.width;
-
-  pdf.addImage(imgData, "PNG", 0, 0, width, height);
-  pdf.save("dashboard-report.pdf");
-}
-
-// ===============================
-// EVENTS
-// ===============================
-function attachEventListeners() {
-  document.getElementById("filter-room").addEventListener("change", applyFilters);
-  document.getElementById("filter-staff").addEventListener("change", applyFilters);
-  document.getElementById("filter-shift").addEventListener("change", applyFilters);
-  document.getElementById("filter-date").addEventListener("change", applyFilters);
-
-  document.getElementById("btn-clear-filters").addEventListener("click", clearFilters);
-  document.getElementById("btn-export-csv").addEventListener("click", exportCSV);
-  document.getElementById("btn-export-weekly-pdf").addEventListener("click", exportWeeklyPDF);
-  document.getElementById("btn-export-monthly-pdf").addEventListener("click", exportMonthlyPDF);
-  document.getElementById("btn-export-dashboard-pdf").addEventListener("click", exportDashboardPDF);
-      }
+init();
