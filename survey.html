@@ -139,9 +139,9 @@
 
       <label>Shift</label>
       <div class="shift-buttons">
-        <div class="shift-btn" onclick="selectShift('Morning')">Morning</div>
-        <div class="shift-btn" onclick="selectShift('Evening')">Evening</div>
-        <div class="shift-btn" onclick="selectShift('Night')">Night</div>
+        <div class="shift-btn" data-shift="Morning">Morning</div>
+        <div class="shift-btn" data-shift="Evening">Evening</div>
+        <div class="shift-btn" data-shift="Night">Night</div>
       </div>
 
       <input type="hidden" id="shift" />
@@ -161,7 +161,7 @@
       <label>Notes</label>
       <textarea id="notes" rows="3" placeholder="Optional notes..."></textarea>
 
-      <button onclick="submitSurvey()">Submit Survey</button>
+      <button id="submitBtn">Submit Survey</button>
     </div>
 
     <div class="success" id="success-screen">
@@ -171,6 +171,56 @@
 
   </div>
 
-  <script src="script.js?v=3"></script>
+  <script>
+    const API_BASE = "https://cleaning-survey-backend.onrender.com";
+
+    // SHIFT BUTTON HANDLER
+    document.querySelectorAll(".shift-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".shift-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("shift").value = btn.dataset.shift;
+      });
+    });
+
+    // SUBMIT HANDLER
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const shift = document.getElementById("shift").value;
+      if (!shift) {
+        alert("Please select a shift");
+        return;
+      }
+
+      const payload = {
+        room: document.getElementById("room").value.trim(),
+        staff_name: document.getElementById("staff_name").value.trim(),
+        shift,
+        tasks_completed: {
+          floor_cleaned: document.getElementById("floor_cleaned").checked,
+          trash_removed: document.getElementById("trash_removed").checked,
+          surfaces_wiped: document.getElementById("surfaces_wiped").checked,
+          equipment_sanitized: document.getElementById("equipment_sanitized").checked,
+          supplies_restocked: document.getElementById("supplies_restocked").checked,
+          sweep: document.getElementById("sweep").checked,
+          linen_change: document.getElementById("linen_change").checked,
+          vacuum: document.getElementById("vacuum").checked
+        },
+        notes: document.getElementById("notes").value.trim()
+      };
+
+      const res = await fetch(`${API_BASE}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        document.getElementById("form-card").style.display = "none";
+        document.getElementById("success-screen").style.display = "block";
+      } else {
+        alert("Error submitting survey.");
+      }
+    });
+  </script>
 </body>
 </html>
