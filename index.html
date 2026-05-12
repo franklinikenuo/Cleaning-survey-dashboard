@@ -8,24 +8,19 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- html2canvas for dashboard PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <!-- jsPDF for dashboard PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
+
 <body>
   <header class="top-bar">
-    <div class="top-bar-left">
+    <div>
       <h1>Cleaning Compliance Dashboard</h1>
       <p>Daily room cleaning performance overview</p>
     </div>
-    <div class="top-bar-right">
-      <button id="btn-export-dashboard-pdf" class="btn primary">Download Dashboard PDF</button>
-    </div>
+    <button id="btn-export-dashboard-pdf" class="btn primary">Download Dashboard PDF</button>
   </header>
 
-  <main class="main-layout" id="dashboard-root">
-    <!-- Summary cards -->
+  <main class="main-layout">
+    <!-- Summary Cards -->
     <section class="summary-grid">
       <div class="card summary-card">
         <h3>Total Submissions</h3>
@@ -45,7 +40,7 @@
       </div>
     </section>
 
-    <!-- Filters + actions -->
+    <!-- Filters -->
     <section class="card filters-card">
       <div class="filters-row">
         <div class="filter-group">
@@ -54,12 +49,14 @@
             <option value="all">All Rooms</option>
           </select>
         </div>
+
         <div class="filter-group">
           <label for="filter-staff">Staff</label>
           <select id="filter-staff">
             <option value="all">All Staff</option>
           </select>
         </div>
+
         <div class="filter-group">
           <label for="filter-shift">Shift</label>
           <select id="filter-shift">
@@ -69,6 +66,7 @@
             <option value="Night">Night</option>
           </select>
         </div>
+
         <div class="filter-group">
           <label for="filter-date">Date</label>
           <input type="date" id="filter-date" />
@@ -77,9 +75,6 @@
 
       <div class="filters-actions">
         <button id="btn-clear-filters" class="btn secondary">Clear Filters</button>
-        <button id="btn-export-csv" class="btn secondary">Export CSV</button>
-        <button id="btn-export-weekly-pdf" class="btn secondary">Weekly PDF</button>
-        <button id="btn-export-monthly-pdf" class="btn secondary">Monthly PDF</button>
       </div>
     </section>
 
@@ -89,14 +84,17 @@
         <h3>Room Compliance (%)</h3>
         <canvas id="roomComplianceChart"></canvas>
       </div>
+
       <div class="card chart-card">
         <h3>Daily Compliance Trend</h3>
         <canvas id="trendChart"></canvas>
       </div>
+
       <div class="card chart-card">
         <h3>Task Completion Breakdown</h3>
         <canvas id="taskBreakdownChart"></canvas>
       </div>
+
       <div class="card chart-card">
         <h3>Shift Distribution</h3>
         <canvas id="shiftChart"></canvas>
@@ -109,6 +107,7 @@
         <h3>All Submissions</h3>
         <p id="table-count-label">0 records</p>
       </div>
+
       <div class="table-wrapper">
         <table>
           <thead>
@@ -121,9 +120,7 @@
               <th>Notes</th>
             </tr>
           </thead>
-          <tbody id="survey-table-body">
-            <!-- rows injected by JS -->
-          </tbody>
+          <tbody id="survey-table-body"></tbody>
         </table>
       </div>
     </section>
