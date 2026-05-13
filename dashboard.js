@@ -1,5 +1,5 @@
 /* ============================================================
-   CLEANING COMPLIANCE DASHBOARD (CLINICAL UPGRADE)
+   CLEANING COMPLIANCE DASHBOARD (POSTGRESQL VERSION)
    ============================================================ */
 
 const API_BASE = "https://cleaning-survey-api.onrender.com";
@@ -29,9 +29,15 @@ let shiftChart;
    ============================================================ */
 
 async function fetchData() {
-  const res = await fetch(`${API_BASE}/all`);
-  const data = await res.json();
-  return data;
+  try {
+    const res = await fetch(`${API_BASE}/submissions`);
+    const data = await res.json();
+    console.log("Loaded data:", data);
+    return data;
+  } catch (err) {
+    console.error("API fetch error:", err);
+    return [];
+  }
 }
 
 /* ============================================================
@@ -118,7 +124,7 @@ function renderTable(filtered) {
 }
 
 /* ============================================================
-   CHART HELPERS (CLINICAL COLORS)
+   CHART COLORS
    ============================================================ */
 
 const clinicalColors = {
@@ -142,34 +148,29 @@ function renderCharts(filtered) {
   const shifts = {};
 
   filtered.forEach(entry => {
-    // Room compliance
     const completed = Object.values(entry.tasks_completed).filter(t => t).length;
     const compliance = Math.round((completed / 8) * 100);
+
     rooms[entry.room] = rooms[entry.room] || [];
     rooms[entry.room].push(compliance);
 
-    // Daily trend
     const day = entry.timestamp.split(" ")[0];
     dates[day] = dates[day] || [];
     dates[day].push(compliance);
 
-    // Task breakdown
     Object.entries(entry.tasks_completed).forEach(([task, done]) => {
       tasks[task] = tasks[task] || 0;
       if (done) tasks[task]++;
     });
 
-    // Shift distribution
     shifts[entry.shift] = (shifts[entry.shift] || 0) + 1;
   });
 
-  /* Destroy old charts */
   if (roomComplianceChart) roomComplianceChart.destroy();
   if (trendChart) trendChart.destroy();
   if (taskBreakdownChart) taskBreakdownChart.destroy();
   if (shiftChart) shiftChart.destroy();
 
-  /* Room Compliance Chart */
   roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
     type: "bar",
     data: {
@@ -180,11 +181,9 @@ function renderCharts(filtered) {
         backgroundColor: clinicalColors.primary,
         borderRadius: 8
       }]
-    },
-    options: { responsive: true }
+    }
   });
 
-  /* Trend Chart */
   trendChart = new Chart(document.getElementById("trendChart"), {
     type: "line",
     data: {
@@ -197,11 +196,9 @@ function renderCharts(filtered) {
         fill: true,
         tension: 0.3
       }]
-    },
-    options: { responsive: true }
+    }
   });
 
-  /* Task Breakdown */
   taskBreakdownChart = new Chart(document.getElementById("taskBreakdownChart"), {
     type: "bar",
     data: {
@@ -212,11 +209,9 @@ function renderCharts(filtered) {
         backgroundColor: clinicalColors.accent,
         borderRadius: 8
       }]
-    },
-    options: { responsive: true }
+    }
   });
 
-  /* Shift Distribution */
   shiftChart = new Chart(document.getElementById("shiftChart"), {
     type: "pie",
     data: {
@@ -229,8 +224,7 @@ function renderCharts(filtered) {
           clinicalColors.danger
         ]
       }]
-    },
-    options: { responsive: true }
+    }
   });
 }
 
@@ -241,7 +235,6 @@ function renderCharts(filtered) {
 async function init() {
   const data = await fetchData();
 
-  /* Populate filters */
   [...new Set(data.map(d => d.room))].forEach(room => {
     filterRoom.innerHTML += `<option value="${room}">${room}</option>`;
   });
@@ -259,7 +252,6 @@ async function init() {
 
   refresh();
 
-  /* Filter listeners */
   [filterRoom, filterStaff, filterShift, filterDate].forEach(el =>
     el.addEventListener("change", refresh)
   );
