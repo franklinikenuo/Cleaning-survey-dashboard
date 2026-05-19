@@ -72,9 +72,9 @@
       <select id="staff" name="staff" required>
         <option value="">Select staff</option>
         <option>Hanna</option>
-        <option>Tania</option>
         <option>Hamse</option>
-        <option>Hanna, Hamse, Tania</option>
+        <option>Tania</option>
+        <option>Team Shift (Hanna, Hamse, Tania)</option>
         <option>Mohubo</option>
       </select>
 
@@ -143,7 +143,7 @@
 
       const data = {
         room: document.getElementById("room").value,
-        staff: document.getElementById("staff").value,
+        staff_name: document.getElementById("staff").value,  // FIXED FIELD NAME
         trash: document.getElementById("trash").value,
         mop: document.getElementById("mop").value,
         sanitize: document.getElementById("sanitize").value,
