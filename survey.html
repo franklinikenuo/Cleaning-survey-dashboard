@@ -6,153 +6,265 @@
   <title>Daily Cleaning Survey</title>
 
   <style>
+    :root {
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --border: #dde2e7;
+      --primary: #0b6efd;
+      --text-main: #1f2933;
+      --text-muted: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      padding: 20px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 16px;
+      color: var(--text-main);
     }
+
     .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 640px;
+      margin: 0 auto;
     }
-    label {
-      font-weight: bold;
-      margin-top: 15px;
-      display: block;
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      padding: 20px 18px 22px;
     }
-    select, input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+
+    h1 {
+      font-size: 1.25rem;
+      margin: 0 0 4px;
     }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 15px;
-      background: #0078ff;
-      color: white;
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 18px 0 6px;
+      color: var(--text-main);
+    }
+
+    .divider {
       border: none;
-      border-radius: 5px;
-      font-size: 16px;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      background: #f9fafb;
+      color: var(--text-main);
+    }
+
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(11, 110, 253, 0.08);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    button {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+
+    #status.ok {
+      color: #15803d;
+    }
+
+    #status.error {
+      color: #b91c1c;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h2>Daily Cleaning Survey</h2>
+    <div class="card">
+      <h1>Daily Cleaning Survey</h1>
+      <div class="subtitle">Complete once per room per shift.</div>
 
-    <form id="surveyForm">
+      <form id="surveyForm">
+        <!-- ROOM -->
+        <div class="field">
+          <label for="room">Room</label>
+          <select id="room" name="room" required>
+            <option value="">Select room</option>
+            <option>Andrology Lab</option>
+            <option>Recovery Room</option>
+            <option>Procedure Room</option>
+            <option>Ultrasound Room 1</option>
+            <option>Ultrasound Room 2</option>
+            <option>Ultrasound Room 3</option>
+            <option>Ultrasound Room 4</option>
+            <option>Ultrasound Room 5</option>
+            <option>Collection Room 1</option>
+            <option>Collection Room 2</option>
+            <option>Blood Lab</option>
+          </select>
+        </div>
 
-      <!-- ROOM -->
-      <label for="room">Room</label>
-      <select id="room" name="room" required>
-        <option value="">Select room</option>
-        <option>Andrology Lab</option>
-        <option>Recovery Room</option>
-        <option>Procedure Room</option>
-        <option>Ultrasound Room 1</option>
-        <option>Ultrasound Room 2</option>
-        <option>Ultrasound Room 3</option>
-        <option>Ultrasound Room 4</option>
-        <option>Ultrasound Room 5</option>
-        <option>Collection Room 1</option>
-        <option>Collection Room 2</option>
-        <option>Blood Lab</option>
-      </select>
+        <!-- STAFF -->
+        <div class="field">
+          <label for="staff">Staff name</label>
+          <select id="staff" name="staff" required>
+            <option value="">Select staff</option>
+            <option>Hanna</option>
+            <option>Hamse</option>
+            <option>Tania</option>
+            <option>Team Shift (Hanna, Hamse, Tania)</option>
+            <option>Mohubo</option>
+          </select>
+        </div>
 
-      <!-- STAFF -->
-      <label for="staff">Staff Name</label>
-      <select id="staff" name="staff" required>
-        <option value="">Select staff</option>
-        <option>Hanna</option>
-        <option>Hamse</option>
-        <option>Tania</option>
-        <option>Team Shift (Hanna, Hamse, Tania)</option>
-        <option>Mohubo</option>
-      </select>
+        <!-- SHIFT -->
+        <div class="field">
+          <label for="shift">Shift</label>
+          <select id="shift" name="shift" required>
+            <option value="">Select shift</option>
+            <option>Day</option>
+            <option>Evening</option>
+            <option>Night</option>
+          </select>
+        </div>
 
-      <!-- SHIFT -->
-      <label for="shift">Shift</label>
-      <select id="shift" name="shift" required>
-        <option value="">Select shift</option>
-        <option>Day</option>
-        <option>Evening</option>
-        <option>Night</option>
-      </select>
+        <hr class="divider" />
 
-      <hr style="margin: 25px 0;">
+        <div class="section-title">Tasks completed</div>
 
-      <h3>Tasks Completed</h3>
+        <div class="field">
+          <label for="trash">Trash</label>
+          <select id="trash" required>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
+          </select>
+        </div>
 
-      <!-- TASKS -->
-      <label>Trash</label>
-      <select id="trash" required>
-        <option value="">Y / N / NA</option>
-        <option>Y</option>
-        <option>N</option>
-        <option>NA</option>
-      </select>
+        <div class="field">
+          <label for="mop">Mop</label>
+          <select id="mop" required>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
+          </select>
+        </div>
 
-      <label>Mop</label>
-      <select id="mop" required>
-        <option value="">Y / N / NA</option>
-        <option>Y</option>
-        <option>N</option>
-        <option>NA</option>
-      </select>
+        <div class="field">
+          <label for="sanitize">Sanitize</label>
+          <select id="sanitize" required>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
+          </select>
+        </div>
 
-      <label>Sanitize</label>
-      <select id="sanitize" required>
-        <option value="">Y / N / NA</option>
-        <option>Y</option>
-        <option>N</option>
-        <option>NA</option>
-      </select>
+        <div class="field">
+          <label for="sweep">Sweep</label>
+          <select id="sweep" required>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
+          </select>
+        </div>
 
-      <label>Sweep</label>
-      <select id="sweep" required>
-        <option value="">Y / N / NA</option>
-        <option>Y</option>
-        <option>N</option>
-        <option>NA</option>
-      </select>
+        <div class="field">
+          <label for="linen">Linen change</label>
+          <select id="linen" required>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
+          </select>
+        </div>
 
-      <label>Linen Change</label>
-      <select id="linen" required>
-        <option value="">Y / N / NA</option>
-        <option>Y</option>
-        <option>N</option>
-        <option>NA</option>
-      </select>
+        <div class="field">
+          <label for="vacuum">Vacuum</label>
+          <select id="vacuum" required>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
+          </select>
+        </div>
 
-      <label>Vacuum</label>
-      <select id="vacuum" required>
-        <option value="">Y / N / NA</option>
-        <option>Y</option>
-        <option>N</option>
-        <option>NA</option>
-      </select>
+        <!-- NOTES -->
+        <div class="field">
+          <label for="notes">Notes (optional)</label>
+          <textarea id="notes" rows="3" placeholder="Enter any comments or exceptions..."></textarea>
+        </div>
 
-      <!-- NOTES -->
-      <label for="notes">Notes (optional)</label>
-      <textarea id="notes" rows="3" placeholder="Enter notes..."></textarea>
-
-      <button type="submit">Submit</button>
-    </form>
-
-    <p id="status" style="margin-top:20px; font-weight:bold;"></p>
+        <button type="submit">Submit survey</button>
+        <p id="status"></p>
+      </form>
+    </div>
   </div>
 
   <script>
     document.getElementById("surveyForm").addEventListener("submit", async function (e) {
       e.preventDefault();
+
+      const statusEl = document.getElementById("status");
+      statusEl.textContent = "";
+      statusEl.className = "";
 
       const data = {
         room: document.getElementById("room").value,
@@ -169,14 +281,25 @@
         notes: document.getElementById("notes").value
       };
 
-      const response = await fetch("https://cleaning-survey-api.onrender.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+      try {
+        const response = await fetch("https://cleaning-survey-api.onrender.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
 
-      document.getElementById("status").innerText =
-        response.ok ? "Submitted successfully!" : "Submission failed.";
+        if (response.ok) {
+          statusEl.textContent = "Submitted successfully.";
+          statusEl.className = "ok";
+          document.getElementById("surveyForm").reset();
+        } else {
+          statusEl.textContent = "Submission failed.";
+          statusEl.className = "error";
+        }
+      } catch (err) {
+        statusEl.textContent = "Network error. Please try again.";
+        statusEl.className = "error";
+      }
     });
   </script>
 </body>
