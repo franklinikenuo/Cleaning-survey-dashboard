@@ -152,7 +152,7 @@
         vacuum: document.getElementById("vacuum").value
       };
 
-      const response = await fetch("https://cleaning-survey-api.onrender.com/survey", {
+      const response = await fetch("https://cleaning-survey-api.onrender.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
