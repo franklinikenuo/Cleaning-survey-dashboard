@@ -15,12 +15,8 @@
       --text-muted: #6b7280;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, sans-serif;
       background: var(--bg);
       margin: 0;
       padding: 16px;
@@ -36,13 +32,13 @@
       background: var(--card-bg);
       border-radius: 12px;
       border: 1px solid var(--border);
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-      padding: 20px 18px 22px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
 
     h1 {
       font-size: 1.25rem;
-      margin: 0 0 4px;
+      margin-bottom: 4px;
     }
 
     .subtitle {
@@ -51,70 +47,40 @@
       margin-bottom: 16px;
     }
 
-    .section-title {
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 0.9rem;
       font-weight: 600;
-      margin: 18px 0 6px;
-      color: var(--text-main);
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 16px 0;
-    }
-
-    label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
       margin-bottom: 4px;
-      color: var(--text-main);
     }
 
-    .field {
-      margin-bottom: 12px;
+    .icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.75;
     }
 
-    select,
-    textarea {
+    select, textarea {
       width: 100%;
       padding: 9px 10px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      font-size: 0.9rem;
       background: #f9fafb;
-      color: var(--text-main);
-    }
-
-    select:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: #ffffff;
-      box-shadow: 0 0 0 1px rgba(11, 110, 253, 0.08);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 70px;
+      font-size: 0.9rem;
     }
 
     button {
-      margin-top: 14px;
+      margin-top: 16px;
       width: 100%;
       padding: 12px;
       background: var(--primary);
-      color: #ffffff;
+      color: white;
       border: none;
       border-radius: 999px;
       font-size: 0.95rem;
       font-weight: 600;
-      cursor: pointer;
-    }
-
-    button:active {
-      transform: translateY(1px);
     }
 
     #status {
@@ -122,13 +88,8 @@
       font-size: 0.85rem;
     }
 
-    #status.ok {
-      color: #15803d;
-    }
-
-    #status.error {
-      color: #b91c1c;
-    }
+    #status.ok { color: #15803d; }
+    #status.error { color: #b91c1c; }
   </style>
 </head>
 
@@ -139,120 +100,84 @@
       <div class="subtitle">Complete once per room per shift.</div>
 
       <form id="surveyForm">
+
         <!-- ROOM -->
-        <div class="field">
-          <label for="room">Room</label>
-          <select id="room" name="room" required>
-            <option value="">Select room</option>
-            <option>Andrology Lab</option>
-            <option>Recovery Room</option>
-            <option>Procedure Room</option>
-            <option>Ultrasound Room 1</option>
-            <option>Ultrasound Room 2</option>
-            <option>Ultrasound Room 3</option>
-            <option>Ultrasound Room 4</option>
-            <option>Ultrasound Room 5</option>
-            <option>Collection Room 1</option>
-            <option>Collection Room 2</option>
-            <option>Blood Lab</option>
-          </select>
-        </div>
+        <label>Room</label>
+        <select id="room" required>
+          <option value="">Select room</option>
+          <option>Andrology Lab</option>
+          <option>Recovery Room</option>
+          <option>Procedure Room</option>
+          <option>Ultrasound Room 1</option>
+          <option>Ultrasound Room 2</option>
+          <option>Ultrasound Room 3</option>
+          <option>Ultrasound Room 4</option>
+          <option>Ultrasound Room 5</option>
+          <option>Collection Room 1</option>
+          <option>Collection Room 2</option>
+          <option>Blood Lab</option>
+        </select>
 
         <!-- STAFF -->
-        <div class="field">
-          <label for="staff">Staff name</label>
-          <select id="staff" name="staff" required>
-            <option value="">Select staff</option>
-            <option>Hanna</option>
-            <option>Hamse</option>
-            <option>Tania</option>
-            <option>Team Shift (Hanna, Hamse, Tania)</option>
-            <option>Mohubo</option>
-          </select>
-        </div>
+        <label>Staff</label>
+        <select id="staff" required>
+          <option value="">Select staff</option>
+          <option>Hanna</option>
+          <option>Hamse</option>
+          <option>Tania</option>
+          <option>Team Shift (Hanna, Hamse, Tania)</option>
+          <option>Mohubo</option>
+        </select>
 
         <!-- SHIFT -->
-        <div class="field">
-          <label for="shift">Shift</label>
-          <select id="shift" name="shift" required>
-            <option value="">Select shift</option>
-            <option>Day</option>
-            <option>Evening</option>
-            <option>Night</option>
-          </select>
-        </div>
+        <label>Shift</label>
+        <select id="shift" required>
+          <option value="">Select shift</option>
+          <option>Day</option>
+          <option>Evening</option>
+          <option>Night</option>
+        </select>
 
-        <hr class="divider" />
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 18px 0;">
 
-        <div class="section-title">Tasks completed</div>
+        <h3 style="margin-bottom: 10px;">Tasks Completed</h3>
 
-        <div class="field">
-          <label for="trash">Trash</label>
-          <select id="trash" required>
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
-          </select>
-        </div>
+        <!-- TASKS WITH ICONS -->
+        <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
+        <select id="trash" required>
+          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+        </select>
 
-        <div class="field">
-          <label for="mop">Mop</label>
-          <select id="mop" required>
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
-          </select>
-        </div>
+        <label><img class="icon" src="https://img.icons8.com/ios/50/mop.png"> Mop</label>
+        <select id="mop" required>
+          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+        </select>
 
-        <div class="field">
-          <label for="sanitize">Sanitize</label>
-          <select id="sanitize" required>
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
-          </select>
-        </div>
+        <label><img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png"> Sanitize</label>
+        <select id="sanitize" required>
+          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+        </select>
 
-        <div class="field">
-          <label for="sweep">Sweep</label>
-          <select id="sweep" required>
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
-          </select>
-        </div>
+        <label><img class="icon" src="https://img.icons8.com/ios/50/broom.png"> Sweep</label>
+        <select id="sweep" required>
+          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+        </select>
 
-        <div class="field">
-          <label for="linen">Linen change</label>
-          <select id="linen" required>
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
-          </select>
-        </div>
+        <label><img class="icon" src="https://img.icons8.com/ios/50/towel.png"> Linen Change</label>
+        <select id="linen" required>
+          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+        </select>
 
-        <div class="field">
-          <label for="vacuum">Vacuum</label>
-          <select id="vacuum" required>
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
-          </select>
-        </div>
+        <label><img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png"> Vacuum</label>
+        <select id="vacuum" required>
+          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+        </select>
 
         <!-- NOTES -->
-        <div class="field">
-          <label for="notes">Notes (optional)</label>
-          <textarea id="notes" rows="3" placeholder="Enter any comments or exceptions..."></textarea>
-        </div>
+        <label>Notes (optional)</label>
+        <textarea id="notes" placeholder="Enter any comments..."></textarea>
 
-        <button type="submit">Submit survey</button>
+        <button type="submit">Submit Survey</button>
         <p id="status"></p>
       </form>
     </div>
@@ -267,18 +192,18 @@
       statusEl.className = "";
 
       const data = {
-        room: document.getElementById("room").value,
-        staff_name: document.getElementById("staff").value,
-        shift: document.getElementById("shift").value,
+        room: room.value,
+        staff_name: staff.value,
+        shift: shift.value,
         tasks_completed: {
-          trash: document.getElementById("trash").value,
-          mop: document.getElementById("mop").value,
-          sanitize: document.getElementById("sanitize").value,
-          sweep: document.getElementById("sweep").value,
-          linen: document.getElementById("linen").value,
-          vacuum: document.getElementById("vacuum").value
+          trash: trash.value,
+          mop: mop.value,
+          sanitize: sanitize.value,
+          sweep: sweep.value,
+          linen: linen.value,
+          vacuum: vacuum.value
         },
-        notes: document.getElementById("notes").value
+        notes: notes.value
       };
 
       try {
@@ -291,13 +216,13 @@
         if (response.ok) {
           statusEl.textContent = "Submitted successfully.";
           statusEl.className = "ok";
-          document.getElementById("surveyForm").reset();
+          surveyForm.reset();
         } else {
           statusEl.textContent = "Submission failed.";
           statusEl.className = "error";
         }
-      } catch (err) {
-        statusEl.textContent = "Network error. Please try again.";
+      } catch {
+        statusEl.textContent = "Network error.";
         statusEl.className = "error";
       }
     });
