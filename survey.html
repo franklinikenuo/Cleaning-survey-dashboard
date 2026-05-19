@@ -18,6 +18,8 @@
       --na: #e5e7eb;
     }
 
+    * { box-sizing: border-box; }
+
     body {
       font-family: system-ui, sans-serif;
       background: var(--bg);
@@ -75,18 +77,32 @@
       transition: background 0.2s ease;
     }
 
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(11, 110, 253, 0.08);
+    }
+
     .task-row {
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 10px;
       transition: background 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
     }
 
     .checkmark {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      width: 22px;
       opacity: 0;
       transform: scale(0.6);
       transition: opacity 0.2s ease, transform 0.2s ease;
-      margin-left: auto;
     }
 
     .task-row.checked .checkmark {
@@ -104,9 +120,11 @@
       border-radius: 999px;
       font-size: 0.95rem;
       font-weight: 600;
+      cursor: pointer;
     }
 
-    /* SUCCESS SCREEN */
+    button:active { transform: translateY(1px); }
+
     #successScreen {
       display: none;
       text-align: center;
@@ -134,7 +152,7 @@
 
     <!-- SUCCESS SCREEN -->
     <div id="successScreen">
-      <img src="https://img.icons8.com/color/96/checked--v1.png">
+      <img src="https://img.icons8.com/color/96/checked--v1.png" alt="Success">
       <h2>Submission Complete</h2>
       <p>Your cleaning record has been saved.</p>
     </div>
@@ -147,7 +165,7 @@
       <form id="surveyForm">
 
         <!-- ROOM -->
-        <label>Room</label>
+        <label for="room">Room</label>
         <select id="room" required>
           <option value="">Select room</option>
           <option>Andrology Lab</option>
@@ -164,7 +182,7 @@
         </select>
 
         <!-- STAFF -->
-        <label>Staff</label>
+        <label for="staff">Staff</label>
         <select id="staff" required>
           <option value="">Select staff</option>
           <option>Hanna</option>
@@ -175,7 +193,7 @@
         </select>
 
         <!-- SHIFT -->
-        <label>Shift</label>
+        <label for="shift">Shift</label>
         <select id="shift" required>
           <option value="">Select shift</option>
           <option>Day</option>
@@ -187,57 +205,93 @@
 
         <h3 style="margin-bottom: 10px;">Tasks Completed</h3>
 
-        <!-- TASK ROWS WITH COLOR + CHECKMARK -->
+        <!-- TASK ROWS -->
         <div class="task-row" id="row-trash">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
+          <label for="trash">
+            <img class="icon" src="https://img.icons8.com/ios/50/trash.png" alt="">
+            Trash
+          </label>
           <select id="trash" onchange="updateTaskColor('trash')">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
         </div>
 
         <div class="task-row" id="row-mop">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/mop.png"> Mop</label>
+          <label for="mop">
+            <img class="icon" src="https://img.icons8.com/ios/50/mop.png" alt="">
+            Mop
+          </label>
           <select id="mop" onchange="updateTaskColor('mop')">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
         </div>
 
         <div class="task-row" id="row-sanitize">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png"> Sanitize</label>
+          <label for="sanitize">
+            <img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png" alt="">
+            Sanitize
+          </label>
           <select id="sanitize" onchange="updateTaskColor('sanitize')">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
         </div>
 
         <div class="task-row" id="row-sweep">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/broom.png"> Sweep</label>
+          <label for="sweep">
+            <img class="icon" src="https://img.icons8.com/ios/50/broom.png" alt="">
+            Sweep
+          </label>
           <select id="sweep" onchange="updateTaskColor('sweep')">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
         </div>
 
         <div class="task-row" id="row-linen">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/towel.png"> Linen Change</label>
+          <label for="linen">
+            <img class="icon" src="https://img.icons8.com/ios/50/towel.png" alt="">
+            Linen Change
+          </label>
           <select id="linen" onchange="updateTaskColor('linen')">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
         </div>
 
         <div class="task-row" id="row-vacuum">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png"> Vacuum</label>
+          <label for="vacuum">
+            <img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png" alt="">
+            Vacuum
+          </label>
           <select id="vacuum" onchange="updateTaskColor('vacuum')">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+            <option value="">Y / N / NA</option>
+            <option>Y</option>
+            <option>N</option>
+            <option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
         </div>
 
         <!-- NOTES -->
-        <label>Notes (optional)</label>
+        <label for="notes">Notes (optional)</label>
         <textarea id="notes" placeholder="Enter any comments..."></textarea>
 
         <button type="submit">Submit Survey</button>
