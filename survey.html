@@ -24,7 +24,7 @@
       margin-top: 15px;
       display: block;
     }
-    select, input {
+    select, input, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -50,7 +50,7 @@
 
     <form id="surveyForm">
 
-      <!-- ROOM DROPDOWN -->
+      <!-- ROOM -->
       <label for="room">Room</label>
       <select id="room" name="room" required>
         <option value="">Select room</option>
@@ -67,7 +67,7 @@
         <option>Blood Lab</option>
       </select>
 
-      <!-- STAFF DROPDOWN -->
+      <!-- STAFF -->
       <label for="staff">Staff Name</label>
       <select id="staff" name="staff" required>
         <option value="">Select staff</option>
@@ -78,13 +78,22 @@
         <option>Mohubo</option>
       </select>
 
+      <!-- SHIFT -->
+      <label for="shift">Shift</label>
+      <select id="shift" name="shift" required>
+        <option value="">Select shift</option>
+        <option>Day</option>
+        <option>Evening</option>
+        <option>Night</option>
+      </select>
+
       <hr style="margin: 25px 0;">
 
       <h3>Tasks Completed</h3>
 
-      <!-- TASK DROPDOWNS -->
+      <!-- TASKS -->
       <label>Trash</label>
-      <select id="trash" name="trash" required>
+      <select id="trash" required>
         <option value="">Y / N / NA</option>
         <option>Y</option>
         <option>N</option>
@@ -92,7 +101,7 @@
       </select>
 
       <label>Mop</label>
-      <select id="mop" name="mop" required>
+      <select id="mop" required>
         <option value="">Y / N / NA</option>
         <option>Y</option>
         <option>N</option>
@@ -100,7 +109,7 @@
       </select>
 
       <label>Sanitize</label>
-      <select id="sanitize" name="sanitize" required>
+      <select id="sanitize" required>
         <option value="">Y / N / NA</option>
         <option>Y</option>
         <option>N</option>
@@ -108,7 +117,7 @@
       </select>
 
       <label>Sweep</label>
-      <select id="sweep" name="sweep" required>
+      <select id="sweep" required>
         <option value="">Y / N / NA</option>
         <option>Y</option>
         <option>N</option>
@@ -116,7 +125,7 @@
       </select>
 
       <label>Linen Change</label>
-      <select id="linen" name="linen" required>
+      <select id="linen" required>
         <option value="">Y / N / NA</option>
         <option>Y</option>
         <option>N</option>
@@ -124,12 +133,16 @@
       </select>
 
       <label>Vacuum</label>
-      <select id="vacuum" name="vacuum" required>
+      <select id="vacuum" required>
         <option value="">Y / N / NA</option>
         <option>Y</option>
         <option>N</option>
         <option>NA</option>
       </select>
+
+      <!-- NOTES -->
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" rows="3" placeholder="Enter notes..."></textarea>
 
       <button type="submit">Submit</button>
     </form>
@@ -143,13 +156,17 @@
 
       const data = {
         room: document.getElementById("room").value,
-        staff_name: document.getElementById("staff").value,  // FIXED FIELD NAME
-        trash: document.getElementById("trash").value,
-        mop: document.getElementById("mop").value,
-        sanitize: document.getElementById("sanitize").value,
-        sweep: document.getElementById("sweep").value,
-        linen: document.getElementById("linen").value,
-        vacuum: document.getElementById("vacuum").value
+        staff_name: document.getElementById("staff").value,
+        shift: document.getElementById("shift").value,
+        tasks_completed: {
+          trash: document.getElementById("trash").value,
+          mop: document.getElementById("mop").value,
+          sanitize: document.getElementById("sanitize").value,
+          sweep: document.getElementById("sweep").value,
+          linen: document.getElementById("linen").value,
+          vacuum: document.getElementById("vacuum").value
+        },
+        notes: document.getElementById("notes").value
       };
 
       const response = await fetch("https://cleaning-survey-api.onrender.com/submit", {
