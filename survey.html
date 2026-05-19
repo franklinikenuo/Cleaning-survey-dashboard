@@ -13,6 +13,9 @@
       --primary: #0b6efd;
       --text-main: #1f2933;
       --text-muted: #6b7280;
+      --yes: #d1fae5;
+      --no: #fee2e2;
+      --na: #e5e7eb;
     }
 
     body {
@@ -69,6 +72,26 @@
       border: 1px solid var(--border);
       background: #f9fafb;
       font-size: 0.9rem;
+      transition: background 0.2s ease;
+    }
+
+    .task-row {
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: background 0.25s ease;
+    }
+
+    .checkmark {
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      margin-left: auto;
+    }
+
+    .task-row.checked .checkmark {
+      opacity: 1;
+      transform: scale(1);
     }
 
     button {
@@ -83,19 +106,41 @@
       font-weight: 600;
     }
 
-    #status {
-      margin-top: 10px;
-      font-size: 0.85rem;
+    /* SUCCESS SCREEN */
+    #successScreen {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
     }
 
-    #status.ok { color: #15803d; }
-    #status.error { color: #b91c1c; }
+    #successScreen img {
+      width: 80px;
+      margin-bottom: 20px;
+    }
+
+    #successScreen h2 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    #successScreen p {
+      color: var(--text-muted);
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <div class="card">
+
+    <!-- SUCCESS SCREEN -->
+    <div id="successScreen">
+      <img src="https://img.icons8.com/color/96/checked--v1.png">
+      <h2>Submission Complete</h2>
+      <p>Your cleaning record has been saved.</p>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="card" id="formCard">
       <h1>Daily Cleaning Survey</h1>
       <div class="subtitle">Complete once per room per shift.</div>
 
@@ -142,54 +187,81 @@
 
         <h3 style="margin-bottom: 10px;">Tasks Completed</h3>
 
-        <!-- TASKS WITH ICONS -->
-        <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
-        <select id="trash" required>
-          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-        </select>
+        <!-- TASK ROWS WITH COLOR + CHECKMARK -->
+        <div class="task-row" id="row-trash">
+          <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
+          <select id="trash" onchange="updateTaskColor('trash')">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+          </select>
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+        </div>
 
-        <label><img class="icon" src="https://img.icons8.com/ios/50/mop.png"> Mop</label>
-        <select id="mop" required>
-          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-        </select>
+        <div class="task-row" id="row-mop">
+          <label><img class="icon" src="https://img.icons8.com/ios/50/mop.png"> Mop</label>
+          <select id="mop" onchange="updateTaskColor('mop')">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+          </select>
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+        </div>
 
-        <label><img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png"> Sanitize</label>
-        <select id="sanitize" required>
-          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-        </select>
+        <div class="task-row" id="row-sanitize">
+          <label><img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png"> Sanitize</label>
+          <select id="sanitize" onchange="updateTaskColor('sanitize')">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+          </select>
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+        </div>
 
-        <label><img class="icon" src="https://img.icons8.com/ios/50/broom.png"> Sweep</label>
-        <select id="sweep" required>
-          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-        </select>
+        <div class="task-row" id="row-sweep">
+          <label><img class="icon" src="https://img.icons8.com/ios/50/broom.png"> Sweep</label>
+          <select id="sweep" onchange="updateTaskColor('sweep')">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+          </select>
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+        </div>
 
-        <label><img class="icon" src="https://img.icons8.com/ios/50/towel.png"> Linen Change</label>
-        <select id="linen" required>
-          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-        </select>
+        <div class="task-row" id="row-linen">
+          <label><img class="icon" src="https://img.icons8.com/ios/50/towel.png"> Linen Change</label>
+          <select id="linen" onchange="updateTaskColor('linen')">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+          </select>
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+        </div>
 
-        <label><img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png"> Vacuum</label>
-        <select id="vacuum" required>
-          <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-        </select>
+        <div class="task-row" id="row-vacuum">
+          <label><img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png"> Vacuum</label>
+          <select id="vacuum" onchange="updateTaskColor('vacuum')">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
+          </select>
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
+        </div>
 
         <!-- NOTES -->
         <label>Notes (optional)</label>
         <textarea id="notes" placeholder="Enter any comments..."></textarea>
 
         <button type="submit">Submit Survey</button>
-        <p id="status"></p>
       </form>
     </div>
   </div>
 
   <script>
+    function updateTaskColor(task) {
+      const value = document.getElementById(task).value;
+      const row = document.getElementById("row-" + task);
+
+      row.classList.remove("checked");
+      row.style.background = "";
+
+      if (value === "Y") row.style.background = "var(--yes)";
+      if (value === "N") row.style.background = "var(--no)";
+      if (value === "NA") row.style.background = "var(--na)";
+
+      if (value) row.classList.add("checked");
+    }
+
     document.getElementById("surveyForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      const statusEl = document.getElementById("status");
-      statusEl.textContent = "";
-      statusEl.className = "";
 
       const data = {
         room: room.value,
@@ -206,24 +278,15 @@
         notes: notes.value
       };
 
-      try {
-        const response = await fetch("https://cleaning-survey-api.onrender.com/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
+      const response = await fetch("https://cleaning-survey-api.onrender.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
 
-        if (response.ok) {
-          statusEl.textContent = "Submitted successfully.";
-          statusEl.className = "ok";
-          surveyForm.reset();
-        } else {
-          statusEl.textContent = "Submission failed.";
-          statusEl.className = "error";
-        }
-      } catch {
-        statusEl.textContent = "Network error.";
-        statusEl.className = "error";
+      if (response.ok) {
+        document.getElementById("formCard").style.display = "none";
+        document.getElementById("successScreen").style.display = "block";
       }
     });
   </script>
