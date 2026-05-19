@@ -18,8 +18,6 @@
       --na: #e5e7eb;
     }
 
-    * { box-sizing: border-box; }
-
     body {
       font-family: system-ui, sans-serif;
       background: var(--bg);
@@ -33,12 +31,35 @@
       margin: 0 auto;
     }
 
+    /* PROGRESS BAR */
+    #progressContainer {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
     .card {
       background: var(--card-bg);
       border-radius: 12px;
       border: 1px solid var(--border);
       padding: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
@@ -77,22 +98,14 @@
       transition: background 0.2s ease;
     }
 
-    select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: #ffffff;
-      box-shadow: 0 0 0 1px rgba(11, 110, 253, 0.08);
-    }
-
+    /* TASK ROWS WITH SLIDE-IN */
     .task-row {
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 10px;
       transition: background 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
       position: relative;
+      animation: slideIn 0.4s ease;
     }
 
     .checkmark {
@@ -123,8 +136,6 @@
       cursor: pointer;
     }
 
-    button:active { transform: translateY(1px); }
-
     #successScreen {
       display: none;
       text-align: center;
@@ -135,24 +146,20 @@
       width: 80px;
       margin-bottom: 20px;
     }
-
-    #successScreen h2 {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
-    }
-
-    #successScreen p {
-      color: var(--text-muted);
-    }
   </style>
 </head>
 
 <body>
   <div class="container">
 
+    <!-- PROGRESS BAR -->
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+
     <!-- SUCCESS SCREEN -->
     <div id="successScreen">
-      <img src="https://img.icons8.com/color/96/checked--v1.png" alt="Success">
+      <img src="https://img.icons8.com/color/96/checked--v1.png">
       <h2>Submission Complete</h2>
       <p>Your cleaning record has been saved.</p>
     </div>
@@ -165,8 +172,8 @@
       <form id="surveyForm">
 
         <!-- ROOM -->
-        <label for="room">Room</label>
-        <select id="room" required>
+        <label>Room</label>
+        <select id="room" required onchange="updateProgress()">
           <option value="">Select room</option>
           <option>Andrology Lab</option>
           <option>Recovery Room</option>
@@ -182,8 +189,8 @@
         </select>
 
         <!-- STAFF -->
-        <label for="staff">Staff</label>
-        <select id="staff" required>
+        <label>Staff</label>
+        <select id="staff" required onchange="updateProgress()">
           <option value="">Select staff</option>
           <option>Hanna</option>
           <option>Hamse</option>
@@ -193,8 +200,8 @@
         </select>
 
         <!-- SHIFT -->
-        <label for="shift">Shift</label>
-        <select id="shift" required>
+        <label>Shift</label>
+        <select id="shift" required onchange="updateProgress()">
           <option value="">Select shift</option>
           <option>Day</option>
           <option>Evening</option>
@@ -207,92 +214,56 @@
 
         <!-- TASK ROWS -->
         <div class="task-row" id="row-trash">
-          <label for="trash">
-            <img class="icon" src="https://img.icons8.com/ios/50/trash.png" alt="">
-            Trash
-          </label>
-          <select id="trash" onchange="updateTaskColor('trash')">
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
+          <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
+          <select id="trash" onchange="updateTaskColor('trash'); updateProgress()">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
         <div class="task-row" id="row-mop">
-          <label for="mop">
-            <img class="icon" src="https://img.icons8.com/ios/50/mop.png" alt="">
-            Mop
-          </label>
-          <select id="mop" onchange="updateTaskColor('mop')">
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
+          <label><img class="icon" src="https://img.icons8.com/ios/50/mop.png"> Mop</label>
+          <select id="mop" onchange="updateTaskColor('mop'); updateProgress()">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
         <div class="task-row" id="row-sanitize">
-          <label for="sanitize">
-            <img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png" alt="">
-            Sanitize
-          </label>
-          <select id="sanitize" onchange="updateTaskColor('sanitize')">
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
+          <label><img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png"> Sanitize</label>
+          <select id="sanitize" onchange="updateTaskColor('sanitize'); updateProgress()">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
         <div class="task-row" id="row-sweep">
-          <label for="sweep">
-            <img class="icon" src="https://img.icons8.com/ios/50/broom.png" alt="">
-            Sweep
-          </label>
-          <select id="sweep" onchange="updateTaskColor('sweep')">
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
+          <label><img class="icon" src="https://img.icons8.com/ios/50/broom.png"> Sweep</label>
+          <select id="sweep" onchange="updateTaskColor('sweep'); updateProgress()">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
         <div class="task-row" id="row-linen">
-          <label for="linen">
-            <img class="icon" src="https://img.icons8.com/ios/50/towel.png" alt="">
-            Linen Change
-          </label>
-          <select id="linen" onchange="updateTaskColor('linen')">
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
+          <label><img class="icon" src="https://img.icons8.com/ios/50/towel.png"> Linen Change</label>
+          <select id="linen" onchange="updateTaskColor('linen'); updateProgress()">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
         <div class="task-row" id="row-vacuum">
-          <label for="vacuum">
-            <img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png" alt="">
-            Vacuum
-          </label>
-          <select id="vacuum" onchange="updateTaskColor('vacuum')">
-            <option value="">Y / N / NA</option>
-            <option>Y</option>
-            <option>N</option>
-            <option>NA</option>
+          <label><img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png"> Vacuum</label>
+          <select id="vacuum" onchange="updateTaskColor('vacuum'); updateProgress()">
+            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
           </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png" alt="">
+          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
         <!-- NOTES -->
-        <label for="notes">Notes (optional)</label>
-        <textarea id="notes" placeholder="Enter any comments..."></textarea>
+        <label>Notes (optional)</label>
+        <textarea id="notes" placeholder="Enter any comments..." onchange="updateProgress()"></textarea>
 
         <button type="submit">Submit Survey</button>
       </form>
@@ -312,6 +283,20 @@
       if (value === "NA") row.style.background = "var(--na)";
 
       if (value) row.classList.add("checked");
+    }
+
+    function updateProgress() {
+      const fields = [
+        room.value, staff.value, shift.value,
+        trash.value, mop.value, sanitize.value,
+        sweep.value, linen.value, vacuum.value,
+        notes.value.trim()
+      ];
+
+      const filled = fields.filter(v => v !== "").length;
+      const percent = Math.round((filled / fields.length) * 100);
+
+      document.getElementById("progressBar").style.width = percent + "%";
     }
 
     document.getElementById("surveyForm").addEventListener("submit", async function (e) {
