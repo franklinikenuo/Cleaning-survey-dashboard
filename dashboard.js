@@ -24,6 +24,25 @@ let trendChart;
 let taskBreakdownChart;
 let shiftChart;
 
+/* ROOM COLOR MAP */
+const roomColors = {
+  "Andrology Lab": "#3B82F6",
+  "Procedure Room": "#0D9488",
+  "Recovery Room": "#F97316",
+  "Blood Draw Room": "#EF4444",
+  "Collection Room 1": "#22C55E",
+  "Collection Room 2": "#22C55E",
+  "Ultrasound Room 1": "#8B5CF6",
+  "Ultrasound Room 2": "#8B5CF6",
+  "Ultrasound Room 3": "#8B5CF6",
+  "Ultrasound Room 4": "#8B5CF6",
+  "Ultrasound Room 5": "#8B5CF6",
+  "Ultrasound Room 6": "#8B5CF6",
+  "Ultrasound Room 7": "#8B5CF6",
+  "Ultrasound Room 8": "#8B5CF6",
+  "Ultrasound Room 9": "#8B5CF6"
+};
+
 /* ============================================================
    FETCH DATA
    ============================================================ */
