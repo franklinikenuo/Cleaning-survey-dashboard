@@ -31,7 +31,6 @@
       margin: 0 auto;
     }
 
-    /* PROGRESS BAR */
     #progressContainer {
       width: 100%;
       height: 6px;
@@ -98,7 +97,6 @@
       transition: background 0.2s ease;
     }
 
-    /* TASK ROWS WITH SLIDE-IN */
     .task-row {
       padding: 10px;
       border-radius: 8px;
@@ -152,26 +150,22 @@
 <body>
   <div class="container">
 
-    <!-- PROGRESS BAR -->
     <div id="progressContainer">
       <div id="progressBar"></div>
     </div>
 
-    <!-- SUCCESS SCREEN -->
     <div id="successScreen">
       <img src="https://img.icons8.com/color/96/checked--v1.png">
       <h2>Submission Complete</h2>
       <p>Your cleaning record has been saved.</p>
     </div>
 
-    <!-- FORM CARD -->
     <div class="card" id="formCard">
       <h1>Daily Cleaning Survey</h1>
       <div class="subtitle">Complete once per room per shift.</div>
 
       <form id="surveyForm">
 
-        <!-- ROOM -->
         <label>Room</label>
         <select id="room" required onchange="updateProgress()">
           <option value="">Select room</option>
@@ -188,7 +182,6 @@
           <option>Blood Lab</option>
         </select>
 
-        <!-- STAFF -->
         <label>Staff</label>
         <select id="staff" required onchange="updateProgress()">
           <option value="">Select staff</option>
@@ -199,7 +192,6 @@
           <option>Mohubo</option>
         </select>
 
-        <!-- SHIFT -->
         <label>Shift</label>
         <select id="shift" required onchange="updateProgress()">
           <option value="">Select shift</option>
@@ -207,13 +199,12 @@
           <option>Afternoon</option>
           <option>Evening</option>
           <option>Night</option>
-          </select>
+        </select>
 
         <hr style="border: none; border-top: 1px solid var(--border); margin: 18px 0;">
 
         <h3 style="margin-bottom: 10px;">Tasks Completed</h3>
 
-        <!-- TASK ROWS -->
         <div class="task-row" id="row-trash">
           <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
           <select id="trash" onchange="updateTaskColor('trash'); updateProgress()">
@@ -262,7 +253,6 @@
           <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
-        <!-- NOTES -->
         <label>Notes (optional)</label>
         <textarea id="notes" placeholder="Enter any comments..." onchange="updateProgress()"></textarea>
 
@@ -305,7 +295,7 @@
 
       const data = {
         room: room.value,
-        staff_name: staff.value,
+        staff: staff.value,
         shift: shift.value,
         tasks_completed: {
           trash: trash.value,
