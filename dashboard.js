@@ -190,18 +190,22 @@ function renderCharts(filtered) {
   if (taskBreakdownChart) taskBreakdownChart.destroy();
   if (shiftChart) shiftChart.destroy();
 
-  roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
-    type: "bar",
-    data: {
-      labels: Object.keys(rooms),
-      datasets: [{
-        label: "Compliance (%)",
-        data: Object.values(rooms).map(arr => Math.round(arr.reduce((a, b) => a + b) / arr.length)),
-        backgroundColor: clinicalColors.primary,
-        borderRadius: 8
-      }]
-    }
-  });
+   roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
+  type: "bar",
+  data: {
+    labels: Object.keys(rooms),
+    datasets: [{
+      label: "Compliance (%)",
+      data: Object.values(rooms).map(arr =>
+        Math.round(arr.reduce((a, b) => a + b) / arr.length)
+      ),
+      backgroundColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
+      borderColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
+      borderWidth: 2,
+      borderRadius: 8
+    }]
+  }
+});
 
   trendChart = new Chart(document.getElementById("trendChart"), {
     type: "line",
