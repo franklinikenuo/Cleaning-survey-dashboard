@@ -29,18 +29,14 @@ const roomColors = {
   "Andrology Lab": "#3B82F6",
   "Procedure Room": "#0D9488",
   "Recovery Room": "#F97316",
-  "Blood Draw Room": "#EF4444",
+  "Blood Lab": "#EF4444",
   "Collection Room 1": "#22C55E",
   "Collection Room 2": "#22C55E",
   "Ultrasound Room 1": "#8B5CF6",
   "Ultrasound Room 2": "#8B5CF6",
   "Ultrasound Room 3": "#8B5CF6",
   "Ultrasound Room 4": "#8B5CF6",
-  "Ultrasound Room 5": "#8B5CF6",
-  "Ultrasound Room 6": "#8B5CF6",
-  "Ultrasound Room 7": "#8B5CF6",
-  "Ultrasound Room 8": "#8B5CF6",
-  "Ultrasound Room 9": "#8B5CF6"
+  "Ultrasound Room 5": "#8B5CF6"
 };
 
 /* ============================================================
@@ -66,7 +62,7 @@ async function fetchData() {
 function applyFilters(data) {
   return data.filter(entry => {
     if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
-    if (filterStaff.value !== "all" && entry.staff_name !== filterStaff.value) return false;
+    if (filterStaff.value !== "all" && entry.staff !== filterStaff.value) return false;
     if (filterShift.value !== "all" && entry.shift !== filterShift.value) return false;
     if (filterDate.value && !entry.timestamp.startsWith(filterDate.value)) return false;
     return true;
@@ -82,7 +78,7 @@ function updateSummary(filtered) {
 
   if (filtered.length === 0) {
     overallComplianceEl.textContent = "0%";
-    avgTasksCompletedEl.textContent = "0 / 8";
+    avgTasksCompletedEl.textContent = "0 / 6";
     topShiftEl.textContent = "–";
     return;
   }
@@ -93,7 +89,7 @@ function updateSummary(filtered) {
 
   filtered.forEach(entry => {
     const tasks = Object.values(entry.tasks_completed);
-    const completed = tasks.filter(t => t).length;
+    const completed = tasks.filter(t => t === "Y").length;
     const compliance = (completed / tasks.length) * 100;
 
     totalCompliance += compliance;
@@ -103,7 +99,7 @@ function updateSummary(filtered) {
   });
 
   overallComplianceEl.textContent = `${Math.round(totalCompliance / filtered.length)}%`;
-  avgTasksCompletedEl.textContent = `${Math.round(totalTasks / filtered.length)} / 8`;
+  avgTasksCompletedEl.textContent = `${Math.round(totalTasks / filtered.length)} / 6`;
 
   const topShift = Object.entries(shiftCount).sort((a, b) => b[1] - a[1])[0];
   topShiftEl.textContent = topShift ? topShift[0] : "–";
@@ -118,7 +114,7 @@ function renderTable(filtered) {
 
   filtered.forEach(entry => {
     const tasks = Object.values(entry.tasks_completed);
-    const completed = tasks.filter(t => t).length;
+    const completed = tasks.filter(t => t === "Y").length;
     const compliance = Math.round((completed / tasks.length) * 100);
 
     const row = document.createElement("tr");
@@ -126,7 +122,7 @@ function renderTable(filtered) {
     row.innerHTML = `
       <td>${entry.timestamp}</td>
       <td>${entry.room}</td>
-      <td>${entry.staff_name}</td>
+      <td>${entry.staff}</td>
       <td>${entry.shift}</td>
       <td>
         <span class="compliance-pill ${compliance >= 75 ? "good" : "bad"}">
@@ -167,8 +163,8 @@ function renderCharts(filtered) {
   const shifts = {};
 
   filtered.forEach(entry => {
-    const completed = Object.values(entry.tasks_completed).filter(t => t).length;
-    const compliance = Math.round((completed / 8) * 100);
+    const completed = Object.values(entry.tasks_completed).filter(t => t === "Y").length;
+    const compliance = Math.round((completed / 6) * 100);
 
     rooms[entry.room] = rooms[entry.room] || [];
     rooms[entry.room].push(compliance);
@@ -177,9 +173,9 @@ function renderCharts(filtered) {
     dates[day] = dates[day] || [];
     dates[day].push(compliance);
 
-    Object.entries(entry.tasks_completed).forEach(([task, done]) => {
+    Object.entries(entry.tasks_completed).forEach(([task, value]) => {
       tasks[task] = tasks[task] || 0;
-      if (done) tasks[task]++;
+      if (value === "Y") tasks[task]++;
     });
 
     shifts[entry.shift] = (shifts[entry.shift] || 0) + 1;
@@ -190,22 +186,22 @@ function renderCharts(filtered) {
   if (taskBreakdownChart) taskBreakdownChart.destroy();
   if (shiftChart) shiftChart.destroy();
 
-   roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
-  type: "bar",
-  data: {
-    labels: Object.keys(rooms),
-    datasets: [{
-      label: "Compliance (%)",
-      data: Object.values(rooms).map(arr =>
-        Math.round(arr.reduce((a, b) => a + b) / arr.length)
-      ),
-      backgroundColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
-      borderColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
-      borderWidth: 2,
-      borderRadius: 8
-    }]
-  }
-});
+  roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
+    type: "bar",
+    data: {
+      labels: Object.keys(rooms),
+      datasets: [{
+        label: "Compliance (%)",
+        data: Object.values(rooms).map(arr =>
+          Math.round(arr.reduce((a, b) => a + b) / arr.length)
+        ),
+        backgroundColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
+        borderColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
+        borderWidth: 2,
+        borderRadius: 8
+      }]
+    }
+  });
 
   trendChart = new Chart(document.getElementById("trendChart"), {
     type: "line",
@@ -262,7 +258,7 @@ async function init() {
     filterRoom.innerHTML += `<option value="${room}">${room}</option>`;
   });
 
-  [...new Set(data.map(d => d.staff_name))].forEach(staff => {
+  [...new Set(data.map(d => d.staff))].forEach(staff => {
     filterStaff.innerHTML += `<option value="${staff}">${staff}</option>`;
   });
 
