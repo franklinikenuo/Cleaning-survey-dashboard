@@ -19,10 +19,10 @@ const filterShift = document.getElementById("filter-shift");
 const filterDate = document.getElementById("filter-date");
 
 /* CHART INSTANCES */
-let roomComplianceChart;
-let trendChart;
-let taskBreakdownChart;
-let shiftChart;
+let roomComplianceChart = null;
+let trendChart = null;
+let taskBreakdownChart = null;
+let shiftChart = null;
 
 /* ROOM COLOR MAP */
 const roomColors = {
@@ -46,9 +46,8 @@ const roomColors = {
 async function fetchData() {
   try {
     const res = await fetch(`${API_BASE}/submissions`);
-    const data = await res.json();
-    console.log("Loaded data:", data);
-    return data;
+    if (!res.ok) throw new Error("Failed to load submissions");
+    return await res.json();
   } catch (err) {
     console.error("API fetch error:", err);
     return [];
@@ -64,7 +63,12 @@ function applyFilters(data) {
     if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
     if (filterStaff.value !== "all" && entry.staff !== filterStaff.value) return false;
     if (filterShift.value !== "all" && entry.shift !== filterShift.value) return false;
-    if (filterDate.value && !entry.timestamp.startsWith(filterDate.value)) return false;
+
+    if (filterDate.value) {
+      const entryDate = entry.timestamp.split(" ")[0];
+      if (entryDate !== filterDate.value) return false;
+    }
+
     return true;
   });
 }
@@ -181,10 +185,10 @@ function renderCharts(filtered) {
     shifts[entry.shift] = (shifts[entry.shift] || 0) + 1;
   });
 
-  if (roomComplianceChart) roomComplianceChart.destroy();
-  if (trendChart) trendChart.destroy();
-  if (taskBreakdownChart) taskBreakdownChart.destroy();
-  if (shiftChart) shiftChart.destroy();
+  /* Destroy old charts before re-rendering */
+  [roomComplianceChart, trendChart, taskBreakdownChart, shiftChart].forEach(chart => {
+    if (chart) chart.destroy();
+  });
 
   roomComplianceChart = new Chart(document.getElementById("roomComplianceChart"), {
     type: "bar",
@@ -254,6 +258,7 @@ function renderCharts(filtered) {
 async function init() {
   const data = await fetchData();
 
+  /* Populate filters */
   [...new Set(data.map(d => d.room))].forEach(room => {
     filterRoom.innerHTML += `<option value="${room}">${room}</option>`;
   });
