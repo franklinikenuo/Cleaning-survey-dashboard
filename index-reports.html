@@ -2,13 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Cleaning Reports Dashboard</h1>
+
+    <!-- NAVIGATION (matches dashboard + survey) -->
+    <nav class="navbar">
+        <h2>Reports Dashboard</h2>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="survey.html">Daily Survey</a>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <h1>Cleaning Reports</h1>
         <p>Select a report to download or trigger.</p>
 
         <div class="report-grid">
@@ -19,7 +30,7 @@
         </div>
 
         <p id="status"></p>
-    </div>
+    </main>
 
 <script>
 function downloadReport(type) {
@@ -32,16 +43,17 @@ function downloadReport(type) {
 
     const url = `https://cleaning-survey-api.onrender.com${endpoints[type]}`;
 
-    document.getElementById("status").innerText = `Running ${type} report...`;
+    const status = document.getElementById("status");
+    status.innerText = `Running ${type} report...`;
 
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            document.getElementById("status").innerText = 
+            status.innerText =
                 `${type.charAt(0).toUpperCase() + type.slice(1)} report sent: ${JSON.stringify(data)}`;
         })
         .catch(err => {
-            document.getElementById("status").innerText = `Error: ${err}`;
+            status.innerText = `Error: ${err}`;
         });
 }
 </script>
