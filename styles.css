@@ -45,7 +45,7 @@ body {
 }
 
 /* ================================
-   TOP BAR
+   TOP BAR (Dashboard header)
    ================================ */
 
 .top-bar {
@@ -74,6 +74,70 @@ body {
   opacity: 0.9;
 }
 
+.top-bar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-nav-links {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.top-nav-links a {
+  color: #e3edff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(227, 237, 255, 0.12);
+}
+
+.top-nav-links a:hover {
+  background: rgba(227, 237, 255, 0.25);
+}
+
+/* ================================
+   NAVBAR (Survey + Reports pages)
+   ================================ */
+
+.navbar {
+  background: #0f3d91;
+  color: #ffffff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+}
+
+.navbar h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 14px;
+}
+
+.nav-links a {
+  color: #e3edff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(227, 237, 255, 0.12);
+}
+
+.nav-links a:hover {
+  background: rgba(227, 237, 255, 0.25);
+}
+
 /* ================================
    LAYOUT
    ================================ */
@@ -85,6 +149,18 @@ body {
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+
+/* Generic main container (Reports, etc.) */
+.main-container {
+  max-width: 900px;
+  margin: 30px auto 50px;
+  padding: 0 20px;
+  background: transparent;
+}
+
+.main-container h1 {
+  margin-top: 0;
 }
 
 /* ================================
@@ -297,6 +373,41 @@ tbody tr:nth-child(even) {
 }
 
 /* ================================
+   REPORTS DASHBOARD
+   ================================ */
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.report-grid button {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 61, 145, 0.25);
+  transition: 0.15s ease;
+}
+
+.report-grid button:hover {
+  background: #0c2f70;
+}
+
+#status {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ================================
    FOOTER
    ================================ */
 
@@ -317,4 +428,18 @@ tbody tr:nth-child(even) {
     align-items: flex-start;
     gap: 10px;
   }
-}
+
+  .top-nav-links {
+    flex-wrap: wrap;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+  }
+   }
