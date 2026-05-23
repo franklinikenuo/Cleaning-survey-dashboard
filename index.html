@@ -13,11 +13,17 @@
 </head>
 
 <body>
-  <!-- HEADER -->
+  <!-- TOP NAV / HEADER -->
   <header class="top-bar">
-    <div>
-      <h1>Cleaning Compliance Dashboard</h1>
-      <p>Daily room cleaning performance overview</p>
+    <div class="top-bar-left">
+      <div>
+        <h1>Cleaning Compliance Dashboard</h1>
+        <p>Daily room cleaning performance overview</p>
+      </div>
+      <nav class="top-nav-links">
+        <a href="survey.html">Daily Survey</a>
+        <a href="index-reports.html">Reports Dashboard</a>
+      </nav>
     </div>
     <button id="btn-export-dashboard-pdf" class="btn primary">
       Download Dashboard PDF
@@ -71,11 +77,11 @@
         <div class="filter-group">
           <label for="filter-shift">Shift</label>
           <select id="filter-shift">
-          <option value="all">All Shifts</option>
-<option value="Morning">Morning</option>
-<option value="Afternoon">Afternoon</option>
-<option value="Evening">Evening</option>
-<option value="Night">Night</option>
+            <option value="all">All Shifts</option>
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+            <option value="Evening">Evening</option>
+            <option value="Night">Night</option>
           </select>
         </div>
 
