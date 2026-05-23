@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
 
+<body>
+    <div class="container">
+        <h1>Cleaning Reports Dashboard</h1>
+        <p>Select a report to download or trigger.</p>
+
+        <div class="report-grid">
+            <button onclick="downloadReport('weekly')">Download Weekly Report</button>
+            <button onclick="downloadReport('monthly')">Download Monthly Report</button>
+            <button onclick="downloadReport('quarterly')">Download Quarterly Report</button>
+            <button onclick="downloadReport('yearly')">Download Yearly Report</button>
+        </div>
+
+        <p id="status"></p>
+    </div>
+
+<script>
+function downloadReport(type) {
+    const endpoints = {
+        weekly: "/send-weekly-report",
+        monthly: "/send-monthly-report",
+        quarterly: "/send-quarterly-report",
+        yearly: "/send-yearly-report"
+    };
+
+    const url = `https://cleaning-survey-api.onrender.com${endpoints[type]}`;
+
+    document.getElementById("status").innerText = `Running ${type} report...`;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("status").innerText = 
+                `${type.charAt(0).toUpperCase() + type.slice(1)} report sent: ${JSON.stringify(data)}`;
+        })
+        .catch(err => {
+            document.getElementById("status").innerText = `Error: ${err}`;
+        });
+}
+</script>
+
+</body>
+</html>
