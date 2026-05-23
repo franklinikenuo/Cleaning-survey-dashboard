@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Cleaning Survey</title>
 
+  <!-- Shared global styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Page‑specific styles -->
   <style>
     :root {
       --bg: #f4f6f8;
@@ -19,14 +23,11 @@
     }
 
     body {
-      font-family: system-ui, sans-serif;
       background: var(--bg);
-      margin: 0;
       padding: 16px;
-      color: var(--text-main);
     }
 
-    .container {
+    .survey-container {
       max-width: 640px;
       margin: 0 auto;
     }
@@ -148,7 +149,17 @@
 </head>
 
 <body>
-  <div class="container">
+
+  <!-- NAVIGATION (added for consistency with dashboard) -->
+  <nav class="navbar">
+    <h2>Daily Cleaning Survey</h2>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="index-reports.html">Reports</a>
+    </div>
+  </nav>
+
+  <div class="survey-container">
 
     <div id="progressContainer">
       <div id="progressBar"></div>
@@ -166,6 +177,7 @@
 
       <form id="surveyForm">
 
+        <!-- ROOM -->
         <label>Room</label>
         <select id="room" required onchange="updateProgress()">
           <option value="">Select room</option>
@@ -182,6 +194,7 @@
           <option>Blood Lab</option>
         </select>
 
+        <!-- STAFF -->
         <label>Staff</label>
         <select id="staff" required onchange="updateProgress()">
           <option value="">Select staff</option>
@@ -192,6 +205,7 @@
           <option>Mohubo</option>
         </select>
 
+        <!-- SHIFT -->
         <label>Shift</label>
         <select id="shift" required onchange="updateProgress()">
           <option value="">Select shift</option>
@@ -205,6 +219,7 @@
 
         <h3 style="margin-bottom: 10px;">Tasks Completed</h3>
 
+        <!-- TASK ROWS -->
         <div class="task-row" id="row-trash">
           <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
           <select id="trash" onchange="updateTaskColor('trash'); updateProgress()">
@@ -253,6 +268,7 @@
           <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
         </div>
 
+        <!-- NOTES -->
         <label>Notes (optional)</label>
         <textarea id="notes" placeholder="Enter any comments..." onchange="updateProgress()"></textarea>
 
@@ -320,5 +336,6 @@
       }
     });
   </script>
+
 </body>
 </html>
