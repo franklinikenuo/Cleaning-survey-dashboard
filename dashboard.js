@@ -2,7 +2,7 @@
    CLEANING COMPLIANCE DASHBOARD (POSTGRESQL VERSION)
    ============================================================ */
 
-const API_BASE = "https://cleaning-survey-api.onrender.com";
+const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
 /* DOM ELEMENTS */
 const totalSubmissionsEl = document.getElementById("totalSubmissions");
