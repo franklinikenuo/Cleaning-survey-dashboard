@@ -252,11 +252,36 @@ function renderCharts(filtered) {
 }
 
 /* ============================================================
+   EXPORT TO EXCEL
+   ============================================================ */
+
+function exportToExcel(data) {
+  const rows = data.map(entry => ({
+    Timestamp: entry.timestamp,
+    Room: entry.room,
+    Staff: entry.staff,
+    Shift: entry.shift,
+    Compliance:
+      Math.round(
+        Object.values(entry.tasks_completed).filter(t => t === "Y").length /
+        Object.values(entry.tasks_completed).length * 100
+      ) + "%",
+    Notes: entry.notes || ""
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
+
+  XLSX.writeFile(workbook, "cleaning_dashboard.xlsx");
+}
+
+/* ============================================================
    MAIN INIT
    ============================================================ */
 
 async function init() {
-  const data = await fetchData();
+  let data = await fetchData();
 
   /* Populate filters */
   [...new Set(data.map(d => d.room))].forEach(room => {
@@ -276,10 +301,12 @@ async function init() {
 
   refresh();
 
+  /* Filter listeners */
   [filterRoom, filterStaff, filterShift, filterDate].forEach(el =>
     el.addEventListener("change", refresh)
   );
 
+  /* Clear filters */
   document.getElementById("btn-clear-filters").addEventListener("click", () => {
     filterRoom.value = "all";
     filterStaff.value = "all";
@@ -287,6 +314,18 @@ async function init() {
     filterDate.value = "";
     refresh();
   });
+
+  /* Excel Export */
+  document.getElementById("btn-export-excel").addEventListener("click", () => {
+    const filtered = applyFilters(data);
+    exportToExcel(filtered);
+  });
+
+  /* AUTO‑REFRESH every 60 seconds */
+  setInterval(async () => {
+    data = await fetchData();
+    refresh();
+  }, 60000);
 }
 
 init();
