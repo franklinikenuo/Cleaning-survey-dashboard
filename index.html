@@ -5,19 +5,22 @@
   <title>Cleaning Compliance Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Excel Export Library -->
+  <!-- Excel Export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <!-- PDF Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
 </head>
 
 <body>
 
-  <!-- TOP NAV / HEADER -->
+  <!-- HEADER -->
   <header class="top-bar">
     <div class="top-bar-left">
       <div>
@@ -31,14 +34,29 @@
       </nav>
     </div>
 
-    <div style="display:flex; gap:10px;">
-      <button id="btn-export-dashboard-pdf" class="btn primary">
-        Download Dashboard PDF
-      </button>
+    <!-- ACTION BUTTONS -->
+    <div class="top-actions">
 
-      <button id="btn-export-excel" class="btn secondary">
-        Export to Excel
-      </button>
+      <!-- Local buttons -->
+      <button id="btn-local-pdf" class="btn primary">Download PDF</button>
+      <button id="btn-export-excel" class="btn secondary">Export Excel</button>
+      <button id="btn-export-csv" class="btn secondary">Export CSV</button>
+
+      <!-- REPORTS DROPDOWN -->
+      <div class="dropdown">
+        <button class="btn dropdown-btn">Reports ▼</button>
+        <div class="dropdown-content">
+
+          <!-- EMAIL REPORT ACTIONS (SendGrid) -->
+          <button class="dropdown-item" id="email-dashboard-pdf">Email Dashboard PDF</button>
+          <button class="dropdown-item" id="email-weekly-report">Email Weekly Report</button>
+          <button class="dropdown-item" id="email-monthly-report">Email Monthly Report</button>
+          <button class="dropdown-item" id="email-quarterly-report">Email Quarterly Report</button>
+          <button class="dropdown-item" id="email-yearly-report">Email Yearly Report</button>
+
+        </div>
+      </div>
+
     </div>
   </header>
 
@@ -109,6 +127,12 @@
       </div>
     </section>
 
+    <!-- REPORT SUMMARY -->
+    <section class="card report-summary-card">
+      <h3>Report Summary</h3>
+      <div id="report-summary"></div>
+    </section>
+
     <!-- CHARTS -->
     <section class="charts-grid">
 
@@ -160,12 +184,10 @@
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
-    <p>Cleaning Compliance Dashboard · Powered by your data</p>
+    <p>Cleaning Compliance Dashboard · Local + Email Reporting Enabled</p>
   </footer>
 
-  <!-- IMPORTANT: Cache‑buster to force GitHub Pages to load new JS -->
-  <script src="dashboard.js?v=5"></script>
+  <script src="dashboard.js?v=7"></script>
 </body>
 </html>
