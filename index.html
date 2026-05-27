@@ -10,9 +10,13 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Excel Export Library -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
+
   <!-- TOP NAV / HEADER -->
   <header class="top-bar">
     <div class="top-bar-left">
@@ -20,14 +24,22 @@
         <h1>Cleaning Compliance Dashboard</h1>
         <p>Daily room cleaning performance overview</p>
       </div>
+
       <nav class="top-nav-links">
         <a href="survey.html">Daily Survey</a>
         <a href="index-reports.html">Reports Dashboard</a>
       </nav>
     </div>
-    <button id="btn-export-dashboard-pdf" class="btn primary">
-      Download Dashboard PDF
-    </button>
+
+    <div style="display:flex; gap:10px;">
+      <button id="btn-export-dashboard-pdf" class="btn primary">
+        Download Dashboard PDF
+      </button>
+
+      <button id="btn-export-excel" class="btn secondary">
+        Export to Excel
+      </button>
+    </div>
   </header>
 
   <!-- MAIN CONTENT -->
@@ -47,7 +59,7 @@
 
       <div class="card summary-card">
         <h3>Average Tasks Completed</h3>
-        <p id="avgTasksCompleted">0 / 8</p>
+        <p id="avgTasksCompleted">0 / 6</p>
       </div>
 
       <div class="card summary-card">
@@ -154,6 +166,6 @@
   </footer>
 
   <!-- IMPORTANT: Cache‑buster to force GitHub Pages to load new JS -->
-  <script src="dashboard.js?v=4"></script>
+  <script src="dashboard.js?v=5"></script>
 </body>
 </html>
