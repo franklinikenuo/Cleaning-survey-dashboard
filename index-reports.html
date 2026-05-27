@@ -41,7 +41,8 @@ function downloadReport(type) {
         yearly: "/send-yearly-report"
     };
 
-    const url = `https://cleaning-survey-api.onrender.com${endpoints[type]}`;
+    // FIXED: Updated to your new backend URL
+    const url = `https://cleaning-survey-api-v2-x6sf.onrender.com${endpoints[type]}`;
 
     const status = document.getElementById("status");
     status.innerText = `Running ${type} report...`;
