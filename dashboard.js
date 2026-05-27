@@ -1,5 +1,5 @@
 /* ============================================================
-   CLEANING COMPLIANCE DASHBOARD (POSTGRESQL VERSION)
+   CLEANING COMPLIANCE DASHBOARD (LOCAL + SENDGRID VERSION)
    ============================================================ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
@@ -23,21 +23,6 @@ let roomComplianceChart = null;
 let trendChart = null;
 let taskBreakdownChart = null;
 let shiftChart = null;
-
-/* ROOM COLOR MAP */
-const roomColors = {
-  "Andrology Lab": "#3B82F6",
-  "Procedure Room": "#0D9488",
-  "Recovery Room": "#F97316",
-  "Blood Lab": "#EF4444",
-  "Collection Room 1": "#22C55E",
-  "Collection Room 2": "#22C55E",
-  "Ultrasound Room 1": "#8B5CF6",
-  "Ultrasound Room 2": "#8B5CF6",
-  "Ultrasound Room 3": "#8B5CF6",
-  "Ultrasound Room 4": "#8B5CF6",
-  "Ultrasound Room 5": "#8B5CF6"
-};
 
 /* ============================================================
    FETCH DATA
@@ -110,6 +95,39 @@ function updateSummary(filtered) {
 }
 
 /* ============================================================
+   REPORT SUMMARY PANEL
+   ============================================================ */
+
+function generateReportSummary(filtered) {
+  if (filtered.length === 0) {
+    return "<p>No data available.</p>";
+  }
+
+  const total = filtered.length;
+
+  const avgCompliance = Math.round(
+    filtered.reduce((sum, entry) => {
+      const tasks = Object.values(entry.tasks_completed);
+      const completed = tasks.filter(t => t === "Y").length;
+      return sum + (completed / tasks.length) * 100;
+    }, 0) / total
+  );
+
+  const shifts = {};
+  filtered.forEach(e => {
+    shifts[e.shift] = (shifts[e.shift] || 0) + 1;
+  });
+
+  const topShift = Object.entries(shifts).sort((a, b) => b[1] - a[1])[0][0];
+
+  return `
+    <p><strong>Total Submissions:</strong> ${total}</p>
+    <p><strong>Average Compliance:</strong> ${avgCompliance}%</p>
+    <p><strong>Most Active Shift:</strong> ${topShift}</p>
+  `;
+}
+
+/* ============================================================
    TABLE RENDERING
    ============================================================ */
 
@@ -143,20 +161,6 @@ function renderTable(filtered) {
 }
 
 /* ============================================================
-   CHART COLORS
-   ============================================================ */
-
-const clinicalColors = {
-  primary: "#0f3d91",
-  primaryLight: "#e3edff",
-  accent: "#1abc9c",
-  danger: "#e11d48",
-  softBlue: "#d6e4ff",
-  softGreen: "#dcfce7",
-  softRed: "#fee2e2"
-};
-
-/* ============================================================
    CHART RENDERING
    ============================================================ */
 
@@ -185,7 +189,7 @@ function renderCharts(filtered) {
     shifts[entry.shift] = (shifts[entry.shift] || 0) + 1;
   });
 
-  /* Destroy old charts before re-rendering */
+  /* Destroy old charts */
   [roomComplianceChart, trendChart, taskBreakdownChart, shiftChart].forEach(chart => {
     if (chart) chart.destroy();
   });
@@ -199,8 +203,8 @@ function renderCharts(filtered) {
         data: Object.values(rooms).map(arr =>
           Math.round(arr.reduce((a, b) => a + b) / arr.length)
         ),
-        backgroundColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
-        borderColor: Object.keys(rooms).map(room => roomColors[room] || clinicalColors.primary),
+        backgroundColor: "#0f3d91",
+        borderColor: "#0f3d91",
         borderWidth: 2,
         borderRadius: 8
       }]
@@ -214,8 +218,8 @@ function renderCharts(filtered) {
       datasets: [{
         label: "Daily Compliance",
         data: Object.values(dates).map(arr => Math.round(arr.reduce((a, b) => a + b) / arr.length)),
-        borderColor: clinicalColors.primary,
-        backgroundColor: clinicalColors.primaryLight,
+        borderColor: "#0f3d91",
+        backgroundColor: "#e3edff",
         fill: true,
         tension: 0.3
       }]
@@ -229,7 +233,7 @@ function renderCharts(filtered) {
       datasets: [{
         label: "Completed",
         data: Object.values(tasks),
-        backgroundColor: clinicalColors.accent,
+        backgroundColor: "#1abc9c",
         borderRadius: 8
       }]
     }
@@ -241,91 +245,114 @@ function renderCharts(filtered) {
       labels: Object.keys(shifts),
       datasets: [{
         data: Object.values(shifts),
-        backgroundColor: [
-          clinicalColors.primary,
-          clinicalColors.accent,
-          clinicalColors.danger
-        ]
+        backgroundColor: ["#0f3d91", "#1abc9c", "#e11d48"]
       }]
     }
   });
 }
 
 /* ============================================================
-   EXPORT TO EXCEL
+   LOCAL PDF GENERATION
    ============================================================ */
 
-function exportToExcel(data) {
+document.getElementById("btn-local-pdf").addEventListener("click", async () => {
+  const element = document.querySelector(".main-layout");
+
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  const width = pdf.internal.pageSize.getWidth();
+  const height = (canvas.height * width) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 0, 0, width, height);
+  pdf.save("dashboard_report.pdf");
+});
+
+/* ============================================================
+   LOCAL CSV EXPORT
+   ============================================================ */
+
+function exportToCSV(data) {
   const rows = data.map(entry => ({
-    Timestamp: entry.timestamp,
-    Room: entry.room,
-    Staff: entry.staff,
-    Shift: entry.shift,
-    Compliance:
+    timestamp: entry.timestamp,
+    room: entry.room,
+    staff: entry.staff,
+    shift: entry.shift,
+    compliance:
       Math.round(
         Object.values(entry.tasks_completed).filter(t => t === "Y").length /
         Object.values(entry.tasks_completed).length * 100
       ) + "%",
-    Notes: entry.notes || ""
+    notes: entry.notes || ""
   }));
 
-  const worksheet = XLSX.utils.json_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
+  const header = Object.keys(rows[0]).join(",");
+  const body = rows.map(r => Object.values(r).join(",")).join("\n");
+  const csv = header + "\n" + body;
 
-  XLSX.writeFile(workbook, "cleaning_dashboard.xlsx");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "cleaning_report.csv";
+  a.click();
+  URL.revokeObjectURL(url);
 }
+
+document.getElementById("btn-export-csv").addEventListener("click", () => {
+  const filtered = applyFilters(data);
+  exportToCSV(filtered);
+});
+
+/* ============================================================
+   LOCAL EXCEL EXPORT
+   ============================================================ */
+
+document.getElementById("btn-export-excel").addEventListener("click", () => {
+  const filtered = applyFilters(data);
+  exportToExcel(filtered);
+});
+
+/* ============================================================
+   SENDGRID EMAIL REPORT ACTIONS
+   ============================================================ */
+
+async function triggerEmail(endpoint) {
+  try {
+    const res = await fetch(`${API_BASE}/${endpoint}`, { method: "POST" });
+    const json = await res.json();
+    alert(json.message || "Request sent.");
+  } catch (err) {
+    alert("Error sending email report.");
+  }
+}
+
+document.getElementById("email-dashboard-pdf").addEventListener("click", () => {
+  triggerEmail("export/pdf");
+});
+
+document.getElementById("email-weekly-report").addEventListener("click", () => {
+  triggerEmail("send-weekly-report");
+});
+
+document.getElementById("email-monthly-report").addEventListener("click", () => {
+  triggerEmail("send-monthly-report");
+});
+
+document.getElementById("email-quarterly-report").addEventListener("click", () => {
+  triggerEmail("send-quarterly-report");
+});
+
+document.getElementById("email-yearly-report").addEventListener("click", () => {
+  triggerEmail("send-yearly-report");
+});
 
 /* ============================================================
    MAIN INIT
    ============================================================ */
 
-async function init() {
-  let data = await fetchData();
+let data = [];
 
-  /* Populate filters */
-  [...new Set(data.map(d => d.room))].forEach(room => {
-    filterRoom.innerHTML += `<option value="${room}">${room}</option>`;
-  });
-
-  [...new Set(data.map(d => d.staff))].forEach(staff => {
-    filterStaff.innerHTML += `<option value="${staff}">${staff}</option>`;
-  });
-
-  function refresh() {
-    const filtered = applyFilters(data);
-    updateSummary(filtered);
-    renderTable(filtered);
-    renderCharts(filtered);
-  }
-
-  refresh();
-
-  /* Filter listeners */
-  [filterRoom, filterStaff, filterShift, filterDate].forEach(el =>
-    el.addEventListener("change", refresh)
-  );
-
-  /* Clear filters */
-  document.getElementById("btn-clear-filters").addEventListener("click", () => {
-    filterRoom.value = "all";
-    filterStaff.value = "all";
-    filterShift.value = "all";
-    filterDate.value = "";
-    refresh();
-  });
-
-  /* Excel Export */
-  document.getElementById("btn-export-excel").addEventListener("click", () => {
-    const filtered = applyFilters(data);
-    exportToExcel(filtered);
-  });
-
-  /* AUTO‑REFRESH every 60 seconds */
-  setInterval(async () => {
-    data = await fetchData();
-    refresh();
-  }, 60000);
-}
-
-init();
+async function init()
