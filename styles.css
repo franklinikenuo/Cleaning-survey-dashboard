@@ -528,3 +528,24 @@ select {
     grid-template-columns: 1fr;
   }
 }
+
+select {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+select {
+  background-position: right 18px center !important;
+  padding-right: 48px !important;
+}
+
+.filter-group,
+.survey-container {
+  overflow: visible !important;
+  position: relative;
+}
+
+select {
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
