@@ -267,8 +267,7 @@ async function sendChartsToPDF() {
 /* ------------------------------------------------------------
    SENDGRID REPORT BUTTONS
 ------------------------------------------------------------ */
-document.getElementById("email-dashboard-pdf").onclick = () =>
-  fetch(`${API_BASE}/export/pdf`);
+document.getElementById("email-dashboard-pdf").onclick = sendChartsToPDF;
 
 document.getElementById("email-weekly-report").onclick = () =>
   fetch(`${API_BASE}/send-weekly-report`);
