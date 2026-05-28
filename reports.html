@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cleaning Reports Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="top-bar">
+    <h1>Cleaning Reports Dashboard</h1>
+    <div class="top-nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="survey.html">Daily Survey</a>
+        <a href="reports.html">Reports</a>
+    </div>
+</div>
+
+<div class="page-container">
+
+    <div class="card" style="margin-top: 24px;">
+        <h3>Generate Reports</h3>
+        <p>Select a report type below. Reports will be emailed to the configured address.</p>
+
+        <button class="btn primary" id="emailDashboardPDF">Email Dashboard PDF</button>
+        <button class="btn secondary" id="emailWeeklyReport">Email Weekly Report</button>
+        <button class="btn secondary" id="emailMonthlyReport">Email Monthly Report</button>
+        <button class="btn secondary" id="emailQuarterlyReport">Email Quarterly Report</button>
+        <button class="btn secondary" id="emailYearlyReport">Email Yearly Report</button>
+    </div>
+
+    <p style="text-align:center; margin-top: 40px; color: var(--text-muted); font-size: 0.85rem;">
+        Cleaning Compliance System · Automated Reporting Enabled
+    </p>
+
+</div>
+
+<script src="reports.js"></script>
+</body>
+</html>
