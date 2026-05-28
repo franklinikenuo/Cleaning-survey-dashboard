@@ -243,6 +243,27 @@ document.getElementById("btn-export-excel").onclick = () => {
   XLSX.writeFile(wb, "submissions.xlsx");
 };
 
+async function sendChartsToPDF() {
+  const payload = {
+    room_chart: roomChart.toBase64Image(),
+    shift_chart: shiftChart.toBase64Image(),
+    tasks_chart: tasksTrendChart.toBase64Image()
+  };
+
+  const res = await fetch(`${API_BASE}/export/pdf-with-charts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dashboard_with_charts.pdf";
+  a.click();
+}
+
 /* ------------------------------------------------------------
    SENDGRID REPORT BUTTONS
 ------------------------------------------------------------ */
