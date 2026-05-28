@@ -1,63 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>Reports Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-    <!-- NAVIGATION (matches dashboard + survey) -->
-    <nav class="navbar">
-        <h2>Reports Dashboard</h2>
-        <div class="nav-links">
-            <a href="index.html">Dashboard</a>
-            <a href="survey.html">Daily Survey</a>
-        </div>
-    </nav>
+  <!-- NAVBAR (Matches your theme) -->
+  <div class="navbar">
+    <h2>Cleaning Reports Dashboard</h2>
 
-    <main class="main-container">
-        <h1>Cleaning Reports</h1>
-        <p>Select a report to download or trigger.</p>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="survey.html">Daily Survey</a>
+    </div>
+  </div>
 
-        <div class="report-grid">
-            <button onclick="downloadReport('weekly')">Download Weekly Report</button>
-            <button onclick="downloadReport('monthly')">Download Monthly Report</button>
-            <button onclick="downloadReport('quarterly')">Download Quarterly Report</button>
-            <button onclick="downloadReport('yearly')">Download Yearly Report</button>
-        </div>
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <h1>Generate Reports</h1>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">
+      Select a report type below. Reports will be emailed to the configured address.
+    </p>
 
-        <p id="status"></p>
-    </main>
+    <!-- REPORT BUTTON GRID -->
+    <div class="report-grid">
 
-<script>
-function downloadReport(type) {
-    const endpoints = {
-        weekly: "/send-weekly-report",
-        monthly: "/send-monthly-report",
-        quarterly: "/send-quarterly-report",
-        yearly: "/send-yearly-report"
+      <button id="btn-dashboard-pdf">
+        Email Dashboard PDF
+      </button>
+
+      <button id="btn-weekly">
+        Email Weekly Report
+      </button>
+
+      <button id="btn-monthly">
+        Email Monthly Report
+      </button>
+
+      <button id="btn-quarterly">
+        Email Quarterly Report
+      </button>
+
+      <button id="btn-yearly">
+        Email Yearly Report
+      </button>
+
+    </div>
+
+    <!-- STATUS MESSAGE -->
+    <p id="status"></p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    Cleaning Compliance System · Automated Reporting Enabled
+  </footer>
+
+  <!-- REPORT LOGIC -->
+  <script>
+    const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
+
+    const statusEl = document.getElementById("status");
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    document.getElementById("btn-dashboard-pdf").onclick = async () => {
+      setStatus("Sending dashboard PDF...");
+      await fetch(`${API_BASE}/export/pdf`);
+      setStatus("Dashboard PDF sent.");
     };
 
-    // FIXED: Updated to your new backend URL
-    const url = `https://cleaning-survey-api-v2-x6sf.onrender.com${endpoints[type]}`;
+    document.getElementById("btn-weekly").onclick = async () => {
+      setStatus("Sending weekly report...");
+      await fetch(`${API_BASE}/send-weekly-report`);
+      setStatus("Weekly report sent.");
+    };
 
-    const status = document.getElementById("status");
-    status.innerText = `Running ${type} report...`;
+    document.getElementById("btn-monthly").onclick = async () => {
+      setStatus("Sending monthly report...");
+      await fetch(`${API_BASE}/send-monthly-report`);
+      setStatus("Monthly report sent.");
+    };
 
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            status.innerText =
-                `${type.charAt(0).toUpperCase() + type.slice(1)} report sent: ${JSON.stringify(data)}`;
-        })
-        .catch(err => {
-            status.innerText = `Error: ${err}`;
-        });
-}
-</script>
+    document.getElementById("btn-quarterly").onclick = async () => {
+      setStatus("Sending quarterly report...");
+      await fetch(`${API_BASE}/send-quarterly-report`);
+      setStatus("Quarterly report sent.");
+    };
+
+    document.getElementById("btn-yearly").onclick = async () => {
+      setStatus("Sending yearly report...");
+      await fetch(`${API_BASE}/send-yearly-report`);
+      setStatus("Yearly report sent.");
+    };
+  </script>
 
 </body>
 </html>
