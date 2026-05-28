@@ -364,3 +364,102 @@ tbody tr:hover {
     height: 12px;
   }
 }
+/* ============================================================
+   UCDS v2.0 — PRINT OPTIMIZATION LAYER
+   Ensures clinical‑grade printed/PDF output
+   ============================================================ */
+
+@media print {
+
+  /* Remove all non‑print UI */
+  .navbar,
+  .top-bar,
+  .nav-links,
+  .top-nav-links,
+  .btn,
+  button,
+  .filters-card,
+  #progressContainer,
+  #progressBar {
+    display: none !important;
+  }
+
+  /* Clean white background for print */
+  body {
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Cards become flat and clinical */
+  .card,
+  .survey-container,
+  .chart-card,
+  .table-card,
+  .report-card {
+    box-shadow: none !important;
+    border: 1px solid #cccccc !important;
+    background: #ffffff !important;
+    page-break-inside: avoid;
+  }
+
+  /* Typography optimized for print */
+  h1, h2, h3, h4 {
+    color: #0f3d91 !important;
+    font-weight: 700 !important;
+  }
+
+  p, td, th, label, span {
+    color: #000000 !important;
+  }
+
+  /* Tables print cleanly */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    font-size: 12px !important;
+  }
+
+  th, td {
+    border: 1px solid #cccccc !important;
+    padding: 6px 8px !important;
+  }
+
+  thead {
+    background: #e6e9ef !important;
+  }
+
+  /* Charts print at full resolution */
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+  }
+
+  /* Page break rules for multi‑page reports */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Remove animations for print */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Survey task rows print cleanly */
+  .task-row {
+    border: 1px solid #cccccc !important;
+    background: #ffffff !important;
+  }
+
+  .checkmark {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+  }
+
+  /* Remove mobile-only adjustments */
+  @page {
+    margin: 20mm;
+  }
+}
