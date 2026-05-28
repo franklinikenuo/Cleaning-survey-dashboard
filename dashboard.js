@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------
-   CLEANING DASHBOARD — FULL REWRITE (v9)
+   CLEANING DASHBOARD — FULL REWRITE (v10)
    Compatible with updated backend + new rooms
 ------------------------------------------------------------ */
 
@@ -19,6 +19,13 @@ const topShiftEl = document.getElementById("top-shift");
 const avgTasksEl = document.getElementById("avg-tasks");
 
 const tableBody = document.querySelector("#submissions-table tbody");
+
+const emailDashboardPdfBtn = document.getElementById("email-dashboard-pdf");
+
+/* Disable PDF button until charts are ready */
+if (emailDashboardPdfBtn) {
+  emailDashboardPdfBtn.disabled = true;
+}
 
 /* ------------------------------------------------------------
    CHART VARIABLES
@@ -63,7 +70,6 @@ function applyFilters(data) {
 function updateSummary(data) {
   totalSubmissionsEl.textContent = data.length;
 
-  // Compliance = % of tasks marked "Y"
   let totalTasks = 0;
   let completedTasks = 0;
 
@@ -77,9 +83,8 @@ function updateSummary(data) {
   const compliance = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   overallComplianceEl.textContent = compliance + "%";
 
-  // Top shift
   const shiftCounts = {};
-  data.forEach(e => shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1);
+  data.forEach(e => (shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1));
 
   const topShift = Object.keys(shiftCounts).length
     ? Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0][0]
@@ -87,7 +92,6 @@ function updateSummary(data) {
 
   topShiftEl.textContent = topShift;
 
-  // Avg tasks
   const avgTasks = data.length
     ? (data.reduce((sum, e) => sum + Object.keys(e.tasks_completed).length, 0) / data.length).toFixed(1)
     : 0;
@@ -155,11 +159,13 @@ function renderRoomChart(data) {
     type: "bar",
     data: {
       labels: rooms,
-      datasets: [{
-        label: "Compliance (%)",
-        data: compliance,
-        backgroundColor: "#4CAF50"
-      }]
+      datasets: [
+        {
+          label: "Compliance (%)",
+          data: compliance,
+          backgroundColor: "#4CAF50"
+        }
+      ]
     },
     options: {
       responsive: true,
@@ -183,10 +189,12 @@ function renderShiftChart(data) {
     type: "pie",
     data: {
       labels: shifts,
-      datasets: [{
-        data: counts,
-        backgroundColor: ["#2196F3", "#FFC107", "#FF5722", "#9C27B0"]
-      }]
+      datasets: [
+        {
+          data: counts,
+          backgroundColor: ["#2196F3", "#FFC107", "#FF5722", "#9C27B0"]
+        }
+      ]
     }
   });
 }
@@ -210,12 +218,14 @@ function renderTasksTrendChart(data) {
     type: "line",
     data: {
       labels: dates,
-      datasets: [{
-        label: "Tasks Completed",
-        data: totals,
-        borderColor: "#3F51B5",
-        fill: false
-      }]
+      datasets: [
+        {
+          label: "Tasks Completed",
+          data: totals,
+          borderColor: "#3F51B5",
+          fill: false
+        }
+      ]
     }
   });
 }
@@ -243,7 +253,15 @@ document.getElementById("btn-export-excel").onclick = () => {
   XLSX.writeFile(wb, "submissions.xlsx");
 };
 
+/* ------------------------------------------------------------
+   PDF WITH CHARTS (BACKEND REPORTLAB)
+------------------------------------------------------------ */
 async function sendChartsToPDF() {
+  if (!roomChart || !shiftChart || !tasksTrendChart) {
+    alert("Charts are still loading. Please wait a moment and try again.");
+    return;
+  }
+
   const payload = {
     room_chart: roomChart.toBase64Image(),
     shift_chart: shiftChart.toBase64Image(),
@@ -256,6 +274,12 @@ async function sendChartsToPDF() {
     body: JSON.stringify(payload)
   });
 
+  if (!res.ok) {
+    console.error("PDF export failed", await res.text());
+    alert("Unable to generate PDF right now. Please try again later.");
+    return;
+  }
+
   const blob = await res.blob();
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -267,7 +291,9 @@ async function sendChartsToPDF() {
 /* ------------------------------------------------------------
    SENDGRID REPORT BUTTONS
 ------------------------------------------------------------ */
-document.getElementById("email-dashboard-pdf").onclick = sendChartsToPDF;
+if (emailDashboardPdfBtn) {
+  emailDashboardPdfBtn.onclick = sendChartsToPDF;
+}
 
 document.getElementById("email-weekly-report").onclick = () =>
   fetch(`${API_BASE}/send-weekly-report`);
@@ -307,11 +333,15 @@ async function init() {
     renderRoomChart(filtered);
     renderShiftChart(filtered);
     renderTasksTrendChart(filtered);
+
+    // Charts are now ready → enable PDF button
+    if (emailDashboardPdfBtn) {
+      emailDashboardPdfBtn.disabled = false;
+    }
   }
 
   refresh();
 
-  // Filter listeners
   [filterRoom, filterStaff, filterShift, filterDate].forEach(el =>
     el.addEventListener("input", refresh)
   );
