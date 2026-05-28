@@ -1,35 +1,34 @@
-/* ================================
-   CLINICAL PREMIUM THEME v2 (Merged)
-   ================================ */
+/* ============================================================
+   CLINICAL PREMIUM THEME — MEDICAL‑GRADE UI (FINAL MERGED)
+   ============================================================ */
 
 :root {
-  --bg: #e9f1ff;
+  --bg: #f5f7fa;
   --bg-soft: #f4f7ff;
   --card-bg: #ffffff;
 
   --primary: #0f3d91;
   --primary-light: #e3edff;
-  --primary-soft: #f0f5ff;
+  --primary-soft: #eef3ff;
 
   --accent: #1abc9c;
 
   --text-main: #1a2b49;
   --text-muted: #6b7a99;
 
-  --border-soft: #d6e2fb;
+  --border-soft: #d8e1ec;
 
   --success: #16a34a;
   --danger: #e11d48;
 
-  --shadow-soft: 0 6px 20px rgba(15, 23, 42, 0.08);
+  --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.05);
 
-  --radius-lg: 20px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
 }
 
 /* Reset */
-
 *,
 *::before,
 *::after {
@@ -44,380 +43,116 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ================================
-   TOP BAR (Dashboard header)
-   ================================ */
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 22px 28px;
-  background: linear-gradient(90deg, #0f3d91, #1a4fb8);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 3px solid #0c2f70;
-}
-
-.top-bar h1 {
-  margin: 0;
-  font-size: 1.7rem;
-  font-weight: 700;
-}
-
-.top-bar p {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
-  opacity: 0.9;
-}
-
-.top-bar-left {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.top-nav-links {
-  display: flex;
-  gap: 14px;
-  margin-top: 8px;
-}
-
-.top-nav-links a {
-  color: #e3edff;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(227, 237, 255, 0.12);
-}
-
-.top-nav-links a:hover {
-  background: rgba(227, 237, 255, 0.25);
-}
-
-/* ================================
-   NAVBAR (Survey + Reports pages)
-   ================================ */
-
+/* ============================================================
+   MEDICAL HEADER
+   ============================================================ */
 .navbar {
-  background: #0f3d91;
-  color: #ffffff;
+  background: var(--primary);
   padding: 14px 20px;
+  border-bottom: 2px solid #0c2f70;
+  box-shadow: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
 }
 
 .navbar h2 {
-  margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .nav-links {
   display: flex;
-  gap: 14px;
+  gap: 12px;
 }
 
 .nav-links a {
-  color: #e3edff;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 600;
+  background: rgba(255,255,255,0.12);
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(227, 237, 255, 0.12);
+  font-size: 0.82rem;
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .nav-links a:hover {
-  background: rgba(227, 237, 255, 0.25);
+  background: rgba(255,255,255,0.22);
 }
 
-/* ================================
-   LAYOUT
-   ================================ */
-
-.main-layout {
-  max-width: 1250px;
-  margin: 30px auto 50px;
-  padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.main-container {
-  max-width: 900px;
-  margin: 30px auto 50px;
-  padding: 0 20px;
-}
-
-/* ================================
-   CARDS
-   ================================ */
-
-.card {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  padding: 24px 26px;
-  border: 1px solid var(--border-soft);
-}
-
-/* Summary Cards */
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 18px;
-}
-
-.summary-card h3 {
-  margin: 0 0 8px;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-
-.summary-card p {
-  margin: 0;
-  font-size: 1.9rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-/* ================================
-   FILTERS
-   ================================ */
-
-.filters-card {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.filters-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.filter-group label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.filter-group select,
-.filter-group input {
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-soft);
-  background: var(--primary-soft);
-  font-size: 0.95rem;
-  transition: 0.2s;
-}
-
-.filter-group select:focus,
-.filter-group input:focus {
-  border-color: var(--primary);
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(15, 61, 145, 0.15);
-  outline: none;
-}
-
-.filters-actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* ================================
-   BUTTONS
-   ================================ */
-
-.btn {
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 10px 16px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.15s ease;
-  font-weight: 600;
-}
-
-.btn.primary {
-  background: var(--primary);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(15, 61, 145, 0.3);
-}
-
-.btn.primary:hover {
-  background: #0c2f70;
-}
-
-.btn.secondary {
-  background: var(--primary-light);
-  color: var(--primary);
-}
-
-.btn.secondary:hover {
-  background: #d6e4ff;
-}
-
-/* ================================
-   CHARTS
-   ================================ */
-
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 22px;
-}
-
-.chart-card h3 {
-  margin: 0 0 12px;
-  font-size: 1rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.chart-card canvas {
-  margin-top: 10px;
-}
-
-/* ================================
-   TABLE
-   ================================ */
-
-.table-card {
-  padding: 20px 0 14px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-thead {
-  background: var(--primary-soft);
-}
-
-th,
-td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-soft);
-  text-align: left;
-}
-
-tbody tr:nth-child(even) {
-  background: var(--bg-soft);
-}
-
-tbody tr:hover {
-  background: #eef3ff;
-}
-
-/* Compliance pill */
-
-.compliance-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.compliance-pill.good {
-  background: #dcfce7;
-  color: var(--success);
-}
-
-.compliance-pill.bad {
-  background: #fee2e2;
-  color: var(--danger);
-}
-
-/* ================================
-   REPORTS DASHBOARD
-   ================================ */
-
-.report-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  margin-top: 24px;
-}
-
-.report-grid button {
-  padding: 14px 18px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: var(--primary);
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(15, 61, 145, 0.25);
-  transition: 0.15s ease;
-}
-
-.report-grid button:hover {
-  background: #0c2f70;
-}
-
-#status {
-  margin-top: 18px;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-/* ================================
-   SURVEY PAGE (Merged Enhancements)
-   ================================ */
-
+/* ============================================================
+   SURVEY CONTAINER + CARD
+   ============================================================ */
 .survey-container {
   max-width: 650px;
   margin: 40px auto;
   background: var(--card-bg);
-  padding: 30px 32px;
+  padding: 22px 24px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--border-soft);
 }
 
-.survey-container h1 {
-  margin: 0 0 20px;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--primary);
+.card {
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-soft);
 }
 
+/* ============================================================
+   PROGRESS BAR — CLINICAL THIN LINE
+   ============================================================ */
+#progressContainer {
+  width: 100%;
+  height: 4px;
+  background: #e6e9ef;
+  border-radius: 2px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: var(--primary);
+  transition: width 0.25s ease-out;
+}
+
+/* ============================================================
+   SUCCESS SCREEN — MEDICAL
+   ============================================================ */
+#successScreen {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+#successScreen img {
+  width: 60px;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+#successScreen h2 {
+  font-size: 1.2rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+#successScreen p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   FORM LABELS + INPUTS — CLINICAL
+   ============================================================ */
 #survey-form label {
   display: block;
-  margin-top: 18px;
-  margin-bottom: 6px;
-  font-size: 0.95rem;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -426,11 +161,11 @@ tbody tr:hover {
 #survey-form input,
 #survey-form textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: 6px 8px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-soft);
   background: var(--primary-soft);
-  font-size: 1rem;
+  font-size: 0.82rem;
   transition: 0.2s ease;
 }
 
@@ -439,113 +174,115 @@ tbody tr:hover {
 #survey-form textarea:focus {
   border-color: var(--primary);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(15, 61, 145, 0.15);
+  box-shadow: 0 0 0 2px rgba(15, 61, 145, 0.15);
   outline: none;
 }
 
 #survey-form textarea {
   resize: vertical;
+  min-height: 70px;
 }
 
-.task-group {
-  margin-top: 14px;
+/* ============================================================
+   DROPDOWN ARROW FIX + MOBILE TAP FIX
+   ============================================================ */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%231a2b49' height='14' viewBox='0 0 24 24' width='14' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center !important;
+  background-size: 14px;
+  padding-right: 32px !important;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
+/* ============================================================
+   TASK ROW — MEDICAL‑GRADE
+   ============================================================ */
+
+/* Fade-only animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.task-row {
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-md);
+  background: #f8faff;
+  border: 1px solid var(--border-soft);
+  animation: fadeIn 0.12s ease-out;
+  position: relative;
+}
+
+/* Smaller icons */
+.icon {
+  width: 13px;
+  height: 13px;
+  opacity: 0.65;
+}
+
+/* Checkmark — smaller + softer */
+.checkmark {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 16px;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.task-row.checked .checkmark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ============================================================
+   SUBMIT BUTTON — CLINICAL BLUE
+   ============================================================ */
 #survey-form button[type="submit"] {
-  margin-top: 26px;
+  margin-top: 22px;
   width: 100%;
-  padding: 14px 18px;
+  padding: 12px 16px;
   border-radius: var(--radius-md);
   background: var(--primary);
   color: #ffffff;
-  font-size: 1.05rem;
+  font-size: 0.9rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(15, 61, 145, 0.25);
-  transition: 0.2s ease;
+  box-shadow: none;
+  transition: 0.15s ease;
 }
 
 #survey-form button[type="submit"]:hover {
   background: #0c2f70;
 }
 
-/* ================================
-   DROPDOWN ARROW FIX
-   ================================ */
-
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%231a2b49' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
-  padding-right: 40px !important;
-}
-
-/* ================================
-   FOOTER
-   ================================ */
-
-.footer {
-  text-align: center;
-  padding: 18px 0 26px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ================================
-   RESPONSIVE
-   ================================ */
-
+/* ============================================================
+   RESPONSIVE — MOBILE CLEANUP
+   ============================================================ */
 @media (max-width: 640px) {
-  .top-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .top-nav-links {
-    flex-wrap: wrap;
-  }
-
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-  }
-
   .survey-container {
     margin: 20px;
-    padding: 22px;
+    padding: 18px;
   }
 
-  .filters-row {
-    grid-template-columns: 1fr;
+  .task-row {
+    padding: 6px 8px;
   }
-}
 
-select {
-  cursor: pointer;
-  pointer-events: auto;
-}
+  #survey-form select {
+    font-size: 0.8rem;
+  }
 
-select {
-  background-position: right 18px center !important;
-  padding-right: 48px !important;
-}
-
-.filter-group,
-.survey-container {
-  overflow: visible !important;
-  position: relative;
-}
-
-select {
-  -webkit-appearance: none;
-  -webkit-tap-highlight-color: transparent;
+  .icon {
+    width: 12px;
+    height: 12px;
+  }
 }
