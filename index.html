@@ -13,7 +13,7 @@
   <!-- Excel Export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-  <!-- PDF Libraries -->
+  <!-- PDF Export -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
 </head>
@@ -34,55 +34,47 @@
       </nav>
     </div>
 
-    <!-- ACTION BUTTONS -->
     <div class="top-actions">
-
-      <!-- Local buttons -->
       <button id="btn-local-pdf" class="btn primary">Download PDF</button>
       <button id="btn-export-excel" class="btn secondary">Export Excel</button>
       <button id="btn-export-csv" class="btn secondary">Export CSV</button>
 
-      <!-- REPORTS DROPDOWN -->
       <div class="dropdown">
         <button class="btn dropdown-btn">Reports ▼</button>
         <div class="dropdown-content">
-
-          <!-- EMAIL REPORT ACTIONS (SendGrid) -->
           <button class="dropdown-item" id="email-dashboard-pdf">Email Dashboard PDF</button>
           <button class="dropdown-item" id="email-weekly-report">Email Weekly Report</button>
           <button class="dropdown-item" id="email-monthly-report">Email Monthly Report</button>
           <button class="dropdown-item" id="email-quarterly-report">Email Quarterly Report</button>
           <button class="dropdown-item" id="email-yearly-report">Email Yearly Report</button>
-
         </div>
       </div>
-
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN LAYOUT -->
   <main class="main-layout">
 
     <!-- SUMMARY CARDS -->
     <section class="summary-grid">
       <div class="card summary-card">
-        <h3>Total Submissions</h3>
-        <p id="totalSubmissions">0</p>
-      </div>
-
-      <div class="card summary-card">
         <h3>Overall Compliance</h3>
-        <p id="overallCompliance">0%</p>
+        <p id="overall-compliance" class="summary-value">--%</p>
       </div>
 
       <div class="card summary-card">
-        <h3>Average Tasks Completed</h3>
-        <p id="avgTasksCompleted">0 / 6</p>
+        <h3>Total Submissions</h3>
+        <p id="total-submissions" class="summary-value">--</p>
       </div>
 
       <div class="card summary-card">
-        <h3>Most Active Shift</h3>
-        <p id="topShift">–</p>
+        <h3>Top Shift</h3>
+        <p id="top-shift" class="summary-value">--</p>
+      </div>
+
+      <div class="card summary-card">
+        <h3>Avg Tasks Completed</h3>
+        <p id="avg-tasks" class="summary-value">--</p>
       </div>
     </section>
 
@@ -90,20 +82,42 @@
     <section class="card filters-card">
       <div class="filters-row">
 
+        <!-- ROOM FILTER -->
         <div class="filter-group">
           <label for="filter-room">Room</label>
           <select id="filter-room">
             <option value="all">All Rooms</option>
+
+            <!-- Labs -->
+            <option value="Andrology/Embryology Lab">Andrology/Embryology Lab</option>
+            <option value="Blood Lab">Blood Lab</option>
+
+            <!-- Recovery / Procedure -->
+            <option value="Recovery Room">Recovery Room</option>
+            <option value="Procedure Room">Procedure Room</option>
+
+            <!-- Ultrasound Rooms -->
+            <option value="Ultrasound Room 1">Ultrasound Room 1</option>
+            <option value="Ultrasound Room 2">Ultrasound Room 2</option>
+            <option value="Ultrasound Room 3">Ultrasound Room 3</option>
+            <option value="Ultrasound Room 4">Ultrasound Room 4</option>
+            <option value="Ultrasound Room 5">Ultrasound Room 5</option>
+            <option value="Ultrasound Room 6">Ultrasound Room 6</option>
+            <option value="Ultrasound Room 7">Ultrasound Room 7</option>
+
+            <!-- Collection Rooms -->
+            <option value="Collection Room 1">Collection Room 1</option>
+            <option value="Collection Room 2">Collection Room 2</option>
           </select>
         </div>
 
+        <!-- STAFF FILTER -->
         <div class="filter-group">
           <label for="filter-staff">Staff</label>
-          <select id="filter-staff">
-            <option value="all">All Staff</option>
-          </select>
+          <input type="text" id="filter-staff" placeholder="Enter staff name" />
         </div>
 
+        <!-- SHIFT FILTER -->
         <div class="filter-group">
           <label for="filter-shift">Shift</label>
           <select id="filter-shift">
@@ -115,6 +129,7 @@
           </select>
         </div>
 
+        <!-- DATE FILTER -->
         <div class="filter-group">
           <label for="filter-date">Date</label>
           <input type="date" id="filter-date" />
@@ -127,28 +142,11 @@
       </div>
     </section>
 
-    <!-- REPORT SUMMARY -->
-    <section class="card report-summary-card">
-      <h3>Report Summary</h3>
-      <div id="report-summary"></div>
-    </section>
-
     <!-- CHARTS -->
     <section class="charts-grid">
-
       <div class="card chart-card">
-        <h3>Room Compliance (%)</h3>
-        <canvas id="roomComplianceChart"></canvas>
-      </div>
-
-      <div class="card chart-card">
-        <h3>Daily Compliance Trend</h3>
-        <canvas id="trendChart"></canvas>
-      </div>
-
-      <div class="card chart-card">
-        <h3>Task Completion Breakdown</h3>
-        <canvas id="taskBreakdownChart"></canvas>
+        <h3>Room Compliance</h3>
+        <canvas id="roomChart"></canvas>
       </div>
 
       <div class="card chart-card">
@@ -156,38 +154,39 @@
         <canvas id="shiftChart"></canvas>
       </div>
 
+      <div class="card chart-card">
+        <h3>Tasks Completed Trend</h3>
+        <canvas id="tasksTrendChart"></canvas>
+      </div>
     </section>
 
     <!-- TABLE -->
     <section class="card table-card">
-      <div class="table-header">
-        <h3>All Submissions</h3>
-        <p id="table-count-label">0 records</p>
-      </div>
-
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Room</th>
-              <th>Staff</th>
-              <th>Shift</th>
-              <th>Compliance</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody id="survey-table-body"></tbody>
-        </table>
-      </div>
+      <h3>Submission Records</h3>
+      <table id="submissions-table">
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Shift</th>
+            <th>Staff</th>
+            <th>Tasks Completed</th>
+            <th>Notes</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
 
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer">
     <p>Cleaning Compliance Dashboard · Local + Email Reporting Enabled</p>
   </footer>
 
-  <script src="dashboard.js?v=7"></script>
+  <!-- DASHBOARD LOGIC -->
+  <script src="dashboard.js?v=9"></script>
+
 </body>
 </html>
