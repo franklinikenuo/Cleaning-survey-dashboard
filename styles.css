@@ -1,5 +1,5 @@
 /* ================================
-   CLINICAL PREMIUM THEME v2
+   CLINICAL PREMIUM THEME v2 (Merged)
    ================================ */
 
 :root {
@@ -151,16 +151,10 @@ body {
   gap: 28px;
 }
 
-/* Generic main container (Reports, etc.) */
 .main-container {
   max-width: 900px;
   margin: 30px auto 50px;
   padding: 0 20px;
-  background: transparent;
-}
-
-.main-container h1 {
-  margin-top: 0;
 }
 
 /* ================================
@@ -299,31 +293,18 @@ body {
   font-weight: 600;
 }
 
+.chart-card canvas {
+  margin-top: 10px;
+}
+
 /* ================================
    TABLE
    ================================ */
 
 .table-card {
   padding: 20px 0 14px;
-}
-
-.table-header {
-  padding: 0 26px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
-.table-header h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.table-header p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 .table-wrapper {
@@ -349,6 +330,10 @@ td {
 
 tbody tr:nth-child(even) {
   background: var(--bg-soft);
+}
+
+tbody tr:hover {
+  background: #eef3ff;
 }
 
 /* Compliance pill */
@@ -408,48 +393,7 @@ tbody tr:nth-child(even) {
 }
 
 /* ================================
-   FOOTER
-   ================================ */
-
-.footer {
-  text-align: center;
-  padding: 18px 0 26px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ================================
-   RESPONSIVE
-   ================================ */
-
-@media (max-width: 640px) {
-  .top-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .top-nav-links {
-    flex-wrap: wrap;
-  }
-
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-  }
-   }
-/* ============================================================
-   EXTENSIONS FOR SURVEY + DASHBOARD CONSISTENCY
-   (Your existing theme is preserved exactly as-is)
-   ============================================================ */
-
-/* ================================
-   SURVEY PAGE CONTAINER
+   SURVEY PAGE (Merged Enhancements)
    ================================ */
 
 .survey-container {
@@ -468,10 +412,6 @@ tbody tr:nth-child(even) {
   font-weight: 700;
   color: var(--primary);
 }
-
-/* ================================
-   SURVEY FORM ELEMENTS
-   ================================ */
 
 #survey-form label {
   display: block;
@@ -507,23 +447,9 @@ tbody tr:nth-child(even) {
   resize: vertical;
 }
 
-/* ================================
-   TASK GROUPS
-   ================================ */
-
 .task-group {
   margin-top: 14px;
 }
-
-.task-group label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-/* ================================
-   SUBMIT BUTTON
-   ================================ */
 
 #survey-form button[type="submit"] {
   margin-top: 26px;
@@ -545,37 +471,7 @@ tbody tr:nth-child(even) {
 }
 
 /* ================================
-   TABLE IMPROVEMENTS
-   ================================ */
-
-.table-card {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-table {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-thead {
-  background: var(--primary-soft);
-}
-
-tbody tr:hover {
-  background: #eef3ff;
-}
-
-/* ================================
-   CHART SPACING
-   ================================ */
-
-.chart-card canvas {
-  margin-top: 10px;
-}
-
-/* ================================
-   DROPDOWN FIXES
+   DROPDOWN ARROW FIX
    ================================ */
 
 select {
@@ -588,17 +484,44 @@ select {
 }
 
 /* ================================
-   MOBILE IMPROVEMENTS
+   FOOTER
+   ================================ */
+
+.footer {
+  text-align: center;
+  padding: 18px 0 26px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ================================
+   RESPONSIVE
    ================================ */
 
 @media (max-width: 640px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .top-nav-links {
+    flex-wrap: wrap;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+  }
+
   .survey-container {
     margin: 20px;
     padding: 22px;
-  }
-
-  #survey-form button[type="submit"] {
-    font-size: 1rem;
   }
 
   .filters-row {
