@@ -175,19 +175,55 @@
       <form id="surveyForm">
 
         <label>Room</label>
-        <select id="room" required onchange="updateProgress()">
-          <option value="">Select room</option>
-          <option>Andrology Lab</option>
-          <option>Recovery Room</option>
-          <option>Procedure Room</option>
-          <option>Ultrasound Room 1</option>
-          <option>Ultrasound Room 2</option>
-          <option>Ultrasound Room 3</option>
-          <option>Ultrasound Room 4</option>
-          <option>Ultrasound Room 5</option>
-          <option>Collection Room 1</option>
-          <option>Collection Room 2</option>
-          <option>Blood Lab</option>
+        <select <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Daily Cleaning Survey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="survey-container">
+    <h1>Daily Cleaning Survey</h1>
+
+    <form id="survey-form">
+      <!-- ROOM SELECTION -->
+      <label for="room">Room</label>
+      <select id="room" name="room" required>
+        <option value="">Select Room</option>
+
+        <!-- Labs -->
+        <option value="Andrology/Embryology Lab">Andrology/Embryology Lab</option>
+        <option value="Blood Lab">Blood Lab</option>
+
+        <!-- Recovery / Procedure -->
+        <option value="Recovery Room">Recovery Room</option>
+        <option value="Procedure Room">Procedure Room</option>
+
+        <!-- Ultrasound Rooms -->
+        <option value="Ultrasound Room 1">Ultrasound Room 1</option>
+        <option value="Ultrasound Room 2">Ultrasound Room 2</option>
+        <option value="Ultrasound Room 3">Ultrasound Room 3</option>
+        <option value="Ultrasound Room 4">Ultrasound Room 4</option>
+        <option value="Ultrasound Room 5">Ultrasound Room 5</option>
+        <option value="Ultrasound Room 6">Ultrasound Room 6</option>
+        <option value="Ultrasound Room 7">Ultrasound Room 7</option>
+
+        <!-- Collection Rooms -->
+        <option value="Collection Room 1">Collection Room 1</option>
+        <option value="Collection Room 2">Collection Room 2</option>
+      </select>
+
+      <!-- (rest of your existing form: staff, shift, tasks, notes, submit) -->
+      <!-- keep exactly as you have it now -->
+
+    </form>
+  </main>
+
+  <script src="survey.js"></script>
+</body>
+</html>
         </select>
 
         <label>Staff</label>
