@@ -3,23 +3,45 @@
 // Handles all email-based report generation actions
 // ============================================================
 
+const backend = "https://cleaning-survey-api-v2-x6sf.onrender.com";
+
 // -------------------------------
-// Helper: POST request wrapper
+// Warm-up + Retry Wrapper
+// -------------------------------
+async function getWithRetry(url, retries = 3) {
+    try {
+        return await fetch(url);
+    } catch (err) {
+        if (retries > 0) {
+            await new Promise(res => setTimeout(res, 1500));
+            return getWithRetry(url, retries - 1);
+        }
+        throw err;
+    }
+}
+
+// -------------------------------
+// Helper: Trigger Report
 // -------------------------------
 async function sendReport(endpoint) {
     try {
-        const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-        });
+        // Wake backend
+        try {
+            await fetch(backend);
+        } catch (err) {
+            console.log("Backend waking up…");
+        }
+
+        const response = await getWithRetry(`${backend}${endpoint}`);
 
         if (!response.ok) {
-            throw new Error("Server returned an error");
+            alert("Failed to send report.");
+            return;
         }
 
         const data = await response.json();
 
-        if (data.success) {
+        if (data.status === "success") {
             alert("Report sent successfully!");
         } else {
             alert("Failed to send report.");
@@ -34,22 +56,18 @@ async function sendReport(endpoint) {
 // -------------------------------
 // Button Event Listeners
 // -------------------------------
-document.getElementById("emailDashboardPDF").addEventListener("click", () => {
-    sendReport("/api/email-dashboard-pdf");
-});
-
 document.getElementById("emailWeeklyReport").addEventListener("click", () => {
-    sendReport("/api/email-weekly-report");
+    sendReport("/send-weekly-report");
 });
 
 document.getElementById("emailMonthlyReport").addEventListener("click", () => {
-    sendReport("/api/email-monthly-report");
+    sendReport("/send-monthly-report");
 });
 
 document.getElementById("emailQuarterlyReport").addEventListener("click", () => {
-    sendReport("/api/email-quarterly-report");
+    sendReport("/send-quarterly-report");
 });
 
 document.getElementById("emailYearlyReport").addEventListener("click", () => {
-    sendReport("/api/email-yearly-report");
+    sendReport("/send-yearly-report");
 });
