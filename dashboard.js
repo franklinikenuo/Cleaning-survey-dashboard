@@ -1,9 +1,35 @@
 /* ------------------------------------------------------------
-   CLEANING DASHBOARD — FULL REWRITE (v10)
-   Compatible with updated backend + new rooms
+   CLEANING DASHBOARD — FULL REWRITE (v11)
+   Stable with Render cold starts + updated backend
 ------------------------------------------------------------ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
+
+/* ------------------------------------------------------------
+   WARM-UP + RETRY WRAPPERS
+------------------------------------------------------------ */
+
+// Wake backend before heavy requests
+async function wakeBackend() {
+  try {
+    await fetch(API_BASE);
+  } catch (err) {
+    console.log("Backend waking up…");
+  }
+}
+
+// Retry wrapper for GET requests
+async function getWithRetry(url, retries = 3) {
+  try {
+    return await fetch(url);
+  } catch (err) {
+    if (retries > 0) {
+      await new Promise(res => setTimeout(res, 1500));
+      return getWithRetry(url, retries - 1);
+    }
+    throw err;
+  }
+}
 
 /* ------------------------------------------------------------
    DOM ELEMENTS
@@ -22,7 +48,7 @@ const tableBody = document.querySelector("#submissions-table tbody");
 
 const emailDashboardPdfBtn = document.getElementById("email-dashboard-pdf");
 
-/* Disable PDF button until charts are ready */
+// Disable PDF button until charts are ready
 if (emailDashboardPdfBtn) {
   emailDashboardPdfBtn.disabled = true;
 }
@@ -33,12 +59,16 @@ if (emailDashboardPdfBtn) {
 let roomChart, shiftChart, tasksTrendChart;
 
 /* ------------------------------------------------------------
-   FETCH DATA
+   FETCH DATA (with warm-up + retry)
 ------------------------------------------------------------ */
 async function fetchData() {
   try {
-    const res = await fetch(`${API_BASE}/submissions`);
+    await wakeBackend(); // wake server first
+
+    const res = await getWithRetry(`${API_BASE}/submissions`);
+
     if (!res.ok) throw new Error("Failed to load submissions");
+
     return await res.json();
   } catch (err) {
     console.error("API fetch error:", err);
@@ -200,112 +230,22 @@ function renderShiftChart(data) {
 }
 
 /* ------------------------------------------------------------
-   TASK TREND CHART
+   REPORT BUTTONS (with warm-up + retry)
 ------------------------------------------------------------ */
-function renderTasksTrendChart(data) {
-  destroyChart(tasksTrendChart);
-
-  const dates = [...new Set(data.map(e => e.timestamp.split(" ")[0]))].sort();
-
-  const totals = dates.map(date => {
-    const entries = data.filter(e => e.timestamp.startsWith(date));
-    return entries.reduce((sum, e) => sum + Object.keys(e.tasks_completed).length, 0);
-  });
-
-  const ctx = document.getElementById("tasksTrendChart").getContext("2d");
-
-  tasksTrendChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: dates,
-      datasets: [
-        {
-          label: "Tasks Completed",
-          data: totals,
-          borderColor: "#3F51B5",
-          fill: false
-        }
-      ]
-    }
-  });
-}
-
-/* ------------------------------------------------------------
-   EXPORT BUTTONS
------------------------------------------------------------- */
-document.getElementById("btn-export-csv").onclick = () => {
-  window.location.href = `${API_BASE}/export-csv`;
+document.getElementById("email-monthly-report").onclick = async () => {
+  await wakeBackend();
+  await getWithRetry(`${API_BASE}/send-monthly-report`);
 };
 
-document.getElementById("btn-local-pdf").onclick = async () => {
-  const element = document.body;
-  const canvas = await html2canvas(element);
-  const img = canvas.toDataURL("image/png");
-
-  const pdf = new jsPDF("p", "mm", "a4");
-  pdf.addImage(img, "PNG", 0, 0, 210, 297);
-  pdf.save("dashboard.pdf");
+document.getElementById("email-quarterly-report").onclick = async () => {
+  await wakeBackend();
+  await getWithRetry(`${API_BASE}/send-quarterly-report`);
 };
 
-document.getElementById("btn-export-excel").onclick = () => {
-  const table = document.getElementById("submissions-table");
-  const wb = XLSX.utils.table_to_book(table);
-  XLSX.writeFile(wb, "submissions.xlsx");
+document.getElementById("email-yearly-report").onclick = async () => {
+  await wakeBackend();
+  await getWithRetry(`${API_BASE}/send-yearly-report`);
 };
-
-/* ------------------------------------------------------------
-   PDF WITH CHARTS (BACKEND REPORTLAB)
------------------------------------------------------------- */
-async function sendChartsToPDF() {
-  if (!roomChart || !shiftChart || !tasksTrendChart) {
-    alert("Charts are still loading. Please wait a moment and try again.");
-    return;
-  }
-
-  const payload = {
-    room_chart: roomChart.toBase64Image(),
-    shift_chart: shiftChart.toBase64Image(),
-    tasks_chart: tasksTrendChart.toBase64Image()
-  };
-
-  const res = await fetch(`${API_BASE}/export/pdf-with-charts`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    console.error("PDF export failed", await res.text());
-    alert("Unable to generate PDF right now. Please try again later.");
-    return;
-  }
-
-  const blob = await res.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "dashboard_with_charts.pdf";
-  a.click();
-}
-
-/* ------------------------------------------------------------
-   SENDGRID REPORT BUTTONS
------------------------------------------------------------- */
-if (emailDashboardPdfBtn) {
-  emailDashboardPdfBtn.onclick = sendChartsToPDF;
-}
-
-document.getElementById("email-weekly-report").onclick = () =>
-  fetch(`${API_BASE}/send-weekly-report`);
-
-document.getElementById("email-monthly-report").onclick = () =>
-  fetch(`${API_BASE}/send-monthly-report`);
-
-document.getElementById("email-quarterly-report").onclick = () =>
-  fetch(`${API_BASE}/send-quarterly-report`);
-
-document.getElementById("email-yearly-report").onclick = () =>
-  fetch(`${API_BASE}/send-yearly-report`);
 
 /* ------------------------------------------------------------
    MAIN INIT
@@ -313,6 +253,8 @@ document.getElementById("email-yearly-report").onclick = () =>
 let allData = [];
 
 async function init() {
+  await wakeBackend();
+
   allData = await fetchData();
 
   // Populate room filter dynamically
@@ -334,7 +276,6 @@ async function init() {
     renderShiftChart(filtered);
     renderTasksTrendChart(filtered);
 
-    // Charts are now ready → enable PDF button
     if (emailDashboardPdfBtn) {
       emailDashboardPdfBtn.disabled = false;
     }
