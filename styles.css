@@ -1,64 +1,88 @@
 /* ============================================================
-   UNIFIED CLINICAL DESIGN SYSTEM (UCDS v2.0)
-   Survey + Dashboard + Reports
+   UCDS v3.0 — Hospital‑Grade Clinical UI
+   Applies to: Dashboard, Survey, Reports
    ============================================================ */
 
 :root {
-  /* Colors */
-  --bg: #f5f7fa;
-  --bg-soft: #f4f7ff;
+  /* Core palette — clean, clinical, neutral */
+  --bg: #f3f5f8;
+  --bg-soft: #f7f9fc;
   --card-bg: #ffffff;
 
-  --primary: #0f3d91;
-  --primary-light: #e3edff;
-  --primary-soft: #eef3ff;
+  --primary: #0b3a6f;
+  --primary-dark: #072747;
+  --primary-soft: #e7eef9;
 
-  --accent: #1abc9c;
+  --accent: #00a3a3;
 
-  --text-main: #1a2b49;
+  --text-main: #102033;
   --text-muted: #6b7a99;
+  --text-soft: #9aa6c0;
 
-  --border-soft: #d8e1ec;
+  --border-soft: #d5deea;
+  --border-strong: #b8c4d8;
 
-  --success: #16a34a;
-  --danger: #e11d48;
+  --success: #148f4c;
+  --danger: #d7263d;
+  --warning: #f59e0b;
+
+  /* Status backgrounds */
+  --yes: #e6f6ec;
+  --no: #fde8ea;
+  --na: #f3f4f6;
 
   /* Radii */
-  --radius-lg: 16px;
+  --radius-lg: 14px;
   --radius-md: 10px;
   --radius-sm: 6px;
 
   /* Shadows */
-  --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.05);
+  --shadow-soft: 0 4px 14px rgba(15, 23, 42, 0.06);
 
   /* Animation */
-  --fade-speed: 0.15s;
+  --fade-speed: 0.18s;
 }
 
-/* Reset */
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, sans-serif;
-  background: var(--bg);
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #f9fbff 0, #f3f5f8 40%, #eef1f7 100%);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
 }
 
+/* Generic containers */
+.page-container,
+.survey-container,
+.main-layout {
+  max-width: 1200px;
+  margin: 20px auto 40px;
+  padding: 0 16px;
+}
+
 /* ============================================================
-   HEADER — Shared by Survey + Dashboard + Reports
+   HEADER — Clinical App Shell
    ============================================================ */
 
 .navbar,
 .top-bar {
-  background: var(--primary);
-  padding: 14px 20px;
-  border-bottom: 2px solid #0c2f70;
+  background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -67,42 +91,59 @@ body {
 .navbar h2,
 .top-bar h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #f9fbff;
+  letter-spacing: 0.02em;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.top-bar-left p {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: rgba(230, 239, 255, 0.9);
 }
 
 .nav-links,
 .top-nav-links {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .nav-links a,
 .top-nav-links a {
-  background: rgba(255,255,255,0.12);
-  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 0.82rem;
-  color: #ffffff;
+  font-size: 0.78rem;
+  color: #f9fbff;
   text-decoration: none;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .nav-links a:hover,
 .top-nav-links a:hover {
-  background: rgba(255,255,255,0.22);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 /* ============================================================
-   GLOBAL CARDS — Used Everywhere
+   GLOBAL CARDS
    ============================================================ */
 
 .card,
 .filters-card,
 .chart-card,
 .table-card,
-.survey-container,
-.report-card {
+.report-card,
+.survey-container {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-soft);
@@ -110,159 +151,180 @@ body {
   animation: fadeIn var(--fade-speed) ease-out;
 }
 
-/* ============================================================
-   SURVEY — Inputs + Labels
-   ============================================================ */
-
-#survey-form label {
-  display: block;
-  margin-top: 14px;
-  margin-bottom: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
+.card {
+  padding: 18px 20px;
 }
 
-#survey-form select,
-#survey-form textarea {
-  width: 100%;
-  padding: 6px 8px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-soft);
-  background: var(--primary-soft);
-  font-size: 0.82rem;
-}
-
-#survey-form textarea {
-  min-height: 70px;
-  resize: vertical;
-}
-
-/* Dropdown arrow */
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%231a2b49' height='14' viewBox='0 0 24 24' width='14'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 32px !important;
-}
-
-/* ============================================================
-   TASK ROW — Clinical
-   ============================================================ */
-
+/* Fade-in */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.task-row {
-  padding: 6px 10px;
-  margin-bottom: 6px;
-  border-radius: var(--radius-md);
-  background: #f8faff;
-  border: 1px solid var(--border-soft);
-  animation: fadeIn var(--fade-speed) ease-out;
-  position: relative;
-}
-
-.icon {
-  width: 13px;
-  height: 13px;
-  opacity: 0.65;
-}
-
-.checkmark {
-  position: absolute;
-  right: 6px;
-  top: 6px;
-  width: 16px;
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.12s ease, transform 0.12s ease;
-}
-
-.task-row.checked .checkmark {
-  opacity: 1;
-  transform: scale(1);
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================================
-   PROGRESS BAR
+   BUTTONS — Hospital Console Style
    ============================================================ */
 
-#progressContainer {
-  height: 4px;
-  background: #e6e9ef;
-  border-radius: 2px;
+.btn,
+button {
+  font-family: inherit;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 
-#progressBar {
-  height: 100%;
+.btn.primary {
   background: var(--primary);
-  transition: width 0.25s ease-out;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+}
+
+.btn.primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn.secondary {
+  background: #ffffff;
+  color: var(--primary);
+  border-color: var(--border-soft);
+}
+
+.btn.secondary:hover {
+  background: var(--primary-soft);
+}
+
+.btn:disabled,
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-btn {
+  background: #ffffff;
+  color: var(--primary);
+  border-color: var(--border-soft);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  margin-top: 6px;
+  background: #ffffff;
+  min-width: 220px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-soft);
+  z-index: 20;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  background: transparent;
+  border: none;
+}
+
+.dropdown-item:hover {
+  background: var(--primary-soft);
 }
 
 /* ============================================================
-   DASHBOARD — Summary Cards
+   SUMMARY CARDS — Dashboard
    ============================================================ */
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 16px;
+  margin-bottom: 18px;
 }
 
 .summary-card {
   padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #ffffff, #f5f7fc);
+  border: 1px solid var(--border-soft);
 }
 
 .summary-card h3 {
   margin: 0 0 6px;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.summary-card p {
+.summary-card p.summary-value {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--primary-dark);
 }
 
 /* ============================================================
-   DASHBOARD — Filters
+   FILTERS — Dashboard
    ============================================================ */
+
+.filters-card {
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
 
 .filters-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 14px;
 }
 
 .filter-group label {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
+  margin-bottom: 4px;
+  display: block;
 }
 
 .filter-group select,
 .filter-group input {
-  padding: 6px 8px;
+  width: 100%;
+  padding: 6px 9px;
   font-size: 0.82rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-soft);
   background: var(--primary-soft);
+  color: var(--text-main);
 }
 
 /* ============================================================
-   DASHBOARD — Charts
+   CHARTS — Dashboard
    ============================================================ */
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
+  margin-bottom: 20px;
 }
 
 .chart-card {
@@ -277,33 +339,43 @@ select {
 }
 
 /* ============================================================
-   DASHBOARD — Table
+   TABLE — Dashboard
    ============================================================ */
 
 .table-card {
   padding: 0;
+  overflow: hidden;
+}
+
+.table-card h3 {
+  padding: 14px 18px 0;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
 }
 
 thead {
-  background: var(--primary-soft);
+  background: #f0f3fa;
 }
 
 th {
-  padding: 10px 14px;
+  padding: 9px 12px;
   font-size: 0.78rem;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-soft);
+  text-align: left;
 }
 
 td {
-  padding: 10px 14px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
 }
 
 tbody tr:nth-child(even) {
@@ -315,63 +387,241 @@ tbody tr:hover {
 }
 
 /* ============================================================
-   REPORTS — Unified with Dashboard
+   SURVEY — Form Layout
+   ============================================================ */
+
+.survey-container {
+  max-width: 640px;
+  margin: 24px auto;
+  padding: 20px 18px 24px;
+}
+
+.survey-container h1 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  color: var(--primary-dark);
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+#surveyForm label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+#surveyForm select,
+#surveyForm textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--primary-soft);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+#surveyForm textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* Native dropdown arrow override */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23102033' height='14' viewBox='0 0 24 24' width='14'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px !important;
+}
+
+/* Submit button */
+#surveyForm button[type="submit"] {
+  margin-top: 18px;
+  width: 100%;
+}
+
+/* Success screen */
+#successScreen h2 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  color: var(--primary-dark);
+}
+
+#successScreen p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   TASK ROWS — Clinical Status Colors
+   ============================================================ */
+
+.task-row {
+  padding: 7px 10px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-md);
+  background: #f8faff;
+  border: 1px solid var(--border-soft);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.task-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+.task-row select {
+  max-width: 120px;
+}
+
+/* Status backgrounds */
+.task-row[data-status="Y"],
+.task-row.yes {
+  background: var(--yes);
+  border-color: #b7e3c7;
+}
+
+.task-row[data-status="N"],
+.task-row.no {
+  background: var(--no);
+  border-color: #f3b5bf;
+}
+
+.task-row[data-status="NA"],
+.task-row.na {
+  background: var(--na);
+  border-color: #d4d7dd;
+}
+
+.checkmark {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 18px;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.task-row.checked .checkmark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ============================================================
+   PROGRESS BAR — Survey
+   ============================================================ */
+
+#progressContainer {
+  width: 100%;
+  height: 5px;
+  background: #e2e6f0;
+  border-radius: 999px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.25s ease-out;
+}
+
+/* ============================================================
+   REPORTS PAGE
    ============================================================ */
 
 .report-card {
   padding: 20px;
 }
 
-.report-card h2 {
-  margin: 0 0 10px;
-  font-size: 1rem;
-  color: var(--primary);
+.report-card h2,
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--primary-dark);
 }
 
-.report-card p {
-  font-size: 0.85rem;
+.report-card p,
+.card p {
+  font-size: 0.84rem;
   color: var(--text-muted);
 }
 
 /* ============================================================
-   RESPONSIVE — Mobile Cleanup
+   FOOTER
    ============================================================ */
 
-@media (max-width: 640px) {
+.footer {
+  text-align: center;
+  padding: 16px 0 24px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .top-bar,
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .top-nav-links {
+    flex-wrap: wrap;
+  }
+
   .survey-container {
-    margin: 20px;
-    padding: 18px;
+    margin: 18px auto 28px;
+    padding: 16px 14px 20px;
   }
 
   .summary-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .charts-grid {
     grid-template-columns: 1fr;
   }
 
-  .task-row {
-    padding: 6px 8px;
-  }
-
-  #survey-form select {
+  table {
     font-size: 0.8rem;
   }
-
-  .icon {
-    width: 12px;
-    height: 12px;
-  }
 }
+
 /* ============================================================
-   UCDS v2.0 — PRINT OPTIMIZATION LAYER
-   Ensures clinical‑grade printed/PDF output
+   PRINT — Hospital‑Grade Output
    ============================================================ */
 
 @media print {
 
-  /* Remove all non‑print UI */
   .navbar,
   .top-bar,
   .nav-links,
@@ -380,18 +630,17 @@ tbody tr:hover {
   button,
   .filters-card,
   #progressContainer,
-  #progressBar {
+  #progressBar,
+  .dropdown {
     display: none !important;
   }
 
-  /* Clean white background for print */
   body {
     background: #ffffff !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  /* Cards become flat and clinical */
   .card,
   .survey-container,
   .chart-card,
@@ -403,9 +652,8 @@ tbody tr:hover {
     page-break-inside: avoid;
   }
 
-  /* Typography optimized for print */
   h1, h2, h3, h4 {
-    color: #0f3d91 !important;
+    color: #0b3a6f !important;
     font-weight: 700 !important;
   }
 
@@ -413,41 +661,36 @@ tbody tr:hover {
     color: #000000 !important;
   }
 
-  /* Tables print cleanly */
   table {
     border-collapse: collapse !important;
     width: 100% !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   th, td {
     border: 1px solid #cccccc !important;
-    padding: 6px 8px !important;
+    padding: 5px 6px !important;
   }
 
   thead {
     background: #e6e9ef !important;
   }
 
-  /* Charts print at full resolution */
   canvas {
     max-width: 100% !important;
     height: auto !important;
     page-break-inside: avoid;
   }
 
-  /* Page break rules for multi‑page reports */
   .page-break {
     page-break-before: always;
   }
 
-  /* Remove animations for print */
   * {
     animation: none !important;
     transition: none !important;
   }
 
-  /* Survey task rows print cleanly */
   .task-row {
     border: 1px solid #cccccc !important;
     background: #ffffff !important;
@@ -458,8 +701,7 @@ tbody tr:hover {
     transform: scale(1) !important;
   }
 
-  /* Remove mobile-only adjustments */
   @page {
-    margin: 20mm;
+    margin: 18mm;
   }
 }
