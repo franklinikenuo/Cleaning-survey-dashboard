@@ -705,3 +705,31 @@ select {
     margin: 18mm;
   }
 }
+.legend {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.legend-item {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+}
+
+.legend-item.yes {
+  background: var(--yes);
+  border-color: #b7e3c7;
+}
+
+.legend-item.no {
+  background: var(--no);
+  border-color: #f3b5bf;
+}
+
+.legend-item.na {
+  background: var(--na);
+  border-color: #d4d7dd;
+}
