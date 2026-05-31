@@ -733,3 +733,21 @@ select {
   background: var(--na);
   border-color: #d4d7dd;
 }
+/* FIX: Prevent dropdown from blocking the PDF button */
+.top-actions {
+  position: relative;
+  z-index: 1;
+}
+
+#btn-local-pdf {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto !important;
+}
+.dropdown {
+  z-index: 5;
+}
+
+.dropdown-content {
+  z-index: 10;
+}
