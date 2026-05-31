@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------
-   CLEANING DASHBOARD — FULL REWRITE (v12)
-   Stable, chart‑safe PDF, correct jsPDF UMD
+   CLEANING DASHBOARD — FINAL RELEASE (v14)
+   Android‑Safe PDF, Chart‑Safe Capture, Stable Backend
 ------------------------------------------------------------ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
@@ -10,17 +10,13 @@ const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 ------------------------------------------------------------ */
 
 async function wakeBackend() {
-  try {
-    await fetch(API_BASE);
-  } catch (err) {
-    console.log("Backend waking up…");
-  }
+  try { await fetch(API_BASE); } catch {}
 }
 
 async function getWithRetry(url, retries = 3) {
   try {
     return await fetch(url);
-  } catch (err) {
+  } catch {
     if (retries > 0) {
       await new Promise(res => setTimeout(res, 1500));
       return getWithRetry(url, retries - 1);
@@ -47,15 +43,11 @@ const tableBody = document.querySelector("#submissions-table tbody");
 
 const emailDashboardPdfBtn = document.getElementById("email-dashboard-pdf");
 
-if (emailDashboardPdfBtn) {
-  emailDashboardPdfBtn.disabled = true;
-}
-
 /* ------------------------------------------------------------
    CHART VARIABLES
 ------------------------------------------------------------ */
 
-let roomChart, shiftChart, tasksTrendChart;
+let roomChart;
 
 /* ------------------------------------------------------------
    FETCH DATA
@@ -65,10 +57,8 @@ async function fetchData() {
   try {
     await wakeBackend();
     const res = await getWithRetry(`${API_BASE}/submissions`);
-    if (!res.ok) throw new Error("Failed to load submissions");
     return await res.json();
-  } catch (err) {
-    console.error("API fetch error:", err);
+  } catch {
     return [];
   }
 }
@@ -109,16 +99,13 @@ function updateSummary(data) {
     }
   });
 
-  const compliance = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const compliance = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
   overallComplianceEl.textContent = compliance + "%";
 
   const shiftCounts = {};
-  data.forEach(e => (shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1));
+  data.forEach(e => shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1);
 
-  const topShift = Object.keys(shiftCounts).length
-    ? Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0][0]
-    : "N/A";
-
+  const topShift = Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   topShiftEl.textContent = topShift;
 
   const avgTasks = data.length
@@ -154,19 +141,11 @@ function renderTable(data) {
 }
 
 /* ------------------------------------------------------------
-   CHART HELPERS
------------------------------------------------------------- */
-
-function destroyChart(chart) {
-  if (chart) chart.destroy();
-}
-
-/* ------------------------------------------------------------
    ROOM COMPLIANCE CHART
 ------------------------------------------------------------ */
 
 function renderRoomChart(data) {
-  destroyChart(roomChart);
+  if (roomChart) roomChart.destroy();
 
   const rooms = [...new Set(data.map(e => e.room))];
   const compliance = rooms.map(room => {
@@ -182,7 +161,7 @@ function renderRoomChart(data) {
       }
     });
 
-    return total > 0 ? Math.round((yes / total) * 100) : 0;
+    return total ? Math.round((yes / total) * 100) : 0;
   });
 
   const ctx = document.getElementById("roomChart").getContext("2d");
@@ -259,59 +238,50 @@ document.getElementById("btn-export-excel").onclick = () => {
 
   XLSX.writeFile(wb, "cleaning_report.xlsx");
 };
+
 /* ------------------------------------------------------------
-   EXPORT: PDF (Local) — DEBUG + FIXED
+   EXPORT: PDF (Android‑Safe, Final)
 ------------------------------------------------------------ */
-const pdfBtn = document.getElementById("btn-local-pdf");
 
-// Hard-force it to be enabled and clickable
-if (pdfBtn) {
-  pdfBtn.disabled = false;
-  pdfBtn.style.pointerEvents = "auto";
-  pdfBtn.style.opacity = "1";
+document.getElementById("btn-local-pdf").onclick = async () => {
+  alert("PDF button clicked");
 
-  pdfBtn.onclick = async () => {
-    console.log("PDF button clicked");
-    alert("PDF button clicked"); // TEMP: to prove the click works
+  const element = document.querySelector(".main-layout");
 
-    const { jsPDF } = window.jspdf;
-    const element = document.querySelector(".main-layout");
+  const canvases = document.querySelectorAll("canvas");
+  const replacements = [];
 
-    const canvases = document.querySelectorAll("canvas");
-    const replacements = [];
+  canvases.forEach(canvas => {
+    const img = new Image();
+    img.src = canvas.toDataURL("image/png");
+    img.style.width = canvas.style.width;
+    img.style.height = canvas.style.height;
 
-    canvases.forEach(canvas => {
-      const img = new Image();
-      img.src = canvas.toDataURL("image/png");
-      img.style.width = canvas.style.width;
-      img.style.height = canvas.style.height;
+    canvas.style.display = "none";
+    canvas.parentNode.insertBefore(img, canvas);
 
-      canvas.style.display = "none";
-      canvas.parentNode.insertBefore(img, canvas);
+    replacements.push({ canvas, img });
+  });
 
-      replacements.push({ canvas, img });
-    });
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff"
+  });
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff"
-    });
+  replacements.forEach(({ canvas, img }) => {
+    img.remove();
+    canvas.style.display = "block";
+  });
 
-    replacements.forEach(({ canvas, img }) => {
-      img.remove();
-      canvas.style.display = "block";
-    });
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "a4");
+  const width = pdf.internal.pageSize.getWidth();
+  const height = (canvas.height * width) / canvas.width;
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const width = pdf.internal.pageSize.getWidth();
-    const height = (canvas.height * width) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, width, height);
-    pdf.save("cleaning_dashboard.pdf");
-  };
-}
+  pdf.addImage(imgData, "PNG", 0, 0, width, height);
+  pdf.save("cleaning_dashboard.pdf");
+};
 
 /* ------------------------------------------------------------
    INIT
@@ -325,10 +295,6 @@ async function refresh() {
   updateSummary(filtered);
   renderTable(filtered);
   renderRoomChart(filtered);
-
-  if (emailDashboardPdfBtn) {
-    emailDashboardPdfBtn.disabled = false;
-  }
 }
 
 async function init() {
