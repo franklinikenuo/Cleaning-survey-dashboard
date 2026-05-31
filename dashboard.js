@@ -1,12 +1,12 @@
 /* ------------------------------------------------------------
-   CLEANING DASHBOARD — FINAL RELEASE (v15)
-   All charts restored + Android‑safe PDF
+   CLEANING DASHBOARD — FINAL RELEASE (v16)
+   All charts restored + Android‑safe PDF + DOM bindings fixed
 ------------------------------------------------------------ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
 /* ------------------------------------------------------------
-   DOM ELEMENTS
+   DOM ELEMENTS (CRITICAL — FIXED)
 ------------------------------------------------------------ */
 
 const filterRoom = document.getElementById("filter-room");
