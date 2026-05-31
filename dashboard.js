@@ -205,97 +205,6 @@ function renderRoomChart(data) {
 }
 
 /* ------------------------------------------------------------
-   SHIFT DISTRIBUTION CHART
------------------------------------------------------------- */
-function renderShiftChart(data) {
-  destroyChart(shiftChart);
-
-  const shifts = ["Morning", "Afternoon", "Evening", "Night"];
-  const counts = shifts.map(shift => data.filter(e => e.shift === shift).length);
-
-  const ctx = document.getElementById("shiftChart").getContext("2d");
-
-  shiftChart = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: shifts,
-      datasets: [
-        {
-          data: counts,
-          backgroundColor: ["#2196F3", "#FFC107", "#FF5722", "#9C27B0"]
-        }
-      ]
-    }
-  });
-}
-
-/* ------------------------------------------------------------
-   REPORT BUTTONS (with warm-up + retry)
------------------------------------------------------------- */
-document.getElementById("email-monthly-report").onclick = async () => {
-  await wakeBackend();
-  await getWithRetry(`${API_BASE}/send-monthly-report`);
-};
-
-document.getElementById("email-quarterly-report").onclick = async () => {
-  await wakeBackend();
-  await getWithRetry(`${API_BASE}/send-quarterly-report`);
-};
-
-document.getElementById("email-yearly-report").onclick = async () => {
-  await wakeBackend();
-  await getWithRetry(`${API_BASE}/send-yearly-report`);
-};
-
-/* ------------------------------------------------------------
-   MAIN INIT
------------------------------------------------------------- */
-let allData = [];
-
-async function init() {
-  await wakeBackend();
-
-  allData = await fetchData();
-
-  // Populate room filter dynamically
-  const keepFirst = filterRoom.options[0];
-  filterRoom.innerHTML = "";
-  filterRoom.appendChild(keepFirst);
-
-  [...new Set(allData.map(d => d.room))]
-    .sort()
-    .forEach(room => {
-      filterRoom.innerHTML += `<option value="${room}">${room}</option>`;
-    });
-
-  function refresh() {
-    const filtered = applyFilters(allData);
-    updateSummary(filtered);
-    renderTable(filtered);
-    renderRoomChart(filtered);
-    renderShiftChart(filtered);
-    renderTasksTrendChart(filtered);
-
-    if (emailDashboardPdfBtn) {
-      emailDashboardPdfBtn.disabled = false;
-    }
-  }
-
-  refresh();
-
-  [filterRoom, filterStaff, filterShift, filterDate].forEach(el =>
-    el.addEventListener("input", refresh)
-  );
-
-  document.getElementById("btn-clear-filters").onclick = () => {
-    filterRoom.value = "all";
-    filterStaff.value = "";
-    filterShift.value = "all";
-    filterDate.value = "";
-    refresh();
-  };
-}
-/* ------------------------------------------------------------
    EXPORT: CSV
 ------------------------------------------------------------ */
 document.getElementById("btn-export-csv").onclick = () => {
@@ -348,19 +257,42 @@ document.getElementById("btn-export-excel").onclick = () => {
 };
 
 /* ------------------------------------------------------------
-   EXPORT: PDF (Local)
+   EXPORT: PDF (Local) — Hospital‑Grade, Chart‑Safe
 ------------------------------------------------------------ */
 document.getElementById("btn-local-pdf").onclick = async () => {
   const element = document.querySelector(".main-layout");
 
+  // STEP 1 — Convert all Chart.js canvases to images
+  const canvases = document.querySelectorAll("canvas");
+  const replacements = [];
+
+  canvases.forEach(canvas => {
+    const img = new Image();
+    img.src = canvas.toDataURL("image/png");
+    img.style.width = canvas.style.width;
+    img.style.height = canvas.style.height;
+
+    canvas.style.display = "none";
+    canvas.parentNode.insertBefore(img, canvas);
+
+    replacements.push({ canvas, img });
+  });
+
+  // STEP 2 — Capture dashboard
   const canvas = await html2canvas(element, {
     scale: 2,
     useCORS: true,
-    ignoreElements: (el) => el.tagName === "IMG"
+    backgroundColor: "#ffffff"
   });
 
-  const imgData = canvas.toDataURL("image/png");
+  // STEP 3 — Restore original canvases
+  replacements.forEach(({ canvas, img }) => {
+    img.remove();
+    canvas.style.display = "block";
+  });
 
+  // STEP 4 — Build PDF
+  const imgData = canvas.toDataURL("image/png");
   const pdf = new jsPDF("p", "mm", "a4");
   const width = pdf.internal.pageSize.getWidth();
   const height = (canvas.height * width) / canvas.width;
@@ -368,5 +300,27 @@ document.getElementById("btn-local-pdf").onclick = async () => {
   pdf.addImage(imgData, "PNG", 0, 0, width, height);
   pdf.save("cleaning_dashboard.pdf");
 };
+
+/* ------------------------------------------------------------
+   INIT
+------------------------------------------------------------ */
+let allData = [];
+
+async function refresh() {
+  const filtered = applyFilters(allData);
+
+  updateSummary(filtered);
+  renderTable(filtered);
+  renderRoomChart(filtered);
+
+  if (emailDashboardPdfBtn) {
+    emailDashboardPdfBtn.disabled = false;
+  }
+}
+
+async function init() {
+  allData = await fetchData();
+  refresh();
+}
 
 init();
