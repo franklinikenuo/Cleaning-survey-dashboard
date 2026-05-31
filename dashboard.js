@@ -353,7 +353,12 @@ document.getElementById("btn-export-excel").onclick = () => {
 document.getElementById("btn-local-pdf").onclick = async () => {
   const element = document.querySelector(".main-layout");
 
-  const canvas = await html2canvas(element, { scale: 2 });
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    ignoreElements: (el) => el.tagName === "IMG"
+  });
+
   const imgData = canvas.toDataURL("image/png");
 
   const pdf = new jsPDF("p", "mm", "a4");
