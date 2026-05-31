@@ -13,8 +13,8 @@
   <!-- Excel Export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-  <!-- PDF Export -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
+  <!-- PDF Export (Correct UMD Build) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
 </head>
 
@@ -82,21 +82,14 @@
     <section class="card filters-card">
       <div class="filters-row">
 
-        <!-- ROOM FILTER -->
         <div class="filter-group">
           <label for="filter-room">Room</label>
           <select id="filter-room">
             <option value="all">All Rooms</option>
-
-            <!-- Labs -->
             <option value="Andrology/Embryology Lab">Andrology/Embryology Lab</option>
             <option value="Blood Lab">Blood Lab</option>
-
-            <!-- Recovery / Procedure -->
             <option value="Recovery Room">Recovery Room</option>
             <option value="Procedure Room">Procedure Room</option>
-
-            <!-- Ultrasound Rooms -->
             <option value="Ultrasound Room 1">Ultrasound Room 1</option>
             <option value="Ultrasound Room 2">Ultrasound Room 2</option>
             <option value="Ultrasound Room 3">Ultrasound Room 3</option>
@@ -104,20 +97,16 @@
             <option value="Ultrasound Room 5">Ultrasound Room 5</option>
             <option value="Ultrasound Room 6">Ultrasound Room 6</option>
             <option value="Ultrasound Room 7">Ultrasound Room 7</option>
-
-            <!-- Collection Rooms -->
             <option value="Collection Room 1">Collection Room 1</option>
             <option value="Collection Room 2">Collection Room 2</option>
           </select>
         </div>
 
-        <!-- STAFF FILTER -->
         <div class="filter-group">
           <label for="filter-staff">Staff</label>
           <input type="text" id="filter-staff" placeholder="Enter staff name" />
         </div>
 
-        <!-- SHIFT FILTER -->
         <div class="filter-group">
           <label for="filter-shift">Shift</label>
           <select id="filter-shift">
@@ -129,7 +118,6 @@
           </select>
         </div>
 
-        <!-- DATE FILTER -->
         <div class="filter-group">
           <label for="filter-date">Date</label>
           <input type="date" id="filter-date" />
@@ -186,7 +174,7 @@
   </footer>
 
   <!-- DASHBOARD LOGIC -->
-  <script src="dashboard.js?v=11"></script>
+  <script src="dashboard.js?v=12"></script>
 
 </body>
 </html>
