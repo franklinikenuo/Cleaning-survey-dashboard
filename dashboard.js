@@ -295,5 +295,73 @@ async function init() {
     refresh();
   };
 }
+/* ------------------------------------------------------------
+   EXPORT: CSV
+------------------------------------------------------------ */
+document.getElementById("btn-export-csv").onclick = () => {
+  const rows = [["Room", "Shift", "Staff", "Tasks", "Notes", "Timestamp"]];
+
+  const filtered = applyFilters(allData);
+
+  filtered.forEach(e => {
+    rows.push([
+      e.room,
+      e.shift,
+      e.staff,
+      Object.entries(e.tasks_completed).map(([k, v]) => `${k}: ${v}`).join("; "),
+      e.notes || "",
+      e.timestamp
+    ]);
+  });
+
+  let csv = rows.map(r => r.join(",")).join("\n");
+  let blob = new Blob([csv], { type: "text/csv" });
+
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "cleaning_report.csv";
+  link.click();
+};
+
+/* ------------------------------------------------------------
+   EXPORT: EXCEL
+------------------------------------------------------------ */
+document.getElementById("btn-export-excel").onclick = () => {
+  const filtered = applyFilters(allData);
+
+  const worksheetData = filtered.map(e => ({
+    Room: e.room,
+    Shift: e.shift,
+    Staff: e.staff,
+    Tasks: Object.entries(e.tasks_completed)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join("; "),
+    Notes: e.notes || "",
+    Timestamp: e.timestamp
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(worksheetData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+  XLSX.writeFile(wb, "cleaning_report.xlsx");
+};
+
+/* ------------------------------------------------------------
+   EXPORT: PDF (Local)
+------------------------------------------------------------ */
+document.getElementById("btn-local-pdf").onclick = async () => {
+  const element = document.querySelector(".main-layout");
+
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  const width = pdf.internal.pageSize.getWidth();
+  const height = (canvas.height * width) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 0, 0, width, height);
+  pdf.save("cleaning_dashboard.pdf");
+};
 
 init();
