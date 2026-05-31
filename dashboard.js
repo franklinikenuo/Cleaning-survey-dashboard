@@ -6,6 +6,22 @@
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
 /* ------------------------------------------------------------
+   DOM ELEMENTS
+------------------------------------------------------------ */
+
+const filterRoom = document.getElementById("filter-room");
+const filterStaff = document.getElementById("filter-staff");
+const filterShift = document.getElementById("filter-shift");
+const filterDate = document.getElementById("filter-date");
+
+const totalSubmissionsEl = document.getElementById("total-submissions");
+const overallComplianceEl = document.getElementById("overall-compliance");
+const topShiftEl = document.getElementById("top-shift");
+const avgTasksEl = document.getElementById("avg-tasks");
+
+const tableBody = document.querySelector("#submissions-table tbody");
+
+/* ------------------------------------------------------------
    FETCH + FILTERS
 ------------------------------------------------------------ */
 
