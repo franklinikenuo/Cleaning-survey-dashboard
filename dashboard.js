@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------
-   CLEANING DASHBOARD — FULL REWRITE (v11)
-   Stable with Render cold starts + updated backend
+   CLEANING DASHBOARD — FULL REWRITE (v12)
+   Stable, chart‑safe PDF, correct jsPDF UMD
 ------------------------------------------------------------ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
@@ -9,7 +9,6 @@ const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
    WARM-UP + RETRY WRAPPERS
 ------------------------------------------------------------ */
 
-// Wake backend before heavy requests
 async function wakeBackend() {
   try {
     await fetch(API_BASE);
@@ -18,7 +17,6 @@ async function wakeBackend() {
   }
 }
 
-// Retry wrapper for GET requests
 async function getWithRetry(url, retries = 3) {
   try {
     return await fetch(url);
@@ -34,6 +32,7 @@ async function getWithRetry(url, retries = 3) {
 /* ------------------------------------------------------------
    DOM ELEMENTS
 ------------------------------------------------------------ */
+
 const filterRoom = document.getElementById("filter-room");
 const filterStaff = document.getElementById("filter-staff");
 const filterShift = document.getElementById("filter-shift");
@@ -48,7 +47,6 @@ const tableBody = document.querySelector("#submissions-table tbody");
 
 const emailDashboardPdfBtn = document.getElementById("email-dashboard-pdf");
 
-// Disable PDF button until charts are ready
 if (emailDashboardPdfBtn) {
   emailDashboardPdfBtn.disabled = true;
 }
@@ -56,19 +54,18 @@ if (emailDashboardPdfBtn) {
 /* ------------------------------------------------------------
    CHART VARIABLES
 ------------------------------------------------------------ */
+
 let roomChart, shiftChart, tasksTrendChart;
 
 /* ------------------------------------------------------------
-   FETCH DATA (with warm-up + retry)
+   FETCH DATA
 ------------------------------------------------------------ */
+
 async function fetchData() {
   try {
-    await wakeBackend(); // wake server first
-
+    await wakeBackend();
     const res = await getWithRetry(`${API_BASE}/submissions`);
-
     if (!res.ok) throw new Error("Failed to load submissions");
-
     return await res.json();
   } catch (err) {
     console.error("API fetch error:", err);
@@ -79,6 +76,7 @@ async function fetchData() {
 /* ------------------------------------------------------------
    FILTER LOGIC
 ------------------------------------------------------------ */
+
 function applyFilters(data) {
   return data.filter(entry => {
     if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
@@ -97,6 +95,7 @@ function applyFilters(data) {
 /* ------------------------------------------------------------
    SUMMARY CARDS
 ------------------------------------------------------------ */
+
 function updateSummary(data) {
   totalSubmissionsEl.textContent = data.length;
 
@@ -132,6 +131,7 @@ function updateSummary(data) {
 /* ------------------------------------------------------------
    TABLE RENDERING
 ------------------------------------------------------------ */
+
 function renderTable(data) {
   tableBody.innerHTML = "";
 
@@ -156,6 +156,7 @@ function renderTable(data) {
 /* ------------------------------------------------------------
    CHART HELPERS
 ------------------------------------------------------------ */
+
 function destroyChart(chart) {
   if (chart) chart.destroy();
 }
@@ -163,6 +164,7 @@ function destroyChart(chart) {
 /* ------------------------------------------------------------
    ROOM COMPLIANCE CHART
 ------------------------------------------------------------ */
+
 function renderRoomChart(data) {
   destroyChart(roomChart);
 
@@ -207,6 +209,7 @@ function renderRoomChart(data) {
 /* ------------------------------------------------------------
    EXPORT: CSV
 ------------------------------------------------------------ */
+
 document.getElementById("btn-export-csv").onclick = () => {
   const rows = [["Room", "Shift", "Staff", "Tasks", "Notes", "Timestamp"]];
 
@@ -235,6 +238,7 @@ document.getElementById("btn-export-csv").onclick = () => {
 /* ------------------------------------------------------------
    EXPORT: EXCEL
 ------------------------------------------------------------ */
+
 document.getElementById("btn-export-excel").onclick = () => {
   const filtered = applyFilters(allData);
 
@@ -257,12 +261,13 @@ document.getElementById("btn-export-excel").onclick = () => {
 };
 
 /* ------------------------------------------------------------
-   EXPORT: PDF (Local) — Hospital‑Grade, Chart‑Safe
+   EXPORT: PDF (Local) — FINAL FIXED VERSION
 ------------------------------------------------------------ */
+
 document.getElementById("btn-local-pdf").onclick = async () => {
+  const { jsPDF } = window.jspdf;
   const element = document.querySelector(".main-layout");
 
-  // STEP 1 — Convert all Chart.js canvases to images
   const canvases = document.querySelectorAll("canvas");
   const replacements = [];
 
@@ -278,20 +283,17 @@ document.getElementById("btn-local-pdf").onclick = async () => {
     replacements.push({ canvas, img });
   });
 
-  // STEP 2 — Capture dashboard
   const canvas = await html2canvas(element, {
     scale: 2,
     useCORS: true,
     backgroundColor: "#ffffff"
   });
 
-  // STEP 3 — Restore original canvases
   replacements.forEach(({ canvas, img }) => {
     img.remove();
     canvas.style.display = "block";
   });
 
-  // STEP 4 — Build PDF
   const imgData = canvas.toDataURL("image/png");
   const pdf = new jsPDF("p", "mm", "a4");
   const width = pdf.internal.pageSize.getWidth();
@@ -304,6 +306,7 @@ document.getElementById("btn-local-pdf").onclick = async () => {
 /* ------------------------------------------------------------
    INIT
 ------------------------------------------------------------ */
+
 let allData = [];
 
 async function refresh() {
