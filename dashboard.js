@@ -259,49 +259,59 @@ document.getElementById("btn-export-excel").onclick = () => {
 
   XLSX.writeFile(wb, "cleaning_report.xlsx");
 };
-
 /* ------------------------------------------------------------
-   EXPORT: PDF (Local) — FINAL FIXED VERSION
+   EXPORT: PDF (Local) — DEBUG + FIXED
 ------------------------------------------------------------ */
+const pdfBtn = document.getElementById("btn-local-pdf");
 
-document.getElementById("btn-local-pdf").onclick = async () => {
-  const { jsPDF } = window.jspdf;
-  const element = document.querySelector(".main-layout");
+// Hard-force it to be enabled and clickable
+if (pdfBtn) {
+  pdfBtn.disabled = false;
+  pdfBtn.style.pointerEvents = "auto";
+  pdfBtn.style.opacity = "1";
 
-  const canvases = document.querySelectorAll("canvas");
-  const replacements = [];
+  pdfBtn.onclick = async () => {
+    console.log("PDF button clicked");
+    alert("PDF button clicked"); // TEMP: to prove the click works
 
-  canvases.forEach(canvas => {
-    const img = new Image();
-    img.src = canvas.toDataURL("image/png");
-    img.style.width = canvas.style.width;
-    img.style.height = canvas.style.height;
+    const { jsPDF } = window.jspdf;
+    const element = document.querySelector(".main-layout");
 
-    canvas.style.display = "none";
-    canvas.parentNode.insertBefore(img, canvas);
+    const canvases = document.querySelectorAll("canvas");
+    const replacements = [];
 
-    replacements.push({ canvas, img });
-  });
+    canvases.forEach(canvas => {
+      const img = new Image();
+      img.src = canvas.toDataURL("image/png");
+      img.style.width = canvas.style.width;
+      img.style.height = canvas.style.height;
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff"
-  });
+      canvas.style.display = "none";
+      canvas.parentNode.insertBefore(img, canvas);
 
-  replacements.forEach(({ canvas, img }) => {
-    img.remove();
-    canvas.style.display = "block";
-  });
+      replacements.push({ canvas, img });
+    });
 
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF("p", "mm", "a4");
-  const width = pdf.internal.pageSize.getWidth();
-  const height = (canvas.height * width) / canvas.width;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    });
 
-  pdf.addImage(imgData, "PNG", 0, 0, width, height);
-  pdf.save("cleaning_dashboard.pdf");
-};
+    replacements.forEach(({ canvas, img }) => {
+      img.remove();
+      canvas.style.display = "block";
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, width, height);
+    pdf.save("cleaning_dashboard.pdf");
+  };
+}
 
 /* ------------------------------------------------------------
    INIT
