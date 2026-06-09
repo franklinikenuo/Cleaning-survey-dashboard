@@ -1,12 +1,12 @@
 /* ------------------------------------------------------------
-   CLEANING DASHBOARD — FINAL RELEASE (v16)
-   All charts restored + Android‑safe PDF + DOM bindings fixed
+   CLEANING DASHBOARD — FINAL RELEASE (v17)
+   Charts + Filters + CSV/Excel + Local PDF + PDF-with-Charts
 ------------------------------------------------------------ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
 /* ------------------------------------------------------------
-   DOM ELEMENTS (CRITICAL — FIXED)
+   DOM ELEMENTS
 ------------------------------------------------------------ */
 
 const filterRoom = document.getElementById("filter-room");
@@ -37,7 +37,10 @@ async function fetchData() {
 function applyFilters(data) {
   return data.filter(entry => {
     if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
-    if (filterStaff.value && !entry.staff.toLowerCase().includes(filterStaff.value.toLowerCase())) return false;
+
+    if (filterStaff.value &&
+        !entry.staff.toLowerCase().includes(filterStaff.value.toLowerCase())) return false;
+
     if (filterShift.value !== "all" && entry.shift !== filterShift.value) return false;
 
     if (filterDate.value) {
@@ -70,7 +73,9 @@ function updateSummary(data) {
   overallComplianceEl.textContent = compliance + "%";
 
   const shiftCounts = {};
-  data.forEach(e => shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1);
+  data.forEach(e => {
+    shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1;
+  });
 
   const topShift = Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   topShiftEl.textContent = topShift;
@@ -112,13 +117,10 @@ function renderTable(data) {
 ------------------------------------------------------------ */
 
 let roomChart, shiftChart, tasksTrendChart;
-function chartsReady() {
-    return window.roomChart && window.shiftChart && window.tasksChart;
-}
 
-setTimeout(() => {
-    document.getElementById("exportPdfWithChartsBtn").disabled = !chartsReady();
-}, 1500);
+function chartsReady() {
+  return roomChart && shiftChart && tasksTrendChart;
+}
 
 /* ROOM COMPLIANCE */
 function renderRoomChart(data) {
@@ -153,7 +155,10 @@ function renderRoomChart(data) {
         }
       ]
     },
-    options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
   });
 }
 
@@ -215,7 +220,10 @@ function renderTasksTrendChart(data) {
         }
       ]
     },
-    options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
   });
 }
 
@@ -225,7 +233,6 @@ function renderTasksTrendChart(data) {
 
 document.getElementById("btn-export-csv").onclick = () => {
   const rows = [["Room", "Shift", "Staff", "Tasks", "Notes", "Timestamp"]];
-
   const filtered = applyFilters(allData);
 
   filtered.forEach(e => {
@@ -239,10 +246,10 @@ document.getElementById("btn-export-csv").onclick = () => {
     ]);
   });
 
-  let csv = rows.map(r => r.join(",")).join("\n");
-  let blob = new Blob([csv], { type: "text/csv" });
+  const csv = rows.map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
 
-  let link = document.createElement("a");
+  const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = "cleaning_report.csv";
   link.click();
@@ -270,12 +277,10 @@ document.getElementById("btn-export-excel").onclick = () => {
 };
 
 /* ------------------------------------------------------------
-   EXPORT: PDF (Android‑Safe)
+   EXPORT: LOCAL PDF (Android‑Safe)
 ------------------------------------------------------------ */
 
 document.getElementById("btn-local-pdf").onclick = () => {
-  alert("PDF button clicked");
-
   const element = document.querySelector(".main-layout");
 
   const canvases = document.querySelectorAll("canvas");
@@ -298,7 +303,6 @@ document.getElementById("btn-local-pdf").onclick = () => {
     useCORS: true,
     backgroundColor: "#ffffff"
   }).then(canvas => {
-
     replacements.forEach(({ canvas, img }) => {
       img.remove();
       canvas.style.display = "block";
@@ -314,37 +318,41 @@ document.getElementById("btn-local-pdf").onclick = () => {
   });
 };
 
+/* ------------------------------------------------------------
+   EXPORT: PDF WITH CHARTS (Backend)
+------------------------------------------------------------ */
+
 document.getElementById("exportPdfWithChartsBtn").addEventListener("click", async () => {
-    const roomCanvas = document.getElementById("roomChart");
-    const shiftCanvas = document.getElementById("shiftChart");
-    const tasksCanvas = document.getElementById("tasksChart");
+  const roomCanvas = document.getElementById("roomChart");
+  const shiftCanvas = document.getElementById("shiftChart");
+  const tasksCanvas = document.getElementById("tasksTrendChart"); // important: matches HTML
 
-    if (!roomCanvas || !shiftCanvas || !tasksCanvas) {
-        alert("Charts are still loading. Please wait a moment.");
-        return;
-    }
+  if (!roomCanvas || !shiftCanvas || !tasksCanvas) {
+    alert("Charts are still loading. Please wait a moment.");
+    return;
+  }
 
-    const roomChart = roomCanvas.toDataURL("image/png");
-    const shiftChart = shiftCanvas.toDataURL("image/png");
-    const tasksChart = tasksCanvas.toDataURL("image/png");
+  const roomChartImg = roomCanvas.toDataURL("image/png");
+  const shiftChartImg = shiftCanvas.toDataURL("image/png");
+  const tasksChartImg = tasksCanvas.toDataURL("image/png");
 
-    const response = await fetch("https://cleaning-survey-api-v2-x6sf.onrender.com/export/pdf-with-charts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            room_chart: roomChart,
-            shift_chart: shiftChart,
-            tasks_chart: tasksChart
-        })
-    });
+  const response = await fetch(`${API_BASE}/export/pdf-with-charts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      room_chart: roomChartImg,
+      shift_chart: shiftChartImg,
+      tasks_chart: tasksChartImg
+    })
+  });
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cleaning_report_with_charts.pdf";
-    a.click();
-    window.URL.revokeObjectURL(url);
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "cleaning_report_with_charts.pdf";
+  a.click();
+  window.URL.revokeObjectURL(url);
 });
 
 /* ------------------------------------------------------------
@@ -361,11 +369,15 @@ async function refresh() {
   renderRoomChart(filtered);
   renderShiftChart(filtered);
   renderTasksTrendChart(filtered);
+
+  // enable charts PDF button once charts exist
+  const btn = document.getElementById("exportPdfWithChartsBtn");
+  if (chartsReady() && btn) btn.disabled = false;
 }
 
 async function init() {
   allData = await fetchData();
-  refresh();
+  await refresh();
 }
 
 init();
