@@ -112,6 +112,13 @@ function renderTable(data) {
 ------------------------------------------------------------ */
 
 let roomChart, shiftChart, tasksTrendChart;
+function chartsReady() {
+    return window.roomChart && window.shiftChart && window.tasksChart;
+}
+
+setTimeout(() => {
+    document.getElementById("exportPdfWithChartsBtn").disabled = !chartsReady();
+}, 1500);
 
 /* ROOM COMPLIANCE */
 function renderRoomChart(data) {
