@@ -307,6 +307,39 @@ document.getElementById("btn-local-pdf").onclick = () => {
   });
 };
 
+document.getElementById("exportPdfWithChartsBtn").addEventListener("click", async () => {
+    const roomCanvas = document.getElementById("roomChart");
+    const shiftCanvas = document.getElementById("shiftChart");
+    const tasksCanvas = document.getElementById("tasksChart");
+
+    if (!roomCanvas || !shiftCanvas || !tasksCanvas) {
+        alert("Charts are still loading. Please wait a moment.");
+        return;
+    }
+
+    const roomChart = roomCanvas.toDataURL("image/png");
+    const shiftChart = shiftCanvas.toDataURL("image/png");
+    const tasksChart = tasksCanvas.toDataURL("image/png");
+
+    const response = await fetch("https://cleaning-survey-api-v2-x6sf.onrender.com/export/pdf-with-charts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            room_chart: roomChart,
+            shift_chart: shiftChart,
+            tasks_chart: tasksChart
+        })
+    });
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cleaning_report_with_charts.pdf";
+    a.click();
+    window.URL.revokeObjectURL(url);
+});
+
 /* ------------------------------------------------------------
    INIT
 ------------------------------------------------------------ */
