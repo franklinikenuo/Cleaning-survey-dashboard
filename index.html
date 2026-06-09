@@ -19,9 +19,6 @@
 </head>
 
 <body>
-  <button id="exportPdfWithChartsBtn" class="btn btn-primary">
-    Export PDF with Charts
-  </button>
 
   <!-- HEADER -->
   <header class="top-bar">
@@ -38,10 +35,22 @@
     </div>
 
     <div class="top-actions">
+
+      <!-- LOCAL PDF -->
       <button id="btn-local-pdf" class="btn primary">Download PDF</button>
+
+      <!-- EXCEL -->
       <button id="btn-export-excel" class="btn secondary">Export Excel</button>
+
+      <!-- CSV -->
       <button id="btn-export-csv" class="btn secondary">Export CSV</button>
 
+      <!-- NEW: PDF WITH CHARTS -->
+      <button id="exportPdfWithChartsBtn" class="btn secondary">
+        Export PDF with Charts
+      </button>
+
+      <!-- REPORTS DROPDOWN -->
       <div class="dropdown">
         <button class="btn dropdown-btn">Reports ▼</button>
         <div class="dropdown-content">
@@ -52,6 +61,7 @@
           <button class="dropdown-item" id="email-yearly-report">Email Yearly Report</button>
         </div>
       </div>
+
     </div>
   </header>
 
