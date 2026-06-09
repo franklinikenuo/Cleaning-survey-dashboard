@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Daily Cleaning Survey</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Cleaning Survey</title>
 
+  <!-- Your existing CSS -->
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="survey.css" />
 </head>
 
 <body>
 
+  <!-- HEADER -->
   <header class="top-bar">
     <div class="top-bar-left">
       <div>
@@ -25,13 +26,12 @@
     </div>
   </header>
 
+  <!-- SURVEY FORM -->
   <main class="survey-container">
-
-    <h1>Daily Cleaning Survey</h1>
-    <p class="subtitle">Complete once per room per shift</p>
 
     <form id="surveyForm">
 
+      <!-- ROOM -->
       <label for="room">Room</label>
       <select id="room" required>
         <option value="">Select room</option>
@@ -50,14 +50,17 @@
         <option>Collection Room 2</option>
       </select>
 
+      <!-- STAFF (RESTORED REAL NAMES) -->
       <label for="staff">Staff</label>
       <select id="staff" required>
         <option value="">Select staff</option>
-        <option>Staff A</option>
-        <option>Staff B</option>
-        <option>Staff C</option>
+        <option>Hanna</option>
+        <option>Hamse</option>
+        <option>Tania</option>
+        <option>Mohubo</option>
       </select>
 
+      <!-- SHIFT -->
       <label for="shift">Shift</label>
       <select id="shift" required>
         <option value="">Select shift</option>
@@ -67,47 +70,70 @@
         <option>Night</option>
       </select>
 
+      <!-- TASKS -->
       <h3 class="tasks-title">Tasks Completed</h3>
       <p class="tasks-subtitle">Y = Completed &nbsp; N = Not Completed &nbsp; NA = Not Applicable</p>
 
       <div class="task-row">
-        <label>
-          <img src="icons/trash.svg" class="icon" />
-          Trash
-        </label>
-        <select class="task-select">
-          <option>Y</option>
-          <option>N</option>
-          <option>NA</option>
+        <label><img src="icons/trash.svg" class="icon"> Trash</label>
+        <select>
+          <option>Y</option><option>N</option><option>NA</option>
         </select>
       </div>
 
       <div class="task-row">
-        <label>
-          <img src="icons/mop.svg" class="icon" />
-          Mop
-        </label>
-        <select class="task-select">
-          <option>Y</option>
-          <option>N</option>
-          <option>NA</option>
+        <label><img src="icons/mop.svg" class="icon"> Mop</label>
+        <select>
+          <option>Y</option><option>N</option><option>NA</option>
         </select>
       </div>
 
-      <label for="notes">Notes</label>
-      <textarea id="notes" placeholder="Optional"></textarea>
+      <div class="task-row">
+        <label><img src="icons/sanitize.svg" class="icon"> Sanitize</label>
+        <select>
+          <option>Y</option><option>N</option><option>NA</option>
+        </select>
+      </div>
 
+      <div class="task-row">
+        <label><img src="icons/sweep.svg" class="icon"> Sweep</label>
+        <select>
+          <option>Y</option><option>N</option><option>NA</option>
+        </select>
+      </div>
+
+      <div class="task-row">
+        <label><img src="icons/linen.svg" class="icon"> Linen Change</label>
+        <select>
+          <option>Y</option><option>N</option><option>NA</option>
+        </select>
+      </div>
+
+      <div class="task-row">
+        <label><img src="icons/vacuum.svg" class="icon"> Vacuum</label>
+        <select>
+          <option>Y</option><option>N</option><option>NA</option>
+        </select>
+      </div>
+
+      <!-- NOTES -->
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" placeholder="Enter any comments..."></textarea>
+
+      <!-- SUBMIT -->
       <button type="submit" class="btn primary">Submit Survey</button>
 
     </form>
 
-    <div id="successScreen" style="display:none;">
+    <!-- SUCCESS SCREEN -->
+    <div id="successScreen" style="display:none; text-align:center;">
       <h2>Survey Submitted</h2>
       <p>Your cleaning record has been saved.</p>
     </div>
 
   </main>
 
+  <!-- JS -->
   <script src="survey.js"></script>
 
 </body>
