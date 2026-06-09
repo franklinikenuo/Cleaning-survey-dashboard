@@ -2,299 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Cleaning Survey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="styles.css" />
-
-  <style>
-    body {
-      background: var(--bg);
-      padding: 16px;
-    }
-
-    #progressContainer {
-      width: 100%;
-      height: 6px;
-      background: #e5e7eb;
-      border-radius: 4px;
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
-
-    #progressBar {
-      height: 100%;
-      width: 0%;
-      background: var(--primary);
-      transition: width 0.3s ease;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      border: 1px solid var(--border-soft);
-      padding: 20px;
-      box-shadow: var(--shadow-soft);
-      animation: slideIn 0.4s ease;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    .task-row {
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      transition: background 0.25s ease;
-      position: relative;
-    }
-
-    .checkmark {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      width: 22px;
-      opacity: 0;
-      transform: scale(0.6);
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .task-row.checked .checkmark {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    #successScreen {
-      display: none;
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    #successScreen img {
-      width: 80px;
-      margin-bottom: 20px;
-    }
-  </style>
+  <link rel="stylesheet" href="survey.css" />
 </head>
 
 <body>
 
-  <nav class="navbar">
-    <h2>Daily Cleaning Survey</h2>
-    <div class="nav-links">
-      <a href="index.html">Dashboard</a>
-      <a href="reports.html">Reports</a>
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <div>
+        <h1>Daily Cleaning Survey</h1>
+        <p>Complete once per room per shift</p>
+      </div>
+
+      <nav class="top-nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="reports.html">Reports</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
-  <div class="survey-container">
+  <main class="survey-container">
 
-    <div id="progressContainer">
-      <div id="progressBar"></div>
-    </div>
+    <h1>Daily Cleaning Survey</h1>
+    <p class="subtitle">Complete once per room per shift</p>
 
-    <div id="successScreen">
-      <img src="https://img.icons8.com/color/96/checked--v1.png">
-      <h2>Submission Complete</h2>
+    <form id="surveyForm">
+
+      <label for="room">Room</label>
+      <select id="room" required>
+        <option value="">Select room</option>
+        <option>Andrology/Embryology Lab</option>
+        <option>Blood Lab</option>
+        <option>Recovery Room</option>
+        <option>Procedure Room</option>
+        <option>Ultrasound Room 1</option>
+        <option>Ultrasound Room 2</option>
+        <option>Ultrasound Room 3</option>
+        <option>Ultrasound Room 4</option>
+        <option>Ultrasound Room 5</option>
+        <option>Ultrasound Room 6</option>
+        <option>Ultrasound Room 7</option>
+        <option>Collection Room 1</option>
+        <option>Collection Room 2</option>
+      </select>
+
+      <label for="staff">Staff</label>
+      <select id="staff" required>
+        <option value="">Select staff</option>
+        <option>Staff A</option>
+        <option>Staff B</option>
+        <option>Staff C</option>
+      </select>
+
+      <label for="shift">Shift</label>
+      <select id="shift" required>
+        <option value="">Select shift</option>
+        <option>Morning</option>
+        <option>Afternoon</option>
+        <option>Evening</option>
+        <option>Night</option>
+      </select>
+
+      <h3 class="tasks-title">Tasks Completed</h3>
+      <p class="tasks-subtitle">Y = Completed &nbsp; N = Not Completed &nbsp; NA = Not Applicable</p>
+
+      <div class="task-row">
+        <label>
+          <img src="icons/trash.svg" class="icon" />
+          Trash
+        </label>
+        <select class="task-select">
+          <option>Y</option>
+          <option>N</option>
+          <option>NA</option>
+        </select>
+      </div>
+
+      <div class="task-row">
+        <label>
+          <img src="icons/mop.svg" class="icon" />
+          Mop
+        </label>
+        <select class="task-select">
+          <option>Y</option>
+          <option>N</option>
+          <option>NA</option>
+        </select>
+      </div>
+
+      <label for="notes">Notes</label>
+      <textarea id="notes" placeholder="Optional"></textarea>
+
+      <button type="submit" class="btn primary">Submit Survey</button>
+
+    </form>
+
+    <div id="successScreen" style="display:none;">
+      <h2>Survey Submitted</h2>
       <p>Your cleaning record has been saved.</p>
     </div>
 
-    <div class="card" id="formCard">
-      <h1>Daily Cleaning Survey</h1>
-      <div class="subtitle">Complete once per room per shift.</div>
+  </main>
 
-      <form id="surveyForm">
-
-        <label for="room">Room</label>
-        <select id="room" required onchange="updateProgress()">
-          <option value="">Select Room</option>
-          <option value="Andrology/Embryology Lab">Andrology/Embryology Lab</option>
-          <option value="Blood Lab">Blood Lab</option>
-          <option value="Recovery Room">Recovery Room</option>
-          <option value="Procedure Room">Procedure Room</option>
-          <option value="Ultrasound Room 1">Ultrasound Room 1</option>
-          <option value="Ultrasound Room 2">Ultrasound Room 2</option>
-          <option value="Ultrasound Room 3">Ultrasound Room 3</option>
-          <option value="Ultrasound Room 4">Ultrasound Room 4</option>
-          <option value="Ultrasound Room 5">Ultrasound Room 5</option>
-          <option value="Ultrasound Room 6">Ultrasound Room 6</option>
-          <option value="Ultrasound Room 7">Ultrasound Room 7</option>
-          <option value="Collection Room 1">Collection Room 1</option>
-          <option value="Collection Room 2">Collection Room 2</option>
-        </select>
-
-        <label for="staff">Staff</label>
-        <select id="staff" required onchange="updateProgress()">
-          <option value="">Select staff</option>
-          <option>Hanna</option>
-          <option>Hamse</option>
-          <option>Tania</option>
-          <option>Team Shift (Hanna, Hamse, Tania)</option>
-          <option>Mohubo</option>
-        </select>
-
-        <label for="shift">Shift</label>
-        <select id="shift" required onchange="updateProgress()">
-          <option value="">Select shift</option>
-          <option>Morning</option>
-          <option>Afternoon</option>
-          <option>Evening</option>
-          <option>Night</option>
-        </select>
-
-        <hr style="border: none; border-top: 1px solid var(--border-soft); margin: 18px 0;">
-
-        <h3 style="margin-bottom: 10px;">Tasks Completed</h3>
-        <div class="legend">
-  <span class="legend-item yes">Y = Completed</span>
-  <span class="legend-item no">N = Not Completed</span>
-  <span class="legend-item na">NA = Not Applicable</span>
-</div>
-
-        <div class="task-row" id="row-trash">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/trash.png"> Trash</label>
-          <select id="trash" onchange="updateTaskColor('trash'); updateProgress()">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-          </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
-        </div>
-
-        <div class="task-row" id="row-mop">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/mop.png"> Mop</label>
-          <select id="mop" onchange="updateTaskColor('mop'); updateProgress()">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-          </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
-        </div>
-
-        <div class="task-row" id="row-sanitize">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/spray-bottle.png"> Sanitize</label>
-          <select id="sanitize" onchange="updateTaskColor('sanitize'); updateProgress()">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-          </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
-        </div>
-
-        <div class="task-row" id="row-sweep">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/broom.png"> Sweep</label>
-          <select id="sweep" onchange="updateTaskColor('sweep'); updateProgress()">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-          </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
-        </div>
-
-        <div class="task-row" id="row-linen">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/towel.png"> Linen Change</label>
-          <select id="linen" onchange="updateTaskColor('linen'); updateProgress()">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-          </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
-        </div>
-
-        <div class="task-row" id="row-vacuum">
-          <label><img class="icon" src="https://img.icons8.com/ios/50/vacuum-cleaner.png"> Vacuum</label>
-          <select id="vacuum" onchange="updateTaskColor('vacuum'); updateProgress()">
-            <option value="">Y / N / NA</option><option>Y</option><option>N</option><option>NA</option>
-          </select>
-          <img class="checkmark" src="https://img.icons8.com/color/48/checked--v1.png">
-        </div>
-
-        <label>Notes (optional)</label>
-        <textarea id="notes" placeholder="Enter any comments..." onchange="updateProgress()"></textarea>
-
-        <button type="submit">Submit Survey</button>
-
-      </form>
-    </div>
-  </div>
-
-  <script>
-    function updateTaskColor(task) {
-      const value = document.getElementById(task).value;
-      const row = document.getElementById("row-" + task);
-
-      row.classList.remove("checked");
-      row.style.background = "";
-
-      if (value === "Y") row.style.background = "var(--yes)";
-      if (value === "N") row.style.background = "var(--no)";
-      if (value === "NA") row.style.background = "var(--na)";
-      if (value) row.classList.add("checked");
-    }
-
-    function updateProgress() {
-      const fields = [
-        room.value, staff.value, shift.value,
-        trash.value, mop.value, sanitize.value,
-        sweep.value, linen.value, vacuum.value,
-        notes.value.trim()
-      ];
-
-      const filled = fields.filter(v => v !== "").length;
-      const percent = Math.round((filled / fields.length) * 100);
-      document.getElementById("progressBar").style.width = percent + "%";
-    }
-
-    document.getElementById("surveyForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const data = {
-        room: room.value,
-        staff: staff.value,
-        shift: shift.value,
-        tasks_completed: {
-          trash: trash.value,
-          mop: mop.value,
-          sanitize: sanitize.value,
-          sweep: sweep.value,
-          linen: linen.value,
-          vacuum: vacuum.value
-        },
-        notes: notes.value
-      };
-
-      const backend = "https://cleaning-survey-api-v2-x6sf.onrender.com";
-
-      try {
-        await fetch(backend, { method: "GET" });
-      } catch (err) {
-        console.log("Backend waking up…");
-      }
-
-      async function postWithRetry(url, options, retries = 3) {
-        try {
-          return await fetch(url, options);
-        } catch (err) {
-          if (retries > 0) {
-            await new Promise(res => setTimeout(res, 1500));
-            return postWithRetry(url, options, retries - 1);
-          }
-          throw err;
-        }
-      }
-
-      const response = await postWithRetry(`${backend}/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        document.getElementById("formCard").style.display = "none";
-        document.getElementById("successScreen").style.display = "block";
-      } else {
-        alert("Submission failed. Please try again.");
-      }
-    });
-  </script>
+  <script src="survey.js"></script>
 
 </body>
 </html>
