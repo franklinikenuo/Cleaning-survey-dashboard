@@ -1,1 +1,85 @@
+/* ============================================================
+   SURVEY HYBRID DESIGN — Overrides for UCDS v3.1
+   ============================================================ */
 
+/* Keep survey compact and clean */
+.survey-container {
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 20px 18px 24px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Title spacing */
+.survey-container h1 {
+  margin-bottom: 4px;
+  font-size: 1.2rem;
+}
+
+.tasks-title {
+  margin-top: 20px;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+}
+
+.tasks-subtitle {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Task rows — hybrid style */
+.task-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: #f8faff;
+  border: 1px solid var(--border-soft);
+}
+
+.task-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.task-row .icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+/* Dropdowns — compact */
+.task-select {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+/* Restore simpler dropdown arrow for survey only */
+.survey-container select {
+  appearance: auto;
+  background-image: none !important;
+  padding-right: 10px !important;
+}
+
+/* Notes box */
+textarea {
+  margin-top: 6px;
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* Success screen */
+#successScreen {
+  text-align: center;
+  padding: 20px;
+}
