@@ -1,10 +1,9 @@
 /* ============================================================
-   UCDS v3.0 — Hospital‑Grade Clinical UI
+   UCDS v3.1 — Hospital‑Grade Clinical UI (Optimized + Cleaned)
    Applies to: Dashboard, Survey, Reports
    ============================================================ */
 
 :root {
-  /* Core palette — clean, clinical, neutral */
   --bg: #f3f5f8;
   --bg-soft: #f7f9fc;
   --card-bg: #ffffff;
@@ -26,20 +25,16 @@
   --danger: #d7263d;
   --warning: #f59e0b;
 
-  /* Status backgrounds */
   --yes: #e6f6ec;
   --no: #fde8ea;
   --na: #f3f4f6;
 
-  /* Radii */
   --radius-lg: 14px;
   --radius-md: 10px;
   --radius-sm: 6px;
 
-  /* Shadows */
   --shadow-soft: 0 4px 14px rgba(15, 23, 42, 0.06);
 
-  /* Animation */
   --fade-speed: 0.18s;
 }
 
@@ -65,7 +60,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Generic containers */
 .page-container,
 .survey-container,
 .main-layout {
@@ -78,7 +72,6 @@ body {
    HEADER — Clinical App Shell
    ============================================================ */
 
-.navbar,
 .top-bar {
   background: linear-gradient(90deg, var(--primary-dark), var(--primary));
   padding: 12px 20px;
@@ -88,13 +81,11 @@ body {
   align-items: center;
 }
 
-.navbar h2,
 .top-bar h1 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
   color: #f9fbff;
-  letter-spacing: 0.02em;
 }
 
 .top-bar-left {
@@ -109,13 +100,11 @@ body {
   color: rgba(230, 239, 255, 0.9);
 }
 
-.nav-links,
 .top-nav-links {
   display: flex;
   gap: 8px;
 }
 
-.nav-links a,
 .top-nav-links a {
   background: rgba(255, 255, 255, 0.08);
   padding: 4px 12px;
@@ -123,42 +112,11 @@ body {
   font-size: 0.78rem;
   color: #f9fbff;
   text-decoration: none;
-  border: 1px solid transparent;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  transition: 0.15s ease;
 }
 
-.nav-links a:hover,
 .top-nav-links a:hover {
   background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-/* ============================================================
-   GLOBAL CARDS
-   ============================================================ */
-
-.card,
-.filters-card,
-.chart-card,
-.table-card,
-.report-card,
-.survey-container {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
-  animation: fadeIn var(--fade-speed) ease-out;
-}
-
-.card {
-  padding: 18px 20px;
-}
-
-/* Fade-in */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================================
@@ -176,18 +134,16 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  transition: 0.15s ease;
 }
 
 .btn.primary {
   background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
 }
 
 .btn.primary:hover {
   background: var(--primary-dark);
-  transform: translateY(-1px);
 }
 
 .btn.secondary {
@@ -200,57 +156,60 @@ button {
   background: var(--primary-soft);
 }
 
-.btn:disabled,
-button:disabled {
+.btn:disabled {
   opacity: 0.55;
   cursor: default;
-  box-shadow: none;
-}
-
-/* Dropdown */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-btn {
-  background: #ffffff;
-  color: var(--primary);
-  border-color: var(--border-soft);
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  margin-top: 6px;
-  background: #ffffff;
-  min-width: 220px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-soft);
-  z-index: 20;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-.dropdown-item {
-  width: 100%;
-  text-align: left;
-  padding: 8px 12px;
-  font-size: 0.8rem;
-  background: transparent;
-  border: none;
-}
-
-.dropdown-item:hover {
-  background: var(--primary-soft);
 }
 
 /* ============================================================
-   SUMMARY CARDS — Dashboard
+   FIX: Ensure Export Buttons Are Tappable on Mobile
+   ============================================================ */
+
+.top-actions {
+  position: relative;
+  z-index: 5;
+}
+
+#btn-local-pdf,
+#exportPdfWithChartsBtn {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto !important;
+}
+
+.dropdown {
+  position: relative;
+  z-index: 10;
+}
+
+.dropdown-content {
+  z-index: 20;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card,
+.filters-card,
+.chart-card,
+.table-card,
+.report-card,
+.survey-container {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  animation: fadeIn var(--fade-speed) ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   SUMMARY CARDS
    ============================================================ */
 
 .summary-grid {
@@ -260,19 +219,10 @@ button:disabled {
   margin-bottom: 18px;
 }
 
-.summary-card {
-  padding: 16px 18px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #ffffff, #f5f7fc);
-  border: 1px solid var(--border-soft);
-}
-
 .summary-card h3 {
   margin: 0 0 6px;
   font-size: 0.8rem;
   color: var(--text-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .summary-card p.summary-value {
@@ -283,7 +233,7 @@ button:disabled {
 }
 
 /* ============================================================
-   FILTERS — Dashboard
+   FILTERS
    ============================================================ */
 
 .filters-card {
@@ -301,8 +251,6 @@ button:disabled {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 4px;
-  display: block;
 }
 
 .filter-group select,
@@ -313,11 +261,10 @@ button:disabled {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-soft);
   background: var(--primary-soft);
-  color: var(--text-main);
 }
 
 /* ============================================================
-   CHARTS — Dashboard
+   CHARTS
    ============================================================ */
 
 .charts-grid {
@@ -327,19 +274,14 @@ button:disabled {
   margin-bottom: 20px;
 }
 
-.chart-card {
-  padding: 18px 20px;
-}
-
 .chart-card h3 {
   margin: 0 0 10px;
   font-size: 0.9rem;
   color: var(--text-muted);
-  font-weight: 600;
 }
 
 /* ============================================================
-   TABLE — Dashboard
+   TABLE
    ============================================================ */
 
 .table-card {
@@ -364,18 +306,9 @@ thead {
   background: #f0f3fa;
 }
 
-th {
-  padding: 9px 12px;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-soft);
-  text-align: left;
-}
-
-td {
+th, td {
   padding: 9px 12px;
   border-bottom: 1px solid var(--border-soft);
-  vertical-align: top;
 }
 
 tbody tr:nth-child(even) {
@@ -387,224 +320,18 @@ tbody tr:hover {
 }
 
 /* ============================================================
-   SURVEY — Form Layout
-   ============================================================ */
-
-.survey-container {
-  max-width: 640px;
-  margin: 24px auto;
-  padding: 20px 18px 24px;
-}
-
-.survey-container h1 {
-  margin: 0 0 4px;
-  font-size: 1.1rem;
-  color: var(--primary-dark);
-}
-
-.subtitle {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-
-#surveyForm label {
-  display: block;
-  margin-top: 14px;
-  margin-bottom: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-#surveyForm select,
-#surveyForm textarea {
-  width: 100%;
-  padding: 7px 9px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-soft);
-  background: var(--primary-soft);
-  font-size: 0.82rem;
-  color: var(--text-main);
-}
-
-#surveyForm textarea {
-  min-height: 70px;
-  resize: vertical;
-}
-
-/* Native dropdown arrow override */
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23102033' height='14' viewBox='0 0 24 24' width='14'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 32px !important;
-}
-
-/* Submit button */
-#surveyForm button[type="submit"] {
-  margin-top: 18px;
-  width: 100%;
-}
-
-/* Success screen */
-#successScreen h2 {
-  margin: 0 0 6px;
-  font-size: 1.1rem;
-  color: var(--primary-dark);
-}
-
-#successScreen p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ============================================================
-   TASK ROWS — Clinical Status Colors
-   ============================================================ */
-
-.task-row {
-  padding: 7px 10px;
-  margin-bottom: 8px;
-  border-radius: var(--radius-md);
-  background: #f8faff;
-  border: 1px solid var(--border-soft);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.task-row label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  color: var(--text-main);
-}
-
-.icon {
-  width: 14px;
-  height: 14px;
-  opacity: 0.7;
-}
-
-.task-row select {
-  max-width: 120px;
-}
-
-/* Status backgrounds */
-.task-row[data-status="Y"],
-.task-row.yes {
-  background: var(--yes);
-  border-color: #b7e3c7;
-}
-
-.task-row[data-status="N"],
-.task-row.no {
-  background: var(--no);
-  border-color: #f3b5bf;
-}
-
-.task-row[data-status="NA"],
-.task-row.na {
-  background: var(--na);
-  border-color: #d4d7dd;
-}
-
-.checkmark {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  width: 18px;
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.12s ease, transform 0.12s ease;
-}
-
-.task-row.checked .checkmark {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* ============================================================
-   PROGRESS BAR — Survey
-   ============================================================ */
-
-#progressContainer {
-  width: 100%;
-  height: 5px;
-  background: #e2e6f0;
-  border-radius: 999px;
-  margin-bottom: 14px;
-  overflow: hidden;
-}
-
-#progressBar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  transition: width 0.25s ease-out;
-}
-
-/* ============================================================
-   REPORTS PAGE
-   ============================================================ */
-
-.report-card {
-  padding: 20px;
-}
-
-.report-card h2,
-.card h3 {
-  margin: 0 0 8px;
-  font-size: 0.95rem;
-  color: var(--primary-dark);
-}
-
-.report-card p,
-.card p {
-  font-size: 0.84rem;
-  color: var(--text-muted);
-}
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-
-.footer {
-  text-align: center;
-  padding: 16px 0 24px;
-  font-size: 0.78rem;
-  color: var(--text-soft);
-}
-
-/* ============================================================
    RESPONSIVE
    ============================================================ */
 
 @media (max-width: 768px) {
-  .top-bar,
-  .navbar {
+  .top-bar {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
-  .top-nav-links {
-    flex-wrap: wrap;
-  }
-
-  .survey-container {
-    margin: 18px auto 28px;
-    padding: 16px 14px 20px;
-  }
-
   .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .charts-grid {
@@ -617,159 +344,38 @@ select {
 }
 
 /* ============================================================
-   PRINT — Hospital‑Grade Output
+   PRINT
    ============================================================ */
 
 @media print {
-
-  .navbar,
   .top-bar,
-  .nav-links,
-  .top-nav-links,
   .btn,
   button,
   .filters-card,
-  #progressContainer,
-  #progressBar,
   .dropdown {
     display: none !important;
   }
 
   body {
     background: #ffffff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
   }
 
   .card,
-  .survey-container,
   .chart-card,
-  .table-card,
-  .report-card {
+  .table-card {
     box-shadow: none !important;
     border: 1px solid #cccccc !important;
-    background: #ffffff !important;
-    page-break-inside: avoid;
-  }
-
-  h1, h2, h3, h4 {
-    color: #0b3a6f !important;
-    font-weight: 700 !important;
-  }
-
-  p, td, th, label, span {
-    color: #000000 !important;
   }
 
   table {
-    border-collapse: collapse !important;
-    width: 100% !important;
     font-size: 11px !important;
   }
 
   th, td {
     border: 1px solid #cccccc !important;
-    padding: 5px 6px !important;
-  }
-
-  thead {
-    background: #e6e9ef !important;
-  }
-
-  canvas {
-    max-width: 100% !important;
-    height: auto !important;
-    page-break-inside: avoid;
-  }
-
-  .page-break {
-    page-break-before: always;
-  }
-
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-
-  .task-row {
-    border: 1px solid #cccccc !important;
-    background: #ffffff !important;
-  }
-
-  .checkmark {
-    opacity: 1 !important;
-    transform: scale(1) !important;
   }
 
   @page {
     margin: 18mm;
   }
-}
-.legend {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 10px;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.legend-item {
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-soft);
-}
-
-.legend-item.yes {
-  background: var(--yes);
-  border-color: #b7e3c7;
-}
-
-.legend-item.no {
-  background: var(--no);
-  border-color: #f3b5bf;
-}
-
-.legend-item.na {
-  background: var(--na);
-  border-color: #d4d7dd;
-}
-/* FIX: Prevent dropdown from blocking the PDF button */
-.top-actions {
-  position: relative;
-  z-index: 1;
-}
-
-#btn-local-pdf {
-  position: relative;
-  z-index: 9999;
-  pointer-events: auto !important;
-}
-.dropdown {
-  z-index: 5;
-}
-
-.dropdown-content {
-  z-index: 10;
-}
-/* FIX: Prevent dropdown from blocking the PDF button */
-.top-actions {
-  position: relative;
-  z-index: 1;
-}
-
-#btn-local-pdf {
-  position: relative;
-  z-index: 9999;
-  pointer-events: auto !important;
-}
-/* FIX: Prevent dropdown from blocking the PDF button */
-.top-actions {
-  position: relative;
-  z-index: 1;
-}
-
-#btn-local-pdf {
-  position: relative;
-  z-index: 9999;
-  pointer-events: auto !important;
 }
