@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Cleaning Survey</title>
 
-  <!-- Survey Styles -->
-  <link rel="stylesheet" href="survey.css" />
+  <!-- Load global styles FIRST -->
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Load survey-specific overrides SECOND -->
+  <link rel="stylesheet" href="survey.css" />
 </head>
 
 <body>
@@ -28,8 +29,13 @@
     </div>
   </header>
 
-  <!-- SURVEY FORM -->
+  <!-- MAIN SURVEY CONTAINER -->
   <main class="survey-container">
+
+    <!-- PROGRESS BAR (placeholder — JS will animate it) -->
+    <div id="progressBarContainer" class="progress-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
 
     <form id="surveyForm">
 
