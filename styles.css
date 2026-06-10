@@ -392,3 +392,19 @@ tbody tr:hover {
   border: 1px solid #e0e0e0 !important;
   box-shadow: none !important;
 }
+/* ============================================================
+   RESTORE OLD SURVEY LOOK — Overrides ONLY for survey page
+   (DISABLED — commented out to allow new card‑based UI)
+   ============================================================ */
+
+/*
+.survey-container {
+  max-width: 600px !important;
+  margin: 20px auto !important;
+  padding: 16px !important;
+  background: #ffffff !important;
+  border-radius: 10px !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: none !important;
+}
+*/
