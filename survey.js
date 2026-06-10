@@ -1,6 +1,6 @@
 /* ============================================================
-   DAILY CLEANING SURVEY — ENTERPRISE EDITION (v3.1)
-   Stable • Mobile‑Safe • Clean Architecture
+   DAILY CLEANING SURVEY — ENTERPRISE EDITION (v3.2)
+   With Progress Bar + Animations
    ============================================================ */
 
 const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
@@ -50,6 +50,60 @@ function setLoading(btn, isLoading) {
 }
 
 /* ============================================================
+   PROGRESS BAR ENGINE
+   ============================================================ */
+
+const progressBar = document.getElementById("progressBar");
+
+function updateProgress() {
+  let total = 3; // room, staff, shift
+  let completed = 0;
+
+  if (document.getElementById("room").value) completed++;
+  if (document.getElementById("staff").value) completed++;
+  if (document.getElementById("shift").value) completed++;
+
+  const taskSelects = document.querySelectorAll(".task-select");
+  total += taskSelects.length;
+
+  taskSelects.forEach(sel => {
+    if (sel.value) completed++;
+  });
+
+  const percent = Math.round((completed / total) * 100);
+  progressBar.style.width = percent + "%";
+}
+
+/* ============================================================
+   TASK GLOW EFFECT
+   ============================================================ */
+
+function applyGlow(card, value) {
+  card.classList.remove("glow-yes", "glow-no", "glow-na");
+
+  if (value === "Y") card.classList.add("glow-yes");
+  if (value === "N") card.classList.add("glow-no");
+  if (value === "NA") card.classList.add("glow-na");
+
+  setTimeout(() => {
+    card.classList.remove("glow-yes", "glow-no", "glow-na");
+  }, 600);
+}
+
+/* Attach glow + progress listeners */
+document.querySelectorAll(".task-card").forEach(card => {
+  const select = card.querySelector("select");
+  select.addEventListener("change", () => {
+    applyGlow(card, select.value);
+    updateProgress();
+  });
+});
+
+["room", "staff", "shift"].forEach(id => {
+  document.getElementById(id).addEventListener("change", updateProgress);
+});
+
+/* ============================================================
    FORM HANDLING
    ============================================================ */
 
@@ -63,42 +117,27 @@ form.addEventListener("submit", async (e) => {
   setLoading(submitBtn, true);
 
   try {
-    /* --------------------------------------------------------
-       COLLECT FORM DATA
-    -------------------------------------------------------- */
     const room = document.getElementById("room").value;
     const staff = document.getElementById("staff").value;
     const shift = document.getElementById("shift").value;
     const notes = document.getElementById("notes").value.trim();
 
-    /* --------------------------------------------------------
-       COLLECT TASKS (Card-Based)
-    -------------------------------------------------------- */
     const taskCards = document.querySelectorAll(".task-card");
     const tasks_completed = {};
 
     taskCards.forEach((card) => {
       const labelText = card.querySelector("label").innerText.trim();
-
-      // Remove icon text (e.g., "🗑️ Trash" → "Trash")
       const cleanLabel = labelText.replace(/^[^\w]+/, "").trim();
-
       const value = card.querySelector("select").value;
       tasks_completed[cleanLabel] = value;
     });
 
-    /* --------------------------------------------------------
-       VALIDATION
-    -------------------------------------------------------- */
     if (!room || !staff || !shift) {
       showToast("Please complete all required fields", "error");
       setLoading(submitBtn, false);
       return;
     }
 
-    /* --------------------------------------------------------
-       BUILD PAYLOAD
-    -------------------------------------------------------- */
     const payload = {
       room,
       staff,
@@ -108,22 +147,14 @@ form.addEventListener("submit", async (e) => {
       timestamp: new Date().toISOString()
     };
 
-    /* --------------------------------------------------------
-       SEND TO BACKEND
-    -------------------------------------------------------- */
     const response = await fetch(`${API_BASE}/survey`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-      throw new Error("Server error");
-    }
+    if (!response.ok) throw new Error("Server error");
 
-    /* --------------------------------------------------------
-       SUCCESS
-    -------------------------------------------------------- */
     form.style.display = "none";
     successScreen.style.display = "block";
     showToast("Survey submitted successfully");
