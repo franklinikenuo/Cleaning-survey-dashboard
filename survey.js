@@ -71,13 +71,20 @@ form.addEventListener("submit", async (e) => {
     const shift = document.getElementById("shift").value;
     const notes = document.getElementById("notes").value.trim();
 
-    const taskRows = document.querySelectorAll(".task-row");
+    /* --------------------------------------------------------
+       COLLECT TASKS (Card-Based)
+    -------------------------------------------------------- */
+    const taskCards = document.querySelectorAll(".task-card");
     const tasks_completed = {};
 
-    taskRows.forEach((row, index) => {
-      const label = row.querySelector("label").innerText.trim();
-      const value = row.querySelector("select").value;
-      tasks_completed[label] = value;
+    taskCards.forEach((card) => {
+      const labelText = card.querySelector("label").innerText.trim();
+
+      // Remove icon text (e.g., "🗑️ Trash" → "Trash")
+      const cleanLabel = labelText.replace(/^[^\w]+/, "").trim();
+
+      const value = card.querySelector("select").value;
+      tasks_completed[cleanLabel] = value;
     });
 
     /* --------------------------------------------------------
