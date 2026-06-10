@@ -1,85 +1,146 @@
 /* ============================================================
-   SURVEY HYBRID DESIGN — Overrides for UCDS v3.1
+   CARD‑BASED DASHBOARD SURVEY DESIGN
+   Clean, modern, clinical — matches your dashboard UI
    ============================================================ */
 
-/* Keep survey compact and clean */
+/* Survey container */
 .survey-container {
-  max-width: 600px;
+  max-width: 650px;
   margin: 24px auto;
-  padding: 20px 18px 24px;
+  padding: 0 18px 80px;
+}
+
+/* Card container for Room / Staff / Shift / Notes */
+.card {
   background: #ffffff;
+  padding: 16px 18px;
   border-radius: 14px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
+  margin-bottom: 16px;
 }
 
-/* Title spacing */
-.survey-container h1 {
-  margin-bottom: 4px;
-  font-size: 1.2rem;
+.card label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  display: block;
+  margin-bottom: 6px;
 }
 
-.tasks-title {
-  margin-top: 20px;
-  margin-bottom: 4px;
+/* Inputs inside cards */
+.card select,
+.card textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
   font-size: 0.9rem;
+  background: #fdfdfd;
+}
+
+/* Notes box */
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Section titles */
+.tasks-title {
+  margin-top: 24px;
+  margin-bottom: 4px;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--primary-dark);
 }
 
 .tasks-subtitle {
-  margin: 0 0 12px;
-  font-size: 0.78rem;
+  margin: 0 0 14px;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
-/* Task rows — hybrid style */
-.task-row {
+/* ============================================================
+   TASK CARDS — Card‑Based Dashboard Style
+   ============================================================ */
+
+.task-card {
+  background: #ffffff;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 14px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  background: #f8faff;
-  border: 1px solid var(--border-soft);
 }
 
-.task-row label {
+.task-card label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
-.task-row .icon {
-  width: 18px;
-  height: 18px;
+.task-card .icon {
+  width: 22px;
+  height: 22px;
   opacity: 0.9;
 }
 
-/* Dropdowns — compact */
+/* Task dropdown */
 .task-select {
-  padding: 6px 10px;
-  font-size: 0.85rem;
-  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: #fdfdfd;
 }
 
-/* Restore simpler dropdown arrow for survey only */
+/* Restore simple dropdown arrow */
 .survey-container select {
   appearance: auto;
   background-image: none !important;
   padding-right: 10px !important;
 }
 
-/* Notes box */
-textarea {
-  margin-top: 6px;
-  min-height: 70px;
-  resize: vertical;
+/* ============================================================
+   SUBMIT BUTTON — Sticky bottom button
+   ============================================================ */
+
+.submit-btn {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  padding: 18px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  text-align: center;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
 }
 
-/* Success screen */
-#successScreen {
+/* ============================================================
+   SUCCESS SCREEN
+   ============================================================ */
+
+.success-screen {
+  display: none;
   text-align: center;
-  padding: 20px;
+  padding: 40px 20px;
+}
+
+.success-screen h2 {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.success-screen p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
