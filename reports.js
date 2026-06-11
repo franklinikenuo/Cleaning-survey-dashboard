@@ -5,9 +5,11 @@
 
 const backend = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
-// -------------------------------
-// Warm-up + Retry Wrapper
-// -------------------------------
+/* ============================================================
+   WARM-UP + RETRY WRAPPER
+   Ensures backend wakes from cold start (Render)
+   ============================================================ */
+
 async function getWithRetry(url, retries = 3) {
     try {
         return await fetch(url);
@@ -20,15 +22,17 @@ async function getWithRetry(url, retries = 3) {
     }
 }
 
-// -------------------------------
-// Helper: Trigger Report
-// -------------------------------
+/* ============================================================
+   SEND REPORT HELPER
+   Handles weekly, monthly, quarterly, yearly
+   ============================================================ */
+
 async function sendReport(endpoint) {
     try {
-        // Wake backend
+        // Warm backend (Render cold start)
         try {
-            await fetch(backend);
-        } catch (err) {
+            await fetch(backend, { method: "GET" });
+        } catch (_) {
             console.log("Backend waking up…");
         }
 
@@ -53,9 +57,10 @@ async function sendReport(endpoint) {
     }
 }
 
-// -------------------------------
-// Button Event Listeners
-// -------------------------------
+/* ============================================================
+   BUTTON EVENT LISTENERS
+   ============================================================ */
+
 document.getElementById("emailWeeklyReport").addEventListener("click", () => {
     sendReport("/send-weekly-report");
 });
