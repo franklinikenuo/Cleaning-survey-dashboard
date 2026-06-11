@@ -1,5 +1,5 @@
 /* ============================================================
-   CLEANING DASHBOARD — ENTERPRISE EDITION (v3.1)
+   CLEANING DASHBOARD — ENTERPRISE EDITION (v3.2)
    Stable • Modular • Mobile‑Safe • Hospital‑Grade
    ============================================================ */
 
@@ -49,6 +49,31 @@ function setLoading(btn, isLoading) {
   }
 }
 
+/* Timestamp helper — supports ISO and space‑separated formats */
+function getDateFromTimestamp(ts) {
+  if (!ts) return "";
+  if (ts.includes("T")) return ts.split("T")[0];
+  if (ts.includes(" ")) return ts.split(" ")[0];
+  return ts;
+}
+
+/* Compliance helper for a set of entries */
+function calculateCompliance(entries) {
+  let totalTasks = 0;
+  let completedTasks = 0;
+
+  entries.forEach(entry => {
+    if (!entry.tasks_completed) return;
+    for (const key in entry.tasks_completed) {
+      totalTasks++;
+      if (entry.tasks_completed[key] === "Y") completedTasks++;
+    }
+  });
+
+  const compliance = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  return { compliance, totalTasks, completedTasks };
+}
+
 /* ============================================================
    DOM ELEMENTS
    ============================================================ */
@@ -77,6 +102,7 @@ const btnChartsPDF = document.getElementById("exportPdfWithChartsBtn");
 async function fetchData() {
   try {
     const res = await fetch(`${API_BASE}/submissions`);
+    if (!res.ok) throw new Error("Network error");
     return await res.json();
   } catch (err) {
     showToast("Failed to load data", "error");
@@ -87,12 +113,16 @@ async function fetchData() {
 function applyFilters(data) {
   return data.filter(entry => {
     if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
-    if (filterStaff.value &&
-        !entry.staff.toLowerCase().includes(filterStaff.value.toLowerCase())) return false;
+
+    if (filterStaff.value) {
+      const staffVal = (entry.staff || "").toLowerCase();
+      if (!staffVal.includes(filterStaff.value.toLowerCase())) return false;
+    }
+
     if (filterShift.value !== "all" && entry.shift !== filterShift.value) return false;
 
     if (filterDate.value) {
-      const entryDate = entry.timestamp.split(" ")[0];
+      const entryDate = getDateFromTimestamp(entry.timestamp);
       if (entryDate !== filterDate.value) return false;
     }
 
@@ -107,27 +137,25 @@ function applyFilters(data) {
 function updateSummary(data) {
   totalSubmissionsEl.textContent = data.length;
 
-  let totalTasks = 0;
-  let completedTasks = 0;
-
-  data.forEach(entry => {
-    for (const key in entry.tasks_completed) {
-      totalTasks++;
-      if (entry.tasks_completed[key] === "Y") completedTasks++;
-    }
-  });
-
-  const compliance = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const { compliance } = calculateCompliance(data);
   overallComplianceEl.textContent = compliance + "%";
 
   const shiftCounts = {};
-  data.forEach(e => shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1);
+  data.forEach(e => {
+    if (!e.shift) return;
+    shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1;
+  });
 
   const topShift = Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   topShiftEl.textContent = topShift;
 
   const avgTasks = data.length
-    ? (data.reduce((sum, e) => sum + Object.keys(e.tasks_completed).length, 0) / data.length).toFixed(1)
+    ? (
+        data.reduce((sum, e) => {
+          if (!e.tasks_completed) return sum;
+          return sum + Object.keys(e.tasks_completed).length;
+        }, 0) / data.length
+      ).toFixed(1)
     : 0;
 
   avgTasksEl.textContent = avgTasks;
@@ -140,22 +168,30 @@ function updateSummary(data) {
 function renderTable(data) {
   tableBody.innerHTML = "";
 
+  const frag = document.createDocumentFragment();
+
   data.forEach(entry => {
     const tr = document.createElement("tr");
 
+    const tasksText = entry.tasks_completed
+      ? Object.entries(entry.tasks_completed)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("<br>")
+      : "";
+
     tr.innerHTML = `
-      <td>${entry.room}</td>
-      <td>${entry.shift}</td>
-      <td>${entry.staff}</td>
-      <td>${Object.entries(entry.tasks_completed)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join("<br>")}</td>
+      <td>${entry.room || ""}</td>
+      <td>${entry.shift || ""}</td>
+      <td>${entry.staff || ""}</td>
+      <td>${tasksText}</td>
       <td>${entry.notes || ""}</td>
-      <td>${entry.timestamp}</td>
+      <td>${entry.timestamp || ""}</td>
     `;
 
-    tableBody.appendChild(tr);
+    frag.appendChild(tr);
   });
+
+  tableBody.appendChild(frag);
 }
 
 /* ============================================================
@@ -167,24 +203,18 @@ let roomChart, shiftChart, tasksTrendChart;
 function renderRoomChart(data) {
   if (roomChart) roomChart.destroy();
 
-  const rooms = [...new Set(data.map(e => e.room))];
+  const rooms = [...new Set(data.map(e => e.room).filter(Boolean))];
+
   const compliance = rooms.map(room => {
     const entries = data.filter(e => e.room === room);
-
-    let total = 0;
-    let yes = 0;
-
-    entries.forEach(e => {
-      for (const key in e.tasks_completed) {
-        total++;
-        if (e.tasks_completed[key] === "Y") yes++;
-      }
-    });
-
-    return total ? Math.round((yes / total) * 100) : 0;
+    const { compliance } = calculateCompliance(entries);
+    return compliance;
   });
 
-  roomChart = new Chart(document.getElementById("roomChart"), {
+  const ctx = document.getElementById("roomChart");
+  if (!ctx) return;
+
+  roomChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels: rooms,
@@ -196,7 +226,12 @@ function renderRoomChart(data) {
         }
       ]
     },
-    options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      }
+    }
   });
 }
 
@@ -206,7 +241,10 @@ function renderShiftChart(data) {
   const shifts = ["Morning", "Afternoon", "Evening", "Night"];
   const counts = shifts.map(s => data.filter(e => e.shift === s).length);
 
-  shiftChart = new Chart(document.getElementById("shiftChart"), {
+  const ctx = document.getElementById("shiftChart");
+  if (!ctx) return;
+
+  shiftChart = new Chart(ctx, {
     type: "pie",
     data: {
       labels: shifts,
@@ -227,10 +265,12 @@ function renderTasksTrendChart(data) {
   const daily = {};
 
   data.forEach(entry => {
-    const date = entry.timestamp.split(" ")[0];
+    const date = getDateFromTimestamp(entry.timestamp);
+    if (!date) return;
 
     if (!daily[date]) daily[date] = { yes: 0, total: 0 };
 
+    if (!entry.tasks_completed) return;
     for (const key in entry.tasks_completed) {
       daily[date].total++;
       if (entry.tasks_completed[key] === "Y") daily[date].yes++;
@@ -239,10 +279,13 @@ function renderTasksTrendChart(data) {
 
   const dates = Object.keys(daily).sort();
   const percentages = dates.map(d =>
-    Math.round((daily[d].yes / daily[d].total) * 100)
+    daily[d].total ? Math.round((daily[d].yes / daily[d].total) * 100) : 0
   );
 
-  tasksTrendChart = new Chart(document.getElementById("tasksTrendChart"), {
+  const ctx = document.getElementById("tasksTrendChart");
+  if (!ctx) return;
+
+  tasksTrendChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: dates,
@@ -256,7 +299,12 @@ function renderTasksTrendChart(data) {
         }
       ]
     },
-    options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      }
+    }
   });
 }
 
@@ -269,13 +317,19 @@ btnCSV.onclick = () => {
   const filtered = applyFilters(allData);
 
   filtered.forEach(e => {
+    const tasksText = e.tasks_completed
+      ? Object.entries(e.tasks_completed)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("; ")
+      : "";
+
     rows.push([
-      e.room,
-      e.shift,
-      e.staff,
-      Object.entries(e.tasks_completed).map(([k, v]) => `${k}: ${v}`).join("; "),
+      e.room || "",
+      e.shift || "",
+      e.staff || "",
+      tasksText,
       e.notes || "",
-      e.timestamp
+      e.timestamp || ""
     ]);
   });
 
@@ -292,14 +346,16 @@ btnExcel.onclick = () => {
   const filtered = applyFilters(allData);
 
   const worksheetData = filtered.map(e => ({
-    Room: e.room,
-    Shift: e.shift,
-    Staff: e.staff,
-    Tasks: Object.entries(e.tasks_completed)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join("; "),
+    Room: e.room || "",
+    Shift: e.shift || "",
+    Staff: e.staff || "",
+    Tasks: e.tasks_completed
+      ? Object.entries(e.tasks_completed)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("; ")
+      : "",
     Notes: e.notes || "",
-    Timestamp: e.timestamp
+    Timestamp: e.timestamp || ""
   }));
 
   const ws = XLSX.utils.json_to_sheet(worksheetData);
@@ -311,6 +367,7 @@ btnExcel.onclick = () => {
 
 btnLocalPDF.onclick = () => {
   const element = document.querySelector(".main-layout");
+  if (!element) return;
 
   const canvases = document.querySelectorAll("canvas");
   const replacements = [];
@@ -355,6 +412,10 @@ btnChartsPDF.onclick = async () => {
     const shiftCanvas = document.getElementById("shiftChart");
     const tasksCanvas = document.getElementById("tasksTrendChart");
 
+    if (!roomCanvas || !shiftCanvas || !tasksCanvas) {
+      throw new Error("Charts not ready");
+    }
+
     const payload = {
       room_chart: roomCanvas.toDataURL("image/png"),
       shift_chart: shiftCanvas.toDataURL("image/png"),
@@ -366,6 +427,8 @@ btnChartsPDF.onclick = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
+    if (!response.ok) throw new Error("Server error");
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
@@ -398,10 +461,11 @@ async function refresh() {
   renderShiftChart(filtered);
   renderTasksTrendChart(filtered);
 
-  btnChartsPDF.disabled = false;
+  btnChartsPDF.disabled = filtered.length === 0;
 }
 
 async function init() {
+  btnChartsPDF.disabled = true;
   allData = await fetchData();
   await refresh();
   showToast("Dashboard loaded");
