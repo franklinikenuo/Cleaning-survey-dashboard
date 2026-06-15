@@ -1,474 +1,202 @@
-/* ============================================================
-   CLEANING DASHBOARD — ENTERPRISE EDITION (v3.2)
-   Stable • Modular • Mobile‑Safe • Hospital‑Grade
-   ============================================================ */
+const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
+const supabaseKey = "YOUR_ANON_KEY_HERE";
 
-const API_BASE = "https://cleaning-survey-api-v2-x6sf.onrender.com";
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* ============================================================
-   UTILITIES — Toasts, Loading, Helpers
-   ============================================================ */
+let allData = [];
 
-function showToast(message, type = "info") {
-  const toast = document.createElement("div");
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
-
-  Object.assign(toast.style, {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    background: type === "error" ? "#d7263d" : "#0b3a6f",
-    color: "#fff",
-    padding: "10px 16px",
-    borderRadius: "8px",
-    fontSize: "0.85rem",
-    zIndex: 99999,
-    opacity: 0,
-    transition: "opacity 0.3s ease"
-  });
-
-  document.body.appendChild(toast);
-  requestAnimationFrame(() => (toast.style.opacity = 1));
-
-  setTimeout(() => {
-    toast.style.opacity = 0;
-    setTimeout(() => toast.remove(), 300);
-  }, 2600);
-}
-
-function setLoading(btn, isLoading) {
-  if (!btn) return;
-  if (isLoading) {
-    btn.dataset.originalText = btn.textContent;
-    btn.textContent = "Processing…";
-    btn.disabled = true;
-  } else {
-    btn.textContent = btn.dataset.originalText;
-    btn.disabled = false;
-  }
-}
-
-/* Timestamp helper — supports ISO and space‑separated formats */
-function getDateFromTimestamp(ts) {
-  if (!ts) return "";
-  if (ts.includes("T")) return ts.split("T")[0];
-  if (ts.includes(" ")) return ts.split(" ")[0];
-  return ts;
-}
-
-/* Compliance helper for a set of entries */
-function calculateCompliance(entries) {
-  let totalTasks = 0;
-  let completedTasks = 0;
-
-  entries.forEach(entry => {
-    if (!entry.tasks_completed) return;
-    for (const key in entry.tasks_completed) {
-      totalTasks++;
-      if (entry.tasks_completed[key] === "Y") completedTasks++;
-    }
-  });
-
-  const compliance = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  return { compliance, totalTasks, completedTasks };
-}
-
-/* ============================================================
+/* =============================
    DOM ELEMENTS
-   ============================================================ */
+============================= */
+const tableBody = document.querySelector("#submissions-table tbody");
 
-const filterRoom = document.getElementById("filter-room");
-const filterStaff = document.getElementById("filter-staff");
-const filterShift = document.getElementById("filter-shift");
-const filterDate = document.getElementById("filter-date");
-
-const totalSubmissionsEl = document.getElementById("total-submissions");
-const overallComplianceEl = document.getElementById("overall-compliance");
+const totalEl = document.getElementById("total-submissions");
+const complianceEl = document.getElementById("overall-compliance");
 const topShiftEl = document.getElementById("top-shift");
 const avgTasksEl = document.getElementById("avg-tasks");
 
-const tableBody = document.querySelector("#submissions-table tbody");
-
-const btnLocalPDF = document.getElementById("btn-local-pdf");
-const btnCSV = document.getElementById("btn-export-csv");
-const btnExcel = document.getElementById("btn-export-excel");
-const btnChartsPDF = document.getElementById("exportPdfWithChartsBtn");
-
-/* ============================================================
-   FETCH + FILTERS
-   ============================================================ */
-
+/* =============================
+   FETCH DATA (SUPABASE)
+============================= */
 async function fetchData() {
   try {
-    const res = await fetch(`${API_BASE}/submissions`);
-    if (!res.ok) throw new Error("Network error");
-    return await res.json();
+    const { data, error } = await client
+      .from("surveys")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return data || [];
   } catch (err) {
-    showToast("Failed to load data", "error");
+    console.log("Supabase fetch error:", err);
     return [];
   }
 }
 
+/* =============================
+   FILTERS
+============================= */
 function applyFilters(data) {
-  return data.filter(entry => {
-    if (filterRoom.value !== "all" && entry.room !== filterRoom.value) return false;
+  const room = document.getElementById("filter-room").value;
+  const staff = document.getElementById("filter-staff").value.toLowerCase();
+  const shift = document.getElementById("filter-shift").value;
+  const date = document.getElementById("filter-date").value;
 
-    if (filterStaff.value) {
-      const staffVal = (entry.staff || "").toLowerCase();
-      if (!staffVal.includes(filterStaff.value.toLowerCase())) return false;
-    }
-
-    if (filterShift.value !== "all" && entry.shift !== filterShift.value) return false;
-
-    if (filterDate.value) {
-      const entryDate = getDateFromTimestamp(entry.timestamp);
-      if (entryDate !== filterDate.value) return false;
-    }
+  return data.filter(item => {
+    if (room !== "all" && item.room !== room) return false;
+    if (shift !== "all" && item.shift !== shift) return false;
+    if (staff && !item.staff?.toLowerCase().includes(staff)) return false;
+    if (date && item.created_at?.split("T")[0] !== date) return false;
 
     return true;
   });
 }
 
-/* ============================================================
-   SUMMARY CARDS
-   ============================================================ */
-
+/* =============================
+   SUMMARY
+============================= */
 function updateSummary(data) {
-  totalSubmissionsEl.textContent = data.length;
+  totalEl.textContent = data.length;
 
-  const { compliance } = calculateCompliance(data);
-  overallComplianceEl.textContent = compliance + "%";
+  const shiftCount = {};
+  let totalTasks = 0;
+  let completedTasks = 0;
 
-  const shiftCounts = {};
-  data.forEach(e => {
-    if (!e.shift) return;
-    shiftCounts[e.shift] = (shiftCounts[e.shift] || 0) + 1;
+  data.forEach(d => {
+    shiftCount[d.shift] = (shiftCount[d.shift] || 0) + 1;
+
+    if (d.tasks_completed) {
+      Object.values(d.tasks_completed).forEach(v => {
+        totalTasks++;
+        if (v === "Y") completedTasks++;
+      });
+    }
   });
 
-  const topShift = Object.entries(shiftCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+  const compliance = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  complianceEl.textContent = compliance + "%";
+
+  const topShift = Object.entries(shiftCount)
+    .sort((a,b) => b[1]-a[1])[0]?.[0] || "-";
+
   topShiftEl.textContent = topShift;
 
-  const avgTasks = data.length
-    ? (
-        data.reduce((sum, e) => {
-          if (!e.tasks_completed) return sum;
-          return sum + Object.keys(e.tasks_completed).length;
-        }, 0) / data.length
-      ).toFixed(1)
+  avgTasksEl.textContent = data.length
+    ? (totalTasks / data.length).toFixed(1)
     : 0;
-
-  avgTasksEl.textContent = avgTasks;
 }
 
-/* ============================================================
+/* =============================
    TABLE
-   ============================================================ */
-
+============================= */
 function renderTable(data) {
   tableBody.innerHTML = "";
 
-  const frag = document.createDocumentFragment();
-
-  data.forEach(entry => {
+  data.forEach(item => {
     const tr = document.createElement("tr");
 
-    const tasksText = entry.tasks_completed
-      ? Object.entries(entry.tasks_completed)
-          .map(([k, v]) => `${k}: ${v}`)
-          .join("<br>")
+    const tasks = item.tasks_completed
+      ? Object.entries(item.tasks_completed)
+          .map(([k,v]) => `${k}:${v}`)
+          .join(" | ")
       : "";
 
     tr.innerHTML = `
-      <td>${entry.room || ""}</td>
-      <td>${entry.shift || ""}</td>
-      <td>${entry.staff || ""}</td>
-      <td>${tasksText}</td>
-      <td>${entry.notes || ""}</td>
-      <td>${entry.timestamp || ""}</td>
+      <td>${item.room || ""}</td>
+      <td>${item.shift || ""}</td>
+      <td>${item.staff || ""}</td>
+      <td>${tasks}</td>
+      <td>${item.notes || ""}</td>
+      <td>${item.created_at?.split("T")[0] || ""}</td>
     `;
 
-    frag.appendChild(tr);
+    tableBody.appendChild(tr);
   });
-
-  tableBody.appendChild(frag);
 }
 
-/* ============================================================
+/* =============================
    CHARTS
-   ============================================================ */
+============================= */
+let roomChart, shiftChart, trendChart;
 
-let roomChart, shiftChart, tasksTrendChart;
+function renderCharts(data) {
+  /* ROOM */
+  const roomMap = {};
+  data.forEach(d => roomMap[d.room] = (roomMap[d.room] || 0) + 1);
 
-function renderRoomChart(data) {
   if (roomChart) roomChart.destroy();
 
-  const rooms = [...new Set(data.map(e => e.room).filter(Boolean))];
-
-  const compliance = rooms.map(room => {
-    const entries = data.filter(e => e.room === room);
-    const { compliance } = calculateCompliance(entries);
-    return compliance;
-  });
-
-  const ctx = document.getElementById("roomChart");
-  if (!ctx) return;
-
-  roomChart = new Chart(ctx, {
+  roomChart = new Chart(document.getElementById("roomChart"), {
     type: "bar",
     data: {
-      labels: rooms,
-      datasets: [
-        {
-          label: "Compliance (%)",
-          data: compliance,
-          backgroundColor: "#4CAF50"
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
+      labels: Object.keys(roomMap),
+      datasets: [{
+        label: "Submissions",
+        data: Object.values(roomMap)
+      }]
     }
   });
-}
 
-function renderShiftChart(data) {
+  /* SHIFT */
+  const shifts = ["Morning","Afternoon","Evening","Night"];
+  const shiftData = shifts.map(s => data.filter(d => d.shift === s).length);
+
   if (shiftChart) shiftChart.destroy();
 
-  const shifts = ["Morning", "Afternoon", "Evening", "Night"];
-  const counts = shifts.map(s => data.filter(e => e.shift === s).length);
-
-  const ctx = document.getElementById("shiftChart");
-  if (!ctx) return;
-
-  shiftChart = new Chart(ctx, {
+  shiftChart = new Chart(document.getElementById("shiftChart"), {
     type: "pie",
     data: {
       labels: shifts,
-      datasets: [
-        {
-          data: counts,
-          backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#9C27B0"]
-        }
-      ]
-    },
-    options: { responsive: true }
-  });
-}
-
-function renderTasksTrendChart(data) {
-  if (tasksTrendChart) tasksTrendChart.destroy();
-
-  const daily = {};
-
-  data.forEach(entry => {
-    const date = getDateFromTimestamp(entry.timestamp);
-    if (!date) return;
-
-    if (!daily[date]) daily[date] = { yes: 0, total: 0 };
-
-    if (!entry.tasks_completed) return;
-    for (const key in entry.tasks_completed) {
-      daily[date].total++;
-      if (entry.tasks_completed[key] === "Y") daily[date].yes++;
+      datasets: [{ data: shiftData }]
     }
   });
 
-  const dates = Object.keys(daily).sort();
-  const percentages = dates.map(d =>
-    daily[d].total ? Math.round((daily[d].yes / daily[d].total) * 100) : 0
-  );
+  /* TREND */
+  const trend = {};
 
-  const ctx = document.getElementById("tasksTrendChart");
-  if (!ctx) return;
+  data.forEach(d => {
+    const day = d.created_at?.split("T")[0];
+    if (!day) return;
+    trend[day] = (trend[day] || 0) + 1;
+  });
 
-  tasksTrendChart = new Chart(ctx, {
+  if (trendChart) trendChart.destroy();
+
+  trendChart = new Chart(document.getElementById("tasksTrendChart"), {
     type: "line",
     data: {
-      labels: dates,
-      datasets: [
-        {
-          label: "Daily Completion %",
-          data: percentages,
-          borderColor: "#0b3a6f",
-          backgroundColor: "rgba(11,58,111,0.2)",
-          tension: 0.3
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
+      labels: Object.keys(trend),
+      datasets: [{
+        label: "Daily Submissions",
+        data: Object.values(trend)
+      }]
     }
   });
 }
 
-/* ============================================================
-   EXPORTS — CSV, Excel, Local PDF, Charts PDF
-   ============================================================ */
-
-btnCSV.onclick = () => {
-  const rows = [["Room", "Shift", "Staff", "Tasks", "Notes", "Timestamp"]];
-  const filtered = applyFilters(allData);
-
-  filtered.forEach(e => {
-    const tasksText = e.tasks_completed
-      ? Object.entries(e.tasks_completed)
-          .map(([k, v]) => `${k}: ${v}`)
-          .join("; ")
-      : "";
-
-    rows.push([
-      e.room || "",
-      e.shift || "",
-      e.staff || "",
-      tasksText,
-      e.notes || "",
-      e.timestamp || ""
-    ]);
-  });
-
-  const csv = rows.map(r => r.join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "cleaning_report.csv";
-  link.click();
-};
-
-btnExcel.onclick = () => {
-  const filtered = applyFilters(allData);
-
-  const worksheetData = filtered.map(e => ({
-    Room: e.room || "",
-    Shift: e.shift || "",
-    Staff: e.staff || "",
-    Tasks: e.tasks_completed
-      ? Object.entries(e.tasks_completed)
-          .map(([k, v]) => `${k}: ${v}`)
-          .join("; ")
-      : "",
-    Notes: e.notes || "",
-    Timestamp: e.timestamp || ""
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(worksheetData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Report");
-
-  XLSX.writeFile(wb, "cleaning_report.xlsx");
-};
-
-btnLocalPDF.onclick = () => {
-  const element = document.querySelector(".main-layout");
-  if (!element) return;
-
-  const canvases = document.querySelectorAll("canvas");
-  const replacements = [];
-
-  canvases.forEach(canvas => {
-    const img = new Image();
-    img.src = canvas.toDataURL("image/png");
-    img.style.width = canvas.style.width;
-    img.style.height = canvas.style.height;
-
-    canvas.style.display = "none";
-    canvas.parentNode.insertBefore(img, canvas);
-
-    replacements.push({ canvas, img });
-  });
-
-  html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff"
-  }).then(canvas => {
-    replacements.forEach(({ canvas, img }) => {
-      img.remove();
-      canvas.style.display = "block";
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const width = pdf.internal.pageSize.getWidth();
-    const height = (canvas.height * width) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, width, height);
-    pdf.save("cleaning_dashboard.pdf");
-  });
-};
-
-btnChartsPDF.onclick = async () => {
-  setLoading(btnChartsPDF, true);
-
-  try {
-    const roomCanvas = document.getElementById("roomChart");
-    const shiftCanvas = document.getElementById("shiftChart");
-    const tasksCanvas = document.getElementById("tasksTrendChart");
-
-    if (!roomCanvas || !shiftCanvas || !tasksCanvas) {
-      throw new Error("Charts not ready");
-    }
-
-    const payload = {
-      room_chart: roomCanvas.toDataURL("image/png"),
-      shift_chart: shiftCanvas.toDataURL("image/png"),
-      tasks_chart: tasksCanvas.toDataURL("image/png")
-    };
-
-    const response = await fetch(`${API_BASE}/export/pdf-with-charts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) throw new Error("Server error");
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cleaning_report_with_charts.pdf";
-    a.click();
-    window.URL.revokeObjectURL(url);
-
-    showToast("PDF with charts downloaded");
-  } catch (err) {
-    showToast("Failed to export charts PDF", "error");
-  }
-
-  setLoading(btnChartsPDF, false);
-};
-
-/* ============================================================
-   INIT
-   ============================================================ */
-
-let allData = [];
-
+/* =============================
+   MAIN REFRESH
+============================= */
 async function refresh() {
   const filtered = applyFilters(allData);
 
   updateSummary(filtered);
   renderTable(filtered);
-  renderRoomChart(filtered);
-  renderShiftChart(filtered);
-  renderTasksTrendChart(filtered);
-
-  btnChartsPDF.disabled = filtered.length === 0;
+  renderCharts(filtered);
 }
 
+/* =============================
+   INIT
+============================= */
 async function init() {
-  btnChartsPDF.disabled = true;
   allData = await fetchData();
   await refresh();
-  showToast("Dashboard loaded");
+
+  setInterval(async () => {
+    allData = await fetchData();
+    await refresh();
+  }, 15000);
 }
 
 init();
