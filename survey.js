@@ -57,12 +57,10 @@ form.addEventListener("submit", async (e) => {
 
     form.style.display = "none";
     successScreen.style.display = "block";
-
   
-
   catch (err) {
   console.log("FULL ERROR:", err);
-  alert("Error: " + err.message);
+  alert(err.message || JSON.stringify(err));
 }
 
   btn.disabled = false;
