@@ -1,5 +1,6 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
-const supabaseKey = "PASTE_YOUR_ANON_KEY_HERE";
+
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -29,7 +30,7 @@ form.addEventListener("submit", async (e) => {
   });
 
   try {
-    // 1. Save main survey
+    // 1. Insert survey
     const { data, error } = await client
       .from("surveys")
       .insert([
@@ -42,7 +43,7 @@ form.addEventListener("submit", async (e) => {
 
     const surveyId = data.id;
 
-    // 2. Save tasks
+    // 2. Insert tasks
     const taskRows = Object.keys(tasks).map(key => ({
       survey_id: surveyId,
       task_name: key,
@@ -60,7 +61,7 @@ form.addEventListener("submit", async (e) => {
 
   } catch (err) {
     console.log("FULL ERROR:", err);
-    alert(err.message || JSON.stringify(err));
+    alert(err.message || "Submission failed");
   }
 
   btn.disabled = false;
