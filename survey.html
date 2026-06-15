@@ -5,155 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Cleaning Survey</title>
 
-  <!-- Load global styles FIRST -->
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Load survey-specific overrides SECOND -->
   <link rel="stylesheet" href="survey.css" />
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header class="top-bar">
-    <div class="top-bar-left">
-      <div>
-        <h1>Daily Cleaning Survey</h1>
-        <p>Complete once per room per shift</p>
-      </div>
-
-      <nav class="top-nav-links">
-        <a href="index.html">Dashboard</a>
-        <a href="reports.html">Reports</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- MAIN SURVEY CONTAINER -->
-  <main class="survey-container">
-
-    <!-- PROGRESS BAR (placeholder — JS will animate it) -->
-    <div id="progressBarContainer" class="progress-container">
-      <div id="progressBar" class="progress-bar"></div>
+<header class="top-bar">
+  <div class="top-bar-left">
+    <div>
+      <h1>Daily Cleaning Survey</h1>
+      <p>Complete once per room per shift</p>
     </div>
 
-    <form id="surveyForm">
+    <nav class="top-nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="reports.html">Reports</a>
+    </nav>
+  </div>
+</header>
 
-      <!-- ROOM -->
-      <div class="card">
-        <label for="room">Room</label>
-        <select id="room" required>
-          <option value="">Select room</option>
-          <option>Andrology/Embryology Lab</option>
-          <option>Blood Lab</option>
-          <option>Recovery Room</option>
-          <option>Procedure Room</option>
-          <option>Ultrasound Room 1</option>
-          <option>Ultrasound Room 2</option>
-          <option>Ultrasound Room 3</option>
-          <option>Ultrasound Room 4</option>
-          <option>Ultrasound Room 5</option>
-          <option>Ultrasound Room 6</option>
-          <option>Ultrasound Room 7</option>
-          <option>Collection Room 1</option>
-          <option>Collection Room 2</option>
-        </select>
-      </div>
-      
-      <!-- STAFF -->
-<div class="card">
-  <label for="staff">Staff</label>
-  <select id="staff" required>
-    <option value="">Select staff</option>
-    <option>Hamse</option>
-    <option>Hanna</option>
-    <option>Mohubo</option>
-    <option>Suweis</option>
-    <option>Tania</option>
-    <option>Ubah</option>
-    <option>Hanna, Hamse, Tania</option>
-  </select>
-</div>
+<main class="survey-container">
 
-      <!-- SHIFT -->
-      <div class="card">
-        <label for="shift">Shift</label>
-        <select id="shift" required>
-          <option value="">Select shift</option>
-          <option>Morning</option>
-          <option>Afternoon</option>
-          <option>Evening</option>
-          <option>Night</option>
-        </select>
-      </div>
+  <form id="surveyForm">
 
-      <!-- TASKS -->
-      <h3 class="tasks-title">Tasks Completed</h3>
-      <p class="tasks-subtitle">Y = Completed &nbsp; N = Not Completed &nbsp; NA = Not Applicable</p>
-
-      <div class="task-card">
-        <label><img src="icons/trash.svg" class="icon"> Trash</label>
-        <select class="task-select">
-          <option>Y</option><option>N</option><option>NA</option>
-        </select>
-      </div>
-
-      <div class="task-card">
-        <label><img src="icons/mop.svg" class="icon"> Mop</label>
-        <select class="task-select">
-          <option>Y</option><option>N</option><option>NA</option>
-        </select>
-      </div>
-
-      <div class="task-card">
-        <label><img src="icons/sanitize.svg" class="icon"> Sanitize</label>
-        <select class="task-select">
-          <option>Y</option><option>N</option><option>NA</option>
-        </select>
-      </div>
-
-      <div class="task-card">
-        <label><img src="icons/sweep.svg" class="icon"> Sweep</label>
-        <select class="task-select">
-          <option>Y</option><option>N</option><option>NA</option>
-        </select>
-      </div>
-
-      <div class="task-card">
-        <label><img src="icons/linen.svg" class="icon"> Linen Change</label>
-        <select class="task-select">
-          <option>Y</option><option>N</option><option>NA</option>
-        </select>
-      </div>
-
-      <div class="task-card">
-        <label><img src="icons/vacuum.svg" class="icon"> Vacuum</label>
-        <select class="task-select">
-          <option>Y</option><option>N</option><option>NA</option>
-        </select>
-      </div>
-
-      <!-- NOTES -->
-      <div class="card">
-        <label for="notes">Notes (optional)</label>
-        <textarea id="notes" placeholder="Enter any comments..."></textarea>
-      </div>
-
-      <!-- SUBMIT -->
-      <button type="submit" class="submit-btn">Submit Survey</button>
-
-    </form>
-
-    <!-- SUCCESS SCREEN -->
-    <div id="successScreen" class="success-screen">
-      <h2>Survey Submitted</h2>
-      <p>Your cleaning record has been saved.</p>
+    <!-- ROOM -->
+    <div class="card">
+      <label>Room</label>
+      <select id="room" required>
+        <option value="">Select room</option>
+        <option>Andrology/Embryology Lab</option>
+        <option>Blood Lab</option>
+        <option>Recovery Room</option>
+        <option>Procedure Room</option>
+        <option>Ultrasound Room 1</option>
+        <option>Ultrasound Room 2</option>
+        <option>Ultrasound Room 3</option>
+        <option>Ultrasound Room 4</option>
+        <option>Ultrasound Room 5</option>
+        <option>Ultrasound Room 6</option>
+        <option>Ultrasound Room 7</option>
+        <option>Collection Room 1</option>
+        <option>Collection Room 2</option>
+      </select>
     </div>
 
-  </main>
+    <!-- STAFF -->
+    <div class="card">
+      <label>Staff</label>
+      <select id="staff" required>
+        <option value="">Select staff</option>
+        <option>Hamse</option>
+        <option>Hanna</option>
+        <option>Mohubo</option>
+        <option>Suweis</option>
+        <option>Tania</option>
+        <option>Ubah</option>
+      </select>
+    </div>
 
-  <!-- JS -->
-  <script src="survey.js"></script>
+    <!-- SHIFT -->
+    <div class="card">
+      <label>Shift</label>
+      <select id="shift" required>
+        <option value="">Select shift</option>
+        <option>Morning</option>
+        <option>Afternoon</option>
+        <option>Evening</option>
+        <option>Night</option>
+      </select>
+    </div>
+
+    <!-- TASKS -->
+    <h3>Tasks Completed</h3>
+
+    <div class="task-card">
+      <label>Trash</label>
+      <select class="task">
+        <option>Y</option><option>N</option><option>NA</option>
+      </select>
+    </div>
+
+    <div class="task-card">
+      <label>Mop</label>
+      <select class="task">
+        <option>Y</option><option>N</option><option>NA</option>
+      </select>
+    </div>
+
+    <div class="task-card">
+      <label>Sanitize</label>
+      <select class="task">
+        <option>Y</option><option>N</option><option>NA</option>
+      </select>
+    </div>
+
+    <div class="task-card">
+      <label>Sweep</label>
+      <select class="task">
+        <option>Y</option><option>N</option><option>NA</option>
+      </select>
+    </div>
+
+    <div class="task-card">
+      <label>Linen Change</label>
+      <select class="task">
+        <option>Y</option><option>N</option><option>NA</option>
+      </select>
+    </div>
+
+    <div class="task-card">
+      <label>Vacuum</label>
+      <select class="task">
+        <option>Y</option><option>N</option><option>NA</option>
+      </select>
+    </div>
+
+    <!-- NOTES -->
+    <div class="card">
+      <label>Notes</label>
+      <textarea id="notes"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Survey</button>
+
+  </form>
+
+  <div id="successScreen" class="success-screen" style="display:none;">
+    <h2>Survey Submitted</h2>
+    <p>Saved successfully.</p>
+  </div>
+
+</main>
+
+<script src="survey.js"></script>
 
 </body>
 </html>
