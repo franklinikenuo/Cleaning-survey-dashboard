@@ -58,10 +58,12 @@ form.addEventListener("submit", async (e) => {
     form.style.display = "none";
     successScreen.style.display = "block";
 
-  } catch (err) {
-    console.log(err);
-    alert("Submission failed. Check Supabase setup.");
-  }
+  
+
+  catch (err) {
+  console.log("FULL ERROR:", err);
+  alert("Error: " + err.message);
+}
 
   btn.disabled = false;
   btn.textContent = "Submit Survey";
