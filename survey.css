@@ -1,19 +1,14 @@
-/* ============================================================
-   CARD‑BASED DASHBOARD SURVEY DESIGN
-   Clean, modern, clinical — matches your dashboard UI
-   ============================================================ */
-
-/* Survey container */
 .survey-container {
   max-width: 650px;
   margin: 24px auto;
-  padding: 0 18px 80px;
+  padding: 0 18px 100px;
 }
 
-/* Card container for Room / Staff / Shift / Notes */
+/* ================= CARDS ================= */
+
 .card {
-  background: #ffffff;
-  padding: 16px 18px;
+  background: #fff;
+  padding: 16px;
   border-radius: 14px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
@@ -22,54 +17,49 @@
 
 .card label {
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   display: block;
   margin-bottom: 6px;
 }
 
-/* Inputs inside cards */
 .card select,
 .card textarea {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
   font-size: 0.9rem;
-  background: #fdfdfd;
+  background: #fff;
 }
 
-/* Notes box */
 textarea {
   min-height: 80px;
   resize: vertical;
 }
 
-/* Section titles */
+/* ================= TASK SECTION ================= */
+
 .tasks-title {
   margin-top: 24px;
-  margin-bottom: 4px;
-  font-size: 1rem;
   font-weight: 700;
   color: var(--primary-dark);
 }
 
 .tasks-subtitle {
-  margin: 0 0 14px;
   font-size: 0.8rem;
   color: var(--text-muted);
+  margin-bottom: 12px;
 }
 
-/* ============================================================
-   TASK CARDS — Card‑Based Dashboard Style
-   ============================================================ */
+/* ================= TASK CARD ================= */
 
 .task-card {
-  background: #ffffff;
-  padding: 14px 16px;
+  background: #fff;
+  padding: 14px;
   border-radius: 14px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 
   display: flex;
   justify-content: space-between;
@@ -77,76 +67,64 @@ textarea {
 }
 
 .task-card label {
+  font-weight: 600;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  gap: 8px;
 }
 
+/* icons */
 .task-card .icon {
-  width: 22px;
-  height: 22px;
-  opacity: 0.9;
+  width: 20px;
+  height: 20px;
+  opacity: 0.85;
 }
 
-/* Task dropdown */
 .task-select {
-  padding: 8px 12px;
-  font-size: 0.9rem;
+  padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
-  background: #fdfdfd;
+  background: #fff;
 }
 
-/* Restore simple dropdown arrow */
-.survey-container select {
-  appearance: auto;
-  background-image: none !important;
-  padding-right: 10px !important;
-}
-
-/* ============================================================
-   SUBMIT BUTTON — Sticky bottom button
-   ============================================================ */
+/* ================= FIXED BUTTON (IMPORTANT CHANGE) ================= */
 
 .submit-btn {
-  position: fixed;
-  bottom: 0;
-  left: 0;
   width: 100%;
-  background: var(--primary);
-  color: white;
-  padding: 18px;
-  font-size: 1.1rem;
+  margin-top: 20px;
+  padding: 16px;
+  font-size: 1.05rem;
   font-weight: 700;
+
+  background: var(--primary);
+  color: #fff;
   border: none;
-  text-align: center;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  border-radius: 12px;
+
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
-/* ============================================================
-   SUCCESS SCREEN
-   ============================================================ */
+.submit-btn:hover {
+  background: var(--primary-dark);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= SUCCESS SCREEN ================= */
 
 .success-screen {
   display: none;
   text-align: center;
   padding: 40px 20px;
+  animation: fadeIn 0.3s ease;
 }
 
-.success-screen h2 {
-  font-size: 1.4rem;
-  margin-bottom: 8px;
-}
-
-.success-screen p {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-/* ============================================================
-   PROGRESS BAR — Thin Clinical Line
-   ============================================================ */
+/* ================= PROGRESS BAR ================= */
 
 .progress-container {
   width: 100%;
@@ -154,67 +132,55 @@ textarea {
   background: var(--primary-soft);
   border-radius: 20px;
   overflow: hidden;
-  margin: 18px 0 24px;
+  margin: 18px 0;
 }
 
 .progress-bar {
-  width: 0%;
   height: 100%;
+  width: 0%;
   background: var(--primary);
-  transition: width 0.35s ease;
+  transition: width 0.3s ease;
 }
 
-/* ============================================================
-   CARD SLIDE-IN ANIMATION
-   ============================================================ */
+/* ================= ANIMATION (FIXED) ================= */
 
-.card,
 .task-card {
   opacity: 0;
-  transform: translateY(8px);
-  animation: slideIn 0.45s ease forwards;
+  transform: translateY(6px);
+  animation: slideIn 0.35s ease forwards;
 }
-
-.task-card:nth-child(1) { animation-delay: 0.05s; }
-.task-card:nth-child(2) { animation-delay: 0.10s; }
-.task-card:nth-child(3) { animation-delay: 0.15s; }
-.task-card:nth-child(4) { animation-delay: 0.20s; }
-.task-card:nth-child(5) { animation-delay: 0.25s; }
-.task-card:nth-child(6) { animation-delay: 0.30s; }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ============================================================
-   TASK COMPLETION GLOW
-   ============================================================ */
+/* ================= GLOW STATES ================= */
 
 .task-card.glow-yes {
-  box-shadow: 0 0 0 3px rgba(20, 143, 76, 0.25);
-  transition: box-shadow 0.35s ease;
+  box-shadow: 0 0 0 3px rgba(20,143,76,0.25);
 }
 
 .task-card.glow-no {
-  box-shadow: 0 0 0 3px rgba(215, 38, 61, 0.25);
-  transition: box-shadow 0.35s ease;
+  box-shadow: 0 0 0 3px rgba(215,38,61,0.25);
 }
 
 .task-card.glow-na {
-  box-shadow: 0 0 0 3px rgba(155, 165, 180, 0.25);
-  transition: box-shadow 0.35s ease;
+  box-shadow: 0 0 0 3px rgba(150,150,150,0.2);
 }
 
-/* ============================================================
-   SUCCESS SCREEN ANIMATION
-   ============================================================ */
+/* ================= MOBILE ================= */
 
-.success-screen {
-  animation: fadeSuccess 0.4s ease forwards;
-}
+@media (max-width: 768px) {
+  .survey-container {
+    padding: 0 12px 90px;
+  }
 
-@keyframes fadeSuccess {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
+  .task-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }
