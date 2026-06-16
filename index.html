@@ -1,3 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cleaning Compliance Dashboard</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- =========================
+       CORE LIBRARIES (LOAD FIRST)
+  ========================== -->
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Export tools -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
 <body>
 
 <header class="top-bar">
@@ -8,7 +33,7 @@
 
   <div class="action-bar">
 
-    <!-- EXPORT UI -->
+    <!-- EXPORT -->
     <div class="export-console" id="exportConsole">
       <button class="btn export-main-btn" onclick="toggleExportMenu()">
         Export ▼
@@ -26,7 +51,6 @@
   </div>
 </header>
 
-<!-- EVERYTHING BELOW IS NOW CORRECTLY OUTSIDE HEADER -->
 <main class="main-layout">
 
   <!-- SUMMARY -->
@@ -45,9 +69,7 @@
   <!-- QUICK INSIGHTS -->
   <section class="card">
     <h3>Quick Insights</h3>
-    <div id="insightsPanel">
-      Loading insights...
-    </div>
+    <div id="insightsPanel">Loading insights...</div>
   </section>
 
   <!-- LEADERBOARD -->
@@ -124,3 +146,11 @@
   </section>
 
 </main>
+
+<!-- =========================
+     APP SCRIPT (LOAD LAST)
+========================= -->
+<script src="dashboard.js"></script>
+
+</body>
+</html>
