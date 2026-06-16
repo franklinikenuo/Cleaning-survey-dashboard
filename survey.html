@@ -2,30 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daily Cleaning Survey</title>
 
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="survey.css" />
+  <link rel="stylesheet" href="survey.css">
 </head>
 
 <body>
 
 <header class="top-bar">
-  <div class="top-bar-left">
-    <div>
-      <h1>Daily Cleaning Survey</h1>
-      <p>Complete once per room per shift</p>
-    </div>
-
-    <nav class="top-nav-links">
-      <a href="index.html">Dashboard</a>
-      <a href="reports.html">Reports</a>
-    </nav>
+  <div>
+    <h1>Daily Cleaning Survey</h1>
+    <p>Complete once per room per shift</p>
   </div>
+
+  <nav class="top-nav-links">
+    <a href="index.html">Dashboard</a>
+  </nav>
 </header>
 
 <main class="survey-container">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-container">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
 
   <form id="surveyForm">
 
@@ -50,28 +52,25 @@
       </select>
     </div>
 
-
+    <!-- STAFF -->
     <div class="card">
-  <label>Staff</label>
-  <select id="staff" required>
+      <label>Staff</label>
+      <select id="staff" required>
+        <option value="">Select staff</option>
 
-    <option value="">Select staff</option>
+        <option>Hamse</option>
+        <option>Hanna</option>
+        <option>Mohubo</option>
+        <option>Suweis</option>
+        <option>Tania</option>
+        <option>Ubah</option>
+        <option>David</option>
 
-    <!-- Individual staff -->
-    <option value="Hamse">Hamse</option>
-    <option value="Hanna">Hanna</option>
-    <option value="Mohubo">Mohubo</option>
-    <option value="Suweis">Suweis</option>
-    <option value="Tania">Tania</option>
-    <option value="Ubah">Ubah</option>
-    <option value="David">David</option>
-
-    <!-- Group combinations -->
-    <option value="Hanna, Hamse, Tania">Hanna, Hamse, Tania</option>
-    <option value="Hanna, Ubah, Tania">Hanna, Ubah, Tania</option>
-    <option value="Hanna, David, Tania">Hanna, David, Tania</option>
-
-  </select>
+        <!-- GROUPS -->
+        <option>Hanna, Hamse, Tania</option>
+        <option>Hanna, Ubah, Tania</option>
+        <option>Hanna, David, Tania</option>
+      </select>
     </div>
 
     <!-- SHIFT -->
@@ -87,47 +86,66 @@
     </div>
 
     <!-- TASKS -->
-    <h3>Tasks Completed</h3>
+    <h3 class="tasks-title">Tasks Completed</h3>
+    <p class="tasks-subtitle">Y = Yes | N = No | NA = Not Applicable</p>
 
-    <div class="task-card">
+    <div class="task-card" data-task="trash">
       <label>Trash</label>
-      <select class="task">
-        <option>Y</option><option>N</option><option>NA</option>
+      <select class="task-select">
+        <option value="">--</option>
+        <option value="Y">Y</option>
+        <option value="N">N</option>
+        <option value="NA">NA</option>
       </select>
     </div>
 
-    <div class="task-card">
+    <div class="task-card" data-task="mop">
       <label>Mop</label>
-      <select class="task">
-        <option>Y</option><option>N</option><option>NA</option>
+      <select class="task-select">
+        <option value="">--</option>
+        <option value="Y">Y</option>
+        <option value="N">N</option>
+        <option value="NA">NA</option>
       </select>
     </div>
 
-    <div class="task-card">
+    <div class="task-card" data-task="sanitize">
       <label>Sanitize</label>
-      <select class="task">
-        <option>Y</option><option>N</option><option>NA</option>
+      <select class="task-select">
+        <option value="">--</option>
+        <option value="Y">Y</option>
+        <option value="N">N</option>
+        <option value="NA">NA</option>
       </select>
     </div>
 
-    <div class="task-card">
+    <div class="task-card" data-task="sweep">
       <label>Sweep</label>
-      <select class="task">
-        <option>Y</option><option>N</option><option>NA</option>
+      <select class="task-select">
+        <option value="">--</option>
+        <option value="Y">Y</option>
+        <option value="N">N</option>
+        <option value="NA">NA</option>
       </select>
     </div>
 
-    <div class="task-card">
+    <div class="task-card" data-task="linen_change">
       <label>Linen Change</label>
-      <select class="task">
-        <option>Y</option><option>N</option><option>NA</option>
+      <select class="task-select">
+        <option value="">--</option>
+        <option value="Y">Y</option>
+        <option value="N">N</option>
+        <option value="NA">NA</option>
       </select>
     </div>
 
-    <div class="task-card">
+    <div class="task-card" data-task="vacuum">
       <label>Vacuum</label>
-      <select class="task">
-        <option>Y</option><option>N</option><option>NA</option>
+      <select class="task-select">
+        <option value="">--</option>
+        <option value="Y">Y</option>
+        <option value="N">N</option>
+        <option value="NA">NA</option>
       </select>
     </div>
 
@@ -141,18 +159,14 @@
 
   </form>
 
-  <!-- SUCCESS SCREEN -->
-  <div id="successScreen" class="success-screen" style="display:none;">
+  <div id="successScreen" class="success-screen">
     <h2>Survey Submitted</h2>
-    <p>Saved successfully.</p>
+    <p>Saved successfully</p>
   </div>
 
 </main>
 
-<!-- ✅ ONLY ONE SUPABASE IMPORT (IMPORTANT) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Your logic -->
 <script src="survey.js"></script>
 
 </body>
