@@ -302,7 +302,7 @@ async function refresh() {
   renderTable(filtered);
   renderCharts(filtered);
   renderLeaderboard(filtered);
-
+  renderInsights(filtered);
   isRefreshing = false;
 }
 
