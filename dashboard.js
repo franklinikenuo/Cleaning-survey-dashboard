@@ -251,7 +251,7 @@ function exportCSV() {
       .map(([k, v]) => `${k}:${v}`)
       .join(" | ");
 
-    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${(d.created_at || "").split("T")[0]}\n`;
+    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${d.work_date || (d.created_at || "").split("T")[0]}\n`;
   }
 
   const blob = new Blob([csv], { type: "text/csv" });
