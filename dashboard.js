@@ -276,3 +276,20 @@ async function init() {
 }
 
 init();
+client
+  .channel("surveys-live")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "surveys"
+    },
+    async () => {
+      console.log("Live update received");
+
+      allData = await fetchData();
+      refresh();
+    }
+  )
+  .subscribe();
