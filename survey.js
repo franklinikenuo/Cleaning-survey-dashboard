@@ -1,6 +1,5 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI"; // replace safely
-
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 /* ================= ELEMENTS ================= */
@@ -30,24 +29,23 @@ function getTasks() {
 function updateProgress() {
   if (!progressBar) return;
 
-  const taskSelects = document.querySelectorAll(".task-select");
+  const selects = document.querySelectorAll(".task-select");
 
-  let total = taskSelects.length + 3;
+  let total = selects.length + 3;
   let done = 0;
 
   if (roomEl?.value) done++;
   if (staffEl?.value) done++;
   if (shiftEl?.value) done++;
 
-  taskSelects.forEach(t => {
-    if (t.value) done++;
+  selects.forEach(s => {
+    if (s.value) done++;
   });
 
-  const percent = Math.round((done / total) * 100);
-  progressBar.style.width = percent + "%";
+  progressBar.style.width = Math.round((done / total) * 100) + "%";
 }
 
-/* ================= COLOR SYSTEM ================= */
+/* ================= TASK UI COLOR ================= */
 function handleTaskColor(select) {
   const card = select.closest(".task-card");
   if (!card) return;
@@ -64,32 +62,15 @@ function handleTaskColor(select) {
   el?.addEventListener("change", updateProgress);
 });
 
-document.querySelectorAll(".task-select").forEach(select => {
-  select.addEventListener("change", e => {
+document.querySelectorAll(".task-select").forEach(s => {
+  s.addEventListener("change", e => {
     handleTaskColor(e.target);
     updateProgress();
   });
 });
 
-/* ================= DUPLICATE CHECK ================= */
-async function checkDuplicate(room, shift) {
-  const today = new Date().toISOString().split("T")[0];
-
-  const { data, error } = await client
-    .from("surveys")
-    .select("id, created_at")
-    .eq("room", room)
-    .eq("shift", shift);
-
-  if (error) throw error;
-
-  return (data || []).some(s =>
-    s.created_at?.split("T")[0] === today
-  );
-}
-
 /* ================= SUBMIT ================= */
-form.addEventListener("submit", async (e) => {
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const btn = form.querySelector("button[type='submit']");
@@ -97,55 +78,35 @@ form.addEventListener("submit", async (e) => {
   btn.textContent = "Submitting...";
 
   try {
-    const room = roomEl.value;
-    const staff = staffEl.value;
-    const shift = shiftEl.value;
-    const notes = notesEl.value;
+    const payload = {
+      room: roomEl.value,
+      staff: staffEl.value,
+      shift: shiftEl.value,
+      notes: notesEl.value,
+      tasks_completed: getTasks(),
+      created_at: new Date().toISOString()
+    };
 
-    if (!room || !staff || !shift) {
-      throw new Error("Please fill Room, Staff, and Shift");
+    if (!payload.room || !payload.staff || !payload.shift) {
+      throw new Error("Please complete Room, Staff, Shift");
     }
 
-    // 🚨 DUPLICATE PREVENTION
-    const isDuplicate = await checkDuplicate(room, shift);
-
-    if (isDuplicate) {
-      throw new Error("This room + shift has already been submitted today.");
-    }
-
-    const tasks = getTasks();
-
-    // SINGLE SOURCE OF TRUTH
-    const { data, error } = await client
+    const { error } = await client
       .from("surveys")
-      .insert([
-        {
-          room,
-          staff,
-          shift,
-          notes,
-          tasks_completed: tasks,
-          created_at: new Date().toISOString()
-        }
-      ])
-      .select()
-      .single();
+      .insert([payload]);
 
     if (error) throw error;
-
-    console.log("Survey saved:", data);
 
     form.style.display = "none";
     successScreen.style.display = "block";
 
   } catch (err) {
+    alert(err.message);
     console.error(err);
-    alert(err.message || "Submission failed");
   }
 
   btn.disabled = false;
   btn.textContent = "Submit Survey";
 });
 
-/* ================= INIT ================= */
 updateProgress();
