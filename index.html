@@ -1,21 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cleaning Compliance Dashboard</title>
-
-  <link rel="stylesheet" href="styles.css" />
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Export tools -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
-
 <body>
 
 <header class="top-bar">
@@ -24,25 +6,28 @@
     <p>Hospital-Grade Cleaning Performance System</p>
   </div>
 
-  <!-- NAV RESTORED -->
   <div class="action-bar">
 
-    <!-- EXPORT UI V2 -->
+    <!-- EXPORT UI -->
     <div class="export-console" id="exportConsole">
+      <button class="btn export-main-btn" onclick="toggleExportMenu()">
+        Export ▼
+      </button>
 
-  <button class="btn export-main-btn" onclick="toggleExportMenu()">
-    Export ▼
-  </button>
+      <div class="export-menu">
+        <button onclick="exportCSV()">CSV Report</button>
+        <button onclick="exportExcel()">Excel Report</button>
+        <button onclick="exportPDF()">PDF Dashboard</button>
+      </div>
+    </div>
 
-  <div class="export-menu">
-    <button onclick="exportCSV()">CSV Report</button>
-    <button onclick="exportExcel()">Excel Report</button>
-    <button onclick="exportPDF()">PDF Dashboard</button>
+    <a href="survey.html" class="btn">+ New Survey</a>
+
   </div>
+</header>
 
-</div>
-
-<a href="survey.html" class="btn">+ New Survey</a>
+<!-- EVERYTHING BELOW IS NOW CORRECTLY OUTSIDE HEADER -->
+<main class="main-layout">
 
   <!-- SUMMARY -->
   <section class="summary-grid">
@@ -57,13 +42,13 @@
     </div>
   </section>
 
-  <!-- ===== QUICK INSIGHTS ===== -->
-<section class="card">
-  <h3>Quick Insights</h3>
-  <div id="insightsPanel">
-    Loading insights...
-  </div>
-</section>
+  <!-- QUICK INSIGHTS -->
+  <section class="card">
+    <h3>Quick Insights</h3>
+    <div id="insightsPanel">
+      Loading insights...
+    </div>
+  </section>
 
   <!-- LEADERBOARD -->
   <section class="card">
@@ -139,12 +124,3 @@
   </section>
 
 </main>
-
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- DASHBOARD LOGIC -->
-<script src="dashboard.js"></script>
-
-</body>
-</html>
