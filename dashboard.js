@@ -289,6 +289,46 @@ async function exportPDF() {
   pdf.save("cleaning-dashboard.pdf");
 }
 
+async function exportWeeklyPDF() {
+  const today = new Date();
+
+  const last7Days = new Date();
+  last7Days.setDate(today.getDate() - 7);
+
+  const filtered = allData.filter(d => {
+    const date = new Date(d.work_date || d.created_at);
+    return date >= last7Days && date <= today;
+  });
+
+  if (!filtered.length) {
+    alert("No data for last 7 days");
+    return;
+  }
+
+  // temporarily render filtered view
+  updateSummary(filtered);
+  renderTable(filtered);
+  renderCharts(filtered);
+  renderLeaderboard(filtered);
+  renderInsights(filtered);
+
+  await new Promise(r => setTimeout(r, 500)); // allow DOM render
+
+  const element = document.querySelector(".main-layout");
+  const canvas = await html2canvas(element, { scale: 2 });
+  const img = canvas.toDataURL("image/png");
+
+  const pdf = new jspdf.jsPDF("p", "mm", "a4");
+
+  const w = pdf.internal.pageSize.getWidth();
+  const h = (canvas.height * w) / canvas.width;
+
+  pdf.addImage(img, "PNG", 0, 0, w, h);
+  pdf.save(`weekly-cleaning-report-${today.toISOString().split("T")[0]}.pdf`);
+
+  // restore full dashboard after export
+  refresh();
+}
 /* =========================
    REFRESH PIPELINE
 ========================= */
