@@ -69,6 +69,44 @@ function updateSummary(data) {
   if (compEl) compEl.textContent = compliance + "%";
 }
 
+function renderInsights(data) {
+  const el = document.getElementById("insightsPanel");
+  if (!el) return;
+
+  if (!data.length) {
+    el.innerHTML = "No data yet";
+    return;
+  }
+
+  // Most active room
+  const roomCount = {};
+  data.forEach(d => {
+    if (d.room) roomCount[d.room] = (roomCount[d.room] || 0) + 1;
+  });
+
+  const topRoom = Object.entries(roomCount)
+    .sort((a, b) => b[1] - a[1])[0];
+
+  // Average compliance
+  let total = 0;
+  let yes = 0;
+
+  data.forEach(d => {
+    Object.values(d.tasks_completed || {}).forEach(v => {
+      total++;
+      if (v === "Y") yes++;
+    });
+  });
+
+  const compliance = total ? Math.round((yes / total) * 100) : 0;
+
+  el.innerHTML = `
+    <div><b>Top Room:</b> ${topRoom ? topRoom[0] : "N/A"}</div>
+    <div><b>Total Submissions:</b> ${data.length}</div>
+    <div><b>Compliance:</b> ${compliance}%</div>
+  `;
+}
+
 /* =========================
    TABLE
 ========================= */
