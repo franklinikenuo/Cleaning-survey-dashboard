@@ -1,8 +1,9 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI"; // replace safely
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
+/* ================= ELEMENTS ================= */
 const form = document.getElementById("surveyForm");
 const successScreen = document.getElementById("successScreen");
 
@@ -10,13 +11,9 @@ const roomEl = document.getElementById("room");
 const staffEl = document.getElementById("staff");
 const shiftEl = document.getElementById("shift");
 const notesEl = document.getElementById("notes");
-
 const progressBar = document.getElementById("progressBar");
 
-/* =========================
-   TASK STATE HELPERS
-========================= */
-
+/* ================= TASKS ================= */
 function getTasks() {
   const tasks = {};
 
@@ -29,10 +26,7 @@ function getTasks() {
   return tasks;
 }
 
-/* =========================
-   PROGRESS SYSTEM
-========================= */
-
+/* ================= PROGRESS ================= */
 function updateProgress() {
   if (!progressBar) return;
 
@@ -53,22 +47,7 @@ function updateProgress() {
   progressBar.style.width = percent + "%";
 }
 
-/* live updates */
-[roomEl, staffEl, shiftEl].forEach(el => {
-  el?.addEventListener("change", updateProgress);
-});
-
-document.querySelectorAll(".task-select").forEach(select => {
-  select.addEventListener("change", (e) => {
-    handleTaskColor(e.target);
-    updateProgress();
-  });
-});
-
-/* =========================
-   COLOR FEEDBACK SYSTEM
-========================= */
-
+/* ================= COLOR SYSTEM ================= */
 function handleTaskColor(select) {
   const card = select.closest(".task-card");
   if (!card) return;
@@ -80,10 +59,36 @@ function handleTaskColor(select) {
   if (select.value === "NA") card.classList.add("glow-na");
 }
 
-/* =========================
-   SUBMIT SURVEY (FIXED CORE)
-========================= */
+/* ================= LISTENERS ================= */
+[roomEl, staffEl, shiftEl].forEach(el => {
+  el?.addEventListener("change", updateProgress);
+});
 
+document.querySelectorAll(".task-select").forEach(select => {
+  select.addEventListener("change", e => {
+    handleTaskColor(e.target);
+    updateProgress();
+  });
+});
+
+/* ================= DUPLICATE CHECK ================= */
+async function checkDuplicate(room, shift) {
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data, error } = await client
+    .from("surveys")
+    .select("id, created_at")
+    .eq("room", room)
+    .eq("shift", shift);
+
+  if (error) throw error;
+
+  return (data || []).some(s =>
+    s.created_at?.split("T")[0] === today
+  );
+}
+
+/* ================= SUBMIT ================= */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -101,9 +106,16 @@ form.addEventListener("submit", async (e) => {
       throw new Error("Please fill Room, Staff, and Shift");
     }
 
+    // 🚨 DUPLICATE PREVENTION
+    const isDuplicate = await checkDuplicate(room, shift);
+
+    if (isDuplicate) {
+      throw new Error("This room + shift has already been submitted today.");
+    }
+
     const tasks = getTasks();
 
-    // 🚨 SINGLE SOURCE OF TRUTH: surveys table only
+    // SINGLE SOURCE OF TRUTH
     const { data, error } = await client
       .from("surveys")
       .insert([
@@ -123,12 +135,11 @@ form.addEventListener("submit", async (e) => {
 
     console.log("Survey saved:", data);
 
-    // UI success state
     form.style.display = "none";
     successScreen.style.display = "block";
 
   } catch (err) {
-    console.error("Submission error:", err);
+    console.error(err);
     alert(err.message || "Submission failed");
   }
 
@@ -136,8 +147,5 @@ form.addEventListener("submit", async (e) => {
   btn.textContent = "Submit Survey";
 });
 
-/* =========================
-   INIT
-========================= */
-
+/* ================= INIT ================= */
 updateProgress();
