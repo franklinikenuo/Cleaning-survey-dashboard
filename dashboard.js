@@ -40,7 +40,7 @@ function applyFilters(data) {
     if (room !== "all" && d.room !== room) return false;
     if (shift !== "all" && d.shift !== shift) return false;
     if (staff && !(d.staff || "").toLowerCase().includes(staff)) return false;
-    if (date && (d.created_at || "").split("T")[0] !== date) return false;
+    if (date && d.work_date !== date) return false;
     return true;
   });
 }
@@ -128,7 +128,7 @@ function renderTable(data) {
       <td>${d.staff || ""}</td>
       <td>${tasks}</td>
       <td>${d.notes || ""}</td>
-      <td>${(d.created_at || "").split("T")[0]}</td>
+      <td>${d.work_date || (d.created_at || "").split("T")[0]}</td>
     `;
 
     tbody.appendChild(tr);
