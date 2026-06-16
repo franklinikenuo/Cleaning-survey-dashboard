@@ -180,3 +180,37 @@ thead {
     grid-template-columns: 1fr 1fr;
   }
 }
+.export-box {
+  position: relative;
+  margin-left: auto;
+}
+
+.export-menu {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 999;
+}
+
+.export-menu button {
+  display: block;
+  width: 180px;
+  padding: 10px;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+}
+
+.export-menu button:hover {
+  background: #f2f6ff;
+}
+
+.hidden {
+  display: none;
+}
