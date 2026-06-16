@@ -10,6 +10,8 @@
   --radius: 12px;
 }
 
+/* ================= BASE ================= */
+
 * {
   box-sizing: border-box;
 }
@@ -66,7 +68,11 @@ body {
   display: flex;
   gap: 10px;
   padding: 10px 16px;
+  flex-wrap: wrap;
+  align-items: center;
 }
+
+/* ================= BUTTONS ================= */
 
 .btn {
   background: var(--primary);
@@ -75,6 +81,8 @@ body {
   border-radius: 999px;
   text-decoration: none;
   font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
 }
 
 .btn:hover {
@@ -89,13 +97,13 @@ body {
   gap: 12px;
 }
 
-.summary-card h3 {
+.summary-grid .card h3 {
   margin: 0;
   font-size: 0.8rem;
   color: var(--muted);
 }
 
-.summary-card p {
+.summary-grid .card p {
   font-size: 1.6rem;
   font-weight: bold;
   margin: 6px 0 0;
@@ -148,7 +156,7 @@ thead {
   background: #f1f4f9;
 }
 
-/* ================= SURVEY (IMPORTANT FIX) ================= */
+/* ================= SURVEY ================= */
 
 .survey-container {
   max-width: 600px;
@@ -159,7 +167,6 @@ thead {
   box-shadow: var(--shadow);
 }
 
-/* survey form cards */
 .task-card {
   display: flex;
   justify-content: space-between;
@@ -169,47 +176,7 @@ thead {
   margin-bottom: 8px;
 }
 
-/* ================= MOBILE ================= */
-
-@media (max-width: 768px) {
-  .filters-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .summary-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.export-box {
-  position: relative;
-  margin-left: auto;
-}
-
-.export-menu {
-  position: absolute;
-  right: 0;
-  top: 45px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  z-index: 999;
-}
-
-.export-menu button {
-  display: block;
-  width: 180px;
-  padding: 10px;
-  border: none;
-  background: white;
-  text-align: left;
-  cursor: pointer;
-}
-
-.export-menu button:hover {
-  background: #f2f6ff;
-}
+/* ================= EXPORT DROPDOWN (CLEAN SYSTEM) ================= */
 
 .export-console {
   position: relative;
@@ -222,7 +189,7 @@ thead {
   top: 110%;
   right: 0;
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 8px;
   min-width: 180px;
   z-index: 9999;
@@ -246,6 +213,19 @@ thead {
   background: #f2f2f2;
 }
 
-.hidden {
-  display: none;
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .action-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
