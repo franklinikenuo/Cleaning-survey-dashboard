@@ -7,10 +7,10 @@
 
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Chart -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Export libs -->
+  <!-- Export tools -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,28 +19,29 @@
 <body>
 
 <header class="top-bar">
-
-  <div class="top-bar-left">
-    <div>
-      <h1>Cleaning Compliance Dashboard</h1>
-      <p>Hospital-Grade Performance System</p>
-    </div>
+  <div>
+    <h1>Cleaning Compliance Dashboard</h1>
+    <p>Hospital-Grade Cleaning Performance System</p>
   </div>
 
-  <!-- EXPORT SYSTEM V2 -->
-  <div class="export-box">
-    <button id="exportBtn" class="btn primary">Export ⬇</button>
+  <!-- NAV RESTORED -->
+  <div class="action-bar">
 
-    <div id="exportMenu" class="export-menu hidden">
-      <button onclick="exportCSV()">📄 CSV</button>
-      <button onclick="exportExcel()">📊 Excel</button>
-      <button onclick="exportPDF()">🧾 PDF</button>
+    <!-- EXPORT UI V2 -->
+    <div class="export-console">
+      <button class="btn">Export ▼</button>
+
+      <div class="export-menu">
+        <button onclick="exportCSV()">CSV Report</button>
+        <button onclick="exportExcel()">Excel Report</button>
+        <button onclick="exportPDF()">PDF Dashboard</button>
+      </div>
     </div>
-  </div>
 
+    <a href="survey.html" class="btn">+ New Survey</a>
+  </div>
 </header>
 
-<!-- MAIN -->
 <main class="main-layout">
 
   <!-- SUMMARY -->
@@ -64,8 +65,8 @@
 
   <!-- FILTERS -->
   <section class="card filters-card">
-
     <div class="filters-grid">
+
       <div>
         <label>Room</label>
         <select id="filter-room">
@@ -75,13 +76,13 @@
 
       <div>
         <label>Staff</label>
-        <input id="filter-staff" placeholder="Search staff" />
+        <input id="filter-staff" placeholder="Search staff"/>
       </div>
 
       <div>
         <label>Shift</label>
         <select id="filter-shift">
-          <option value="all">All</option>
+          <option value="all">All Shifts</option>
           <option>Morning</option>
           <option>Afternoon</option>
           <option>Evening</option>
@@ -91,15 +92,14 @@
 
       <div>
         <label>Date</label>
-        <input type="date" id="filter-date" />
+        <input type="date" id="filter-date"/>
       </div>
-    </div>
 
+    </div>
   </section>
 
   <!-- CHARTS -->
   <section class="charts-grid">
-
     <div class="card">
       <h3>Room Activity</h3>
       <canvas id="roomChart"></canvas>
@@ -109,7 +109,6 @@
       <h3>Shift Distribution</h3>
       <canvas id="shiftChart"></canvas>
     </div>
-
   </section>
 
   <!-- TABLE -->
@@ -136,7 +135,7 @@
 <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- DASHBOARD -->
+<!-- DASHBOARD LOGIC -->
 <script src="dashboard.js"></script>
 
 </body>
