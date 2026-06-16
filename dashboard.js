@@ -5,7 +5,14 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allData = [];
 
-/* ================= FETCH (STABLE SINGLE SOURCE OF TRUTH) ================= */
+/* =========================
+   STATE GUARD (prevents UI race issues)
+========================= */
+let isRefreshing = false;
+
+/* =========================
+   FETCH (SINGLE SOURCE OF TRUTH)
+========================= */
 async function fetchData() {
   const { data, error } = await client
     .from("surveys")
@@ -20,7 +27,9 @@ async function fetchData() {
   return data || [];
 }
 
-/* ================= FILTERS ================= */
+/* =========================
+   FILTERS
+========================= */
 function applyFilters(data) {
   const room = document.getElementById("filter-room")?.value || "all";
   const staff = (document.getElementById("filter-staff")?.value || "").toLowerCase();
@@ -36,7 +45,9 @@ function applyFilters(data) {
   });
 }
 
-/* ================= SUMMARY ================= */
+/* =========================
+   SUMMARY
+========================= */
 function updateSummary(data) {
   const totalEl = document.getElementById("total-submissions");
   const compEl = document.getElementById("overall-compliance");
@@ -46,32 +57,33 @@ function updateSummary(data) {
   let total = 0;
   let yes = 0;
 
-  data.forEach(d => {
-    Object.values(d.tasks_completed || {}).forEach(v => {
+  for (const d of data) {
+    const tasks = d.tasks_completed || {};
+    for (const v of Object.values(tasks)) {
       total++;
       if (v === "Y") yes++;
-    });
-  });
+    }
+  }
 
   const compliance = total ? Math.round((yes / total) * 100) : 0;
-
   if (compEl) compEl.textContent = compliance + "%";
 }
 
-/* ================= TABLE ================= */
+/* =========================
+   TABLE
+========================= */
 function renderTable(data) {
   const tbody = document.querySelector("#submissions-table tbody");
   if (!tbody) return;
 
   tbody.innerHTML = "";
 
-  data.forEach(d => {
+  for (const d of data) {
     const tasks = Object.entries(d.tasks_completed || {})
       .map(([k, v]) => `${k}:${v}`)
       .join(" | ");
 
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${d.room || ""}</td>
       <td>${d.shift || ""}</td>
@@ -82,10 +94,12 @@ function renderTable(data) {
     `;
 
     tbody.appendChild(tr);
-  });
+  }
 }
 
-/* ================= CHARTS (SAFE + CLEAN RESET) ================= */
+/* =========================
+   CHARTS
+========================= */
 let roomChart;
 let shiftChart;
 
@@ -94,13 +108,14 @@ function renderCharts(data) {
   const shiftCtx = document.getElementById("shiftChart");
 
   if (!roomCtx || !shiftCtx) return;
+  if (!data || data.length === 0) return;
 
   const rooms = {};
-  data.forEach(d => {
-    if (d.room) {
-      rooms[d.room] = (rooms[d.room] || 0) + 1;
-    }
-  });
+
+  for (const d of data) {
+    if (!d.room) continue;
+    rooms[d.room] = (rooms[d.room] || 0) + 1;
+  }
 
   if (roomChart) roomChart.destroy();
   if (shiftChart) shiftChart.destroy();
@@ -129,7 +144,9 @@ function renderCharts(data) {
   });
 }
 
-/* ================= LEADERBOARD ================= */
+/* =========================
+   LEADERBOARD
+========================= */
 function splitStaff(staff) {
   return (staff || "")
     .split(",")
@@ -140,20 +157,21 @@ function splitStaff(staff) {
 function getStaffStats(data) {
   const map = {};
 
-  data.forEach(d => {
-    splitStaff(d.staff).forEach(name => {
+  for (const d of data) {
+    for (const name of splitStaff(d.staff)) {
       if (!map[name]) {
         map[name] = { name, shifts: 0, yes: 0, total: 0 };
       }
 
       map[name].shifts++;
 
-      Object.values(d.tasks_completed || {}).forEach(v => {
+      const tasks = d.tasks_completed || {};
+      for (const v of Object.values(tasks)) {
         map[name].total++;
         if (v === "Y") map[name].yes++;
-      });
-    });
-  });
+      }
+    }
+  }
 
   return Object.values(map).map(s => ({
     ...s,
@@ -165,32 +183,38 @@ function renderLeaderboard(data) {
   const el = document.getElementById("staff-leaderboard");
   if (!el) return;
 
-  const stats = getStaffStats(data)
-    .sort((a, b) => b.compliance - a.compliance);
+  const stats = getStaffStats(data).sort((a, b) => b.compliance - a.compliance);
 
-  el.innerHTML = stats.length
-    ? stats.map((s, i) => `
-        <div style="padding:8px;border-bottom:1px solid #eee">
-          <b>#${i + 1} ${s.name}</b><br>
-          ${s.compliance}% | ${s.shifts} shifts
-        </div>
-      `).join("")
-    : "No data";
+  if (!stats.length) {
+    el.innerHTML = "No data";
+    return;
+  }
+
+  el.innerHTML = stats
+    .map((s, i) => `
+      <div style="padding:8px;border-bottom:1px solid #eee">
+        <b>#${i + 1} ${s.name}</b><br>
+        ${s.compliance}% | ${s.shifts} shifts
+      </div>
+    `)
+    .join("");
 }
 
-/* ================= EXPORT ================= */
+/* =========================
+   EXPORTS
+========================= */
 function exportCSV() {
   const data = applyFilters(allData);
 
   let csv = "Room,Shift,Staff,Tasks,Notes,Date\n";
 
-  data.forEach(d => {
+  for (const d of data) {
     const tasks = Object.entries(d.tasks_completed || {})
       .map(([k, v]) => `${k}:${v}`)
       .join(" | ");
 
     csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${(d.created_at || "").split("T")[0]}\n`;
-  });
+  }
 
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
@@ -227,43 +251,60 @@ async function exportPDF() {
   pdf.save("cleaning-dashboard.pdf");
 }
 
-/* ================= REFRESH LOOP ================= */
+/* =========================
+   REFRESH PIPELINE
+========================= */
 async function refresh() {
+  if (isRefreshing) return;
+  isRefreshing = true;
+
   const filtered = applyFilters(allData);
 
   updateSummary(filtered);
   renderTable(filtered);
   renderCharts(filtered);
   renderLeaderboard(filtered);
+
+  isRefreshing = false;
 }
 
-/* ================= INIT ================= */
+/* =========================
+   INIT
+========================= */
 async function init() {
   allData = await fetchData();
-  refresh();
+  await refresh();
 
   setInterval(async () => {
     allData = await fetchData();
     refresh();
-  }, 15000);
+  }, 60000);
 }
 
 init();
 
-/* ================= REALTIME ================= */
+/* =========================
+   REALTIME SYNC
+========================= */
 client
   .channel("surveys-live")
-  .on("postgres_changes", {
-    event: "*",
-    schema: "public",
-    table: "surveys"
-  }, async () => {
-    allData = await fetchData();
-    refresh();
-  })
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "surveys"
+    },
+    async () => {
+      allData = await fetchData();
+      refresh();
+    }
+  )
   .subscribe();
 
-/* ================= EXPORT MENU TOGGLE ================= */
+/* =========================
+   EXPORT MENU
+========================= */
 function toggleExportMenu() {
   const el = document.getElementById("exportConsole");
   if (!el) return;
