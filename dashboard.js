@@ -1,38 +1,42 @@
+/* ============================================================
+   CLEANING DASHBOARD v2 — Hospital Grade System
+   Includes: Analytics + Leaderboard + Export System v2
+============================================================ */
+
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+const supabaseKey = "YOUR_SUPABASE_KEY";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allData = [];
 
 /* =========================
-   STAFF SPLITTER
+   UTIL
 ========================= */
+
 function splitStaff(staff) {
   if (!staff) return [];
   return staff.split(",").map(s => s.trim()).filter(Boolean);
 }
 
 /* =========================
-   FETCH DATA
+   FETCH
 ========================= */
+
 async function fetchData() {
   const { data, error } = await client
     .from("surveys")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.log(error);
-    return [];
-  }
-
+  if (error) return [];
   return data || [];
 }
 
 /* =========================
    FILTERS
 ========================= */
+
 function applyFilters(data) {
   const room = document.getElementById("filter-room").value;
   const staff = document.getElementById("filter-staff").value.toLowerCase();
@@ -49,8 +53,9 @@ function applyFilters(data) {
 }
 
 /* =========================
-   STAFF ANALYTICS ENGINE
+   ANALYTICS ENGINE
 ========================= */
+
 function getStaffStats(data) {
   const map = {};
 
@@ -59,20 +64,15 @@ function getStaffStats(data) {
 
     staffList.forEach(name => {
       if (!map[name]) {
-        map[name] = {
-          name,
-          shifts: 0,
-          tasksTotal: 0,
-          tasksYes: 0
-        };
+        map[name] = { name, shifts: 0, yes: 0, total: 0 };
       }
 
       map[name].shifts++;
 
       if (entry.tasks_completed) {
         Object.values(entry.tasks_completed).forEach(v => {
-          map[name].tasksTotal++;
-          if (v === "Y") map[name].tasksYes++;
+          map[name].total++;
+          if (v === "Y") map[name].yes++;
         });
       }
     });
@@ -80,13 +80,14 @@ function getStaffStats(data) {
 
   return Object.values(map).map(s => ({
     ...s,
-    compliance: s.tasksTotal ? Math.round((s.tasksYes / s.tasksTotal) * 100) : 0
+    compliance: s.total ? Math.round((s.yes / s.total) * 100) : 0
   }));
 }
 
 /* =========================
    SUMMARY
 ========================= */
+
 function updateSummary(data) {
   document.getElementById("total-submissions").textContent = data.length;
 
@@ -108,6 +109,7 @@ function updateSummary(data) {
 /* =========================
    TABLE
 ========================= */
+
 function renderTable(data) {
   const tbody = document.querySelector("#submissions-table tbody");
   tbody.innerHTML = "";
@@ -135,17 +137,14 @@ function renderTable(data) {
 /* =========================
    LEADERBOARD
 ========================= */
+
 function renderLeaderboard(data) {
   const container = document.getElementById("staff-leaderboard");
+  const stats = getStaffStats(data).sort((a,b) => b.compliance - a.compliance);
 
-  const stats = getStaffStats(data)
-    .sort((a,b) => b.compliance - a.compliance);
-
-  container.innerHTML = stats.map((s, i) => `
-    <div style="padding:10px;border-bottom:1px solid #ddd">
-      <b>#${i+1} ${s.name}</b><br>
-      Compliance: ${s.compliance}%<br>
-      Shifts: ${s.shifts}
+  container.innerHTML = stats.map((s,i) => `
+    <div style="padding:8px;border-bottom:1px solid #eee">
+      <b>#${i+1} ${s.name}</b> — ${s.compliance}% | Shifts: ${s.shifts}
     </div>
   `).join("");
 }
@@ -153,6 +152,7 @@ function renderLeaderboard(data) {
 /* =========================
    CHARTS
 ========================= */
+
 let roomChart, shiftChart;
 
 function renderCharts(data) {
@@ -165,7 +165,10 @@ function renderCharts(data) {
     type: "bar",
     data: {
       labels: Object.keys(rooms),
-      datasets: [{ label: "Submissions", data: Object.values(rooms) }]
+      datasets: [{
+        label: "Submissions",
+        data: Object.values(rooms)
+      }]
     }
   });
 
@@ -184,8 +187,77 @@ function renderCharts(data) {
 }
 
 /* =========================
+   EXPORT SYSTEM v2
+========================= */
+
+function getFilteredData() {
+  return applyFilters(allData);
+}
+
+function exportCSV() {
+  const data = getFilteredData();
+
+  const rows = [
+    ["Room","Shift","Staff","Tasks","Notes","Date"],
+    ...data.map(d => [
+      d.room,
+      d.shift,
+      d.staff,
+      d.tasks_completed ? Object.entries(d.tasks_completed).map(([k,v]) => `${k}:${v}`).join(" | ") : "",
+      d.notes,
+      d.created_at?.split("T")[0] || ""
+    ])
+  ];
+
+  const csv = rows.map(r => r.join(",")).join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cleaning-report.csv";
+  a.click();
+}
+
+function exportExcel() {
+  const data = getFilteredData();
+
+  const sheet = data.map(d => ({
+    Room: d.room,
+    Shift: d.shift,
+    Staff: d.staff,
+    Tasks: d.tasks_completed ? Object.entries(d.tasks_completed).map(([k,v]) => `${k}:${v}`).join(" | ") : "",
+    Notes: d.notes,
+    Date: d.created_at?.split("T")[0] || ""
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(sheet);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Report");
+  XLSX.writeFile(wb, "cleaning-report.xlsx");
+}
+
+async function exportPDF() {
+  const { jsPDF } = window.jspdf;
+
+  const element = document.querySelector(".main-layout");
+
+  const canvas = await html2canvas(element, { scale: 2 });
+
+  const img = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p","mm","a4");
+
+  const width = pdf.internal.pageSize.getWidth();
+  const height = (canvas.height * width) / canvas.width;
+
+  pdf.addImage(img,"PNG",0,0,width,height);
+  pdf.save("cleaning-dashboard.pdf");
+}
+
+/* =========================
    REFRESH
 ========================= */
+
 async function refresh() {
   const filtered = applyFilters(allData);
 
@@ -198,13 +270,14 @@ async function refresh() {
 /* =========================
    INIT
 ========================= */
+
 async function init() {
   allData = await fetchData();
-  await refresh();
+  refresh();
 
   setInterval(async () => {
     allData = await fetchData();
-    await refresh();
+    refresh();
   }, 15000);
 }
 
