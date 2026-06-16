@@ -1,18 +1,29 @@
+/* ============================================================
+   SURVEY — HOSPITAL-GRADE CARD UI (CLEAN REWRITE v2)
+   ============================================================ */
+
 .survey-container {
   max-width: 650px;
   margin: 24px auto;
-  padding: 0 18px 100px;
+  padding: 0 18px 110px;
 }
 
-/* ================= CARDS ================= */
+/* ================= BASE CARDS ================= */
 
 .card {
-  background: #fff;
+  background: #ffffff;
   padding: 16px;
   border-radius: 14px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
   margin-bottom: 16px;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
 }
 
 .card label {
@@ -20,6 +31,7 @@
   font-size: 0.9rem;
   display: block;
   margin-bottom: 6px;
+  color: var(--text-main);
 }
 
 .card select,
@@ -30,6 +42,14 @@
   border: 1px solid var(--border-soft);
   font-size: 0.9rem;
   background: #fff;
+  transition: 0.2s ease;
+}
+
+.card select:focus,
+.card textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(11,58,111,0.12);
 }
 
 textarea {
@@ -37,11 +57,11 @@ textarea {
   resize: vertical;
 }
 
-/* ================= TASK SECTION ================= */
+/* ================= SECTION TITLE ================= */
 
 .tasks-title {
   margin-top: 24px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary-dark);
 }
 
@@ -59,13 +79,23 @@ textarea {
   border-radius: 14px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
+
   margin-bottom: 12px;
 
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  transition: all 0.25s ease;
 }
 
+/* hover lift */
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* label */
 .task-card label {
   font-weight: 600;
   font-size: 0.95rem;
@@ -74,21 +104,53 @@ textarea {
   gap: 8px;
 }
 
-/* icons */
+/* ICON SUPPORT */
 .task-card .icon {
   width: 20px;
   height: 20px;
   opacity: 0.85;
+  transition: transform 0.3s ease;
 }
 
-.task-select {
+/* animate icon when selected */
+.task-card.active .icon {
+  transform: scale(1.2) rotate(6deg);
+}
+
+/* ================= TASK SELECT ================= */
+
+.task-select,
+.task-card select {
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
   background: #fff;
+  cursor: pointer;
+
+  transition: 0.2s ease;
 }
 
-/* ================= FIXED BUTTON (IMPORTANT CHANGE) ================= */
+/* ================= STRONG VISUAL FEEDBACK ================= */
+
+/* YES → green */
+.task-card.glow-yes {
+  box-shadow: 0 0 0 3px rgba(20, 143, 76, 0.25);
+  background: linear-gradient(180deg, #ffffff, #f3fbf6);
+}
+
+/* NO → red */
+.task-card.glow-no {
+  box-shadow: 0 0 0 3px rgba(215, 38, 61, 0.22);
+  background: linear-gradient(180deg, #ffffff, #fff3f4);
+}
+
+/* NA → grey */
+.task-card.glow-na {
+  box-shadow: 0 0 0 3px rgba(150, 150, 150, 0.18);
+  background: linear-gradient(180deg, #ffffff, #f7f7f7);
+}
+
+/* ================= SUBMIT BUTTON ================= */
 
 .submit-btn {
   width: 100%;
@@ -103,11 +165,12 @@ textarea {
   border-radius: 12px;
 
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .submit-btn:hover {
   background: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
 .submit-btn:disabled {
@@ -121,14 +184,14 @@ textarea {
   display: none;
   text-align: center;
   padding: 40px 20px;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.4s ease;
 }
 
 /* ================= PROGRESS BAR ================= */
 
 .progress-container {
   width: 100%;
-  height: 5px;
+  height: 6px;
   background: var(--primary-soft);
   border-radius: 20px;
   overflow: hidden;
@@ -138,17 +201,25 @@ textarea {
 .progress-bar {
   height: 100%;
   width: 0%;
-  background: var(--primary);
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, var(--primary), #00a3a3);
+  transition: width 0.35s ease;
 }
 
-/* ================= ANIMATION (FIXED) ================= */
+/* ================= CARD ANIMATION ================= */
 
+.card,
 .task-card {
   opacity: 0;
-  transform: translateY(6px);
-  animation: slideIn 0.35s ease forwards;
+  transform: translateY(10px);
+  animation: slideIn 0.4s ease forwards;
 }
+
+.task-card:nth-child(1) { animation-delay: 0.05s; }
+.task-card:nth-child(2) { animation-delay: 0.10s; }
+.task-card:nth-child(3) { animation-delay: 0.15s; }
+.task-card:nth-child(4) { animation-delay: 0.20s; }
+.task-card:nth-child(5) { animation-delay: 0.25s; }
+.task-card:nth-child(6) { animation-delay: 0.30s; }
 
 @keyframes slideIn {
   to {
@@ -157,25 +228,11 @@ textarea {
   }
 }
 
-/* ================= GLOW STATES ================= */
-
-.task-card.glow-yes {
-  box-shadow: 0 0 0 3px rgba(20,143,76,0.25);
-}
-
-.task-card.glow-no {
-  box-shadow: 0 0 0 3px rgba(215,38,61,0.25);
-}
-
-.task-card.glow-na {
-  box-shadow: 0 0 0 3px rgba(150,150,150,0.2);
-}
-
 /* ================= MOBILE ================= */
 
 @media (max-width: 768px) {
   .survey-container {
-    padding: 0 12px 90px;
+    padding: 0 12px 100px;
   }
 
   .task-card {
