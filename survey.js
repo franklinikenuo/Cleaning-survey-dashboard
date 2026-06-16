@@ -6,59 +6,106 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 const form = document.getElementById("surveyForm");
 const successScreen = document.getElementById("successScreen");
 
+const roomEl = document.getElementById("room");
+const staffEl = document.getElementById("staff");
+const shiftEl = document.getElementById("shift");
+
+const progressBar = document.getElementById("progressBar");
+
+/* =========================
+   PROGRESS SYSTEM (SAFE)
+========================= */
+
 function updateProgress() {
-  const tasks = document.querySelectorAll(".task-select");
-  let total = tasks.length + 3;
+  if (!progressBar) return;
+
+  const taskSelects = document.querySelectorAll(".task-select");
+
+  let total = taskSelects.length + 3;
   let done = 0;
 
-  if (room.value) done++;
-  if (staff.value) done++;
-  if (shift.value) done++;
+  if (roomEl?.value) done++;
+  if (staffEl?.value) done++;
+  if (shiftEl?.value) done++;
 
-  tasks.forEach(t => {
-    if (t.value) done++;
+  taskSelects.forEach(t => {
+    if (t.value === "Y" || t.value === "N" || t.value === "NA") {
+      done++;
+    }
   });
 
   const percent = Math.round((done / total) * 100);
-  const bar = document.getElementById("progressBar");
-  if (bar) bar.style.width = percent + "%";
+  progressBar.style.width = percent + "%";
 }
 
+/* live listeners */
 document.querySelectorAll(".task-select").forEach(t => {
-  t.addEventListener("change", updateProgress);
+  t.addEventListener("change", (e) => {
+    handleTaskColor(e.target);
+    updateProgress();
+  });
 });
 
-["room", "staff", "shift"].forEach(id => {
-  document.getElementById(id).addEventListener("change", updateProgress);
+[roomEl, staffEl, shiftEl].forEach(el => {
+  el?.addEventListener("change", updateProgress);
 });
+
+/* =========================
+   COLOR FEEDBACK (NEW)
+========================= */
+
+function handleTaskColor(select) {
+  const card = select.closest(".task-card");
+  if (!card) return;
+
+  card.classList.remove("glow-yes", "glow-no", "glow-na");
+
+  if (select.value === "Y") card.classList.add("glow-yes");
+  if (select.value === "N") card.classList.add("glow-no");
+  if (select.value === "NA") card.classList.add("glow-na");
+
+  card.classList.add("active");
+}
+
+/* =========================
+   SUBMIT HANDLER
+========================= */
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const btn = form.querySelector("button");
+  const btn = form.querySelector("button[type='submit']");
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
   try {
-    const room = document.getElementById("room").value;
-    const staff = document.getElementById("staff").value;
-    const shift = document.getElementById("shift").value;
+    const room = roomEl.value;
+    const staff = staffEl.value;
+    const shift = shiftEl.value;
     const notes = document.getElementById("notes").value;
 
     if (!room || !staff || !shift) {
-      throw new Error("Fill all required fields");
+      throw new Error("Please fill Room, Staff, and Shift");
     }
 
     const tasks = {};
     document.querySelectorAll(".task-card").forEach(card => {
       const key = card.dataset.task;
-      const value = card.querySelector("select").value;
+      const value = card.querySelector(".task-select").value || "";
       tasks[key] = value;
     });
 
     const { data, error } = await client
       .from("surveys")
-      .insert([{ room, staff, shift, notes, created_at: new Date() }])
+      .insert([
+        {
+          room,
+          staff,
+          shift,
+          notes,
+          created_at: new Date().toISOString()
+        }
+      ])
       .select()
       .single();
 
@@ -80,12 +127,13 @@ form.addEventListener("submit", async (e) => {
     successScreen.style.display = "block";
 
   } catch (err) {
-    alert(err.message || "Submission failed");
     console.error(err);
+    alert(err.message || "Submission failed");
   }
 
   btn.disabled = false;
   btn.textContent = "Submit Survey";
 });
 
+/* initial progress */
 updateProgress();
