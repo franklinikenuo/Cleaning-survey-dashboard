@@ -28,21 +28,21 @@
   <div class="action-bar">
 
     <!-- EXPORT UI V2 -->
-    <div class="export-console">
-      <button class="btn">Export ▼</button>
+    <div class="export-console" id="exportConsole">
 
-      <div class="export-menu">
-        <button onclick="exportCSV()">CSV Report</button>
-        <button onclick="exportExcel()">Excel Report</button>
-        <button onclick="exportPDF()">PDF Dashboard</button>
-      </div>
-    </div>
+  <button class="btn export-main-btn" onclick="toggleExportMenu()">
+    Export ▼
+  </button>
 
-    <a href="survey.html" class="btn">+ New Survey</a>
+  <div class="export-menu">
+    <button onclick="exportCSV()">CSV Report</button>
+    <button onclick="exportExcel()">Excel Report</button>
+    <button onclick="exportPDF()">PDF Dashboard</button>
   </div>
-</header>
 
-<main class="main-layout">
+</div>
+
+<a href="survey.html" class="btn">+ New Survey</a>
 
   <!-- SUMMARY -->
   <section class="summary-grid">
