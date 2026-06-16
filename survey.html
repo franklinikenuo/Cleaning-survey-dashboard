@@ -58,6 +58,7 @@
       <select id="staff" required>
         <option value="">Select staff</option>
 
+        <!-- Individual staff -->
         <option>Hamse</option>
         <option>Hanna</option>
         <option>Mohubo</option>
@@ -90,7 +91,9 @@
     <p class="tasks-subtitle">Y = Yes | N = No | NA = Not Applicable</p>
 
     <div class="task-card" data-task="trash">
-      <label>Trash</label>
+      <label>
+        <span class="icon">🗑️</span> Trash
+      </label>
       <select class="task-select">
         <option value="">--</option>
         <option value="Y">Y</option>
@@ -100,7 +103,9 @@
     </div>
 
     <div class="task-card" data-task="mop">
-      <label>Mop</label>
+      <label>
+        <span class="icon">🧹</span> Mop
+      </label>
       <select class="task-select">
         <option value="">--</option>
         <option value="Y">Y</option>
@@ -110,7 +115,9 @@
     </div>
 
     <div class="task-card" data-task="sanitize">
-      <label>Sanitize</label>
+      <label>
+        <span class="icon">🧴</span> Sanitize
+      </label>
       <select class="task-select">
         <option value="">--</option>
         <option value="Y">Y</option>
@@ -120,7 +127,9 @@
     </div>
 
     <div class="task-card" data-task="sweep">
-      <label>Sweep</label>
+      <label>
+        <span class="icon">🧽</span> Sweep
+      </label>
       <select class="task-select">
         <option value="">--</option>
         <option value="Y">Y</option>
@@ -130,7 +139,9 @@
     </div>
 
     <div class="task-card" data-task="linen_change">
-      <label>Linen Change</label>
+      <label>
+        <span class="icon">🛏️</span> Linen Change
+      </label>
       <select class="task-select">
         <option value="">--</option>
         <option value="Y">Y</option>
@@ -140,7 +151,9 @@
     </div>
 
     <div class="task-card" data-task="vacuum">
-      <label>Vacuum</label>
+      <label>
+        <span class="icon">🌀</span> Vacuum
+      </label>
       <select class="task-select">
         <option value="">--</option>
         <option value="Y">Y</option>
@@ -152,14 +165,17 @@
     <!-- NOTES -->
     <div class="card">
       <label>Notes</label>
-      <textarea id="notes"></textarea>
+      <textarea id="notes" placeholder="Optional notes..."></textarea>
     </div>
 
-    <button type="submit" class="submit-btn">Submit Survey</button>
+    <button type="submit" class="submit-btn">
+      Submit Survey
+    </button>
 
   </form>
 
-  <div id="successScreen" class="success-screen">
+  <!-- SUCCESS SCREEN -->
+  <div id="successScreen" class="success-screen" style="display:none;">
     <h2>Survey Submitted</h2>
     <p>Saved successfully</p>
   </div>
