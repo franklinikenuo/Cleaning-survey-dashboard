@@ -245,3 +245,9 @@ client
     refresh();
   })
   .subscribe();
+function toggleExportMenu() {
+  const el = document.getElementById("exportConsole");
+  if (!el) return;
+
+  el.classList.toggle("active");
+}
