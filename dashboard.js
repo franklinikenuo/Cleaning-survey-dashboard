@@ -1,13 +1,10 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
-
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allData = [];
 
-/* =========================
-   FETCH (SINGLE SOURCE OF TRUTH)
-========================= */
+/* ================= FETCH ================= */
 async function fetchData() {
   const { data, error } = await client
     .from("surveys")
@@ -15,16 +12,14 @@ async function fetchData() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Fetch error:", error);
+    console.error(error);
     return [];
   }
 
   return data || [];
 }
 
-/* =========================
-   FILTERS
-========================= */
+/* ================= FILTERS ================= */
 function applyFilters(data) {
   const room = document.getElementById("filter-room")?.value || "all";
   const staff = (document.getElementById("filter-staff")?.value || "").toLowerCase();
@@ -40,14 +35,9 @@ function applyFilters(data) {
   });
 }
 
-/* =========================
-   SUMMARY
-========================= */
+/* ================= SUMMARY ================= */
 function updateSummary(data) {
-  const totalEl = document.getElementById("total-submissions");
-  const compEl = document.getElementById("overall-compliance");
-
-  if (totalEl) totalEl.textContent = data.length;
+  document.getElementById("total-submissions").textContent = data.length;
 
   let total = 0;
   let yes = 0;
@@ -59,13 +49,11 @@ function updateSummary(data) {
     });
   });
 
-  const compliance = total ? Math.round((yes / total) * 100) : 0;
-  if (compEl) compEl.textContent = compliance + "%";
+  document.getElementById("overall-compliance").textContent =
+    total ? Math.round((yes / total) * 100) + "%" : "0%";
 }
 
-/* =========================
-   TABLE
-========================= */
+/* ================= TABLE ================= */
 function renderTable(data) {
   const tbody = document.querySelector("#submissions-table tbody");
   if (!tbody) return;
@@ -74,7 +62,7 @@ function renderTable(data) {
 
   data.forEach(d => {
     const tasks = Object.entries(d.tasks_completed || {})
-      .map(([k, v]) => `${k}:${v}`)
+      .map(([k,v]) => `${k}:${v}`)
       .join(" | ");
 
     const tr = document.createElement("tr");
@@ -92,21 +80,17 @@ function renderTable(data) {
   });
 }
 
-/* =========================
-   CHARTS
-========================= */
+/* ================= CHARTS ================= */
 let roomChart, shiftChart;
 
 function renderCharts(data) {
   const roomCtx = document.getElementById("roomChart");
   const shiftCtx = document.getElementById("shiftChart");
-
   if (!roomCtx || !shiftCtx) return;
 
   const rooms = {};
   data.forEach(d => {
-    if (!d.room) return;
-    rooms[d.room] = (rooms[d.room] || 0) + 1;
+    if (d.room) rooms[d.room] = (rooms[d.room] || 0) + 1;
   });
 
   if (roomChart) roomChart.destroy();
@@ -116,14 +100,11 @@ function renderCharts(data) {
     type: "bar",
     data: {
       labels: Object.keys(rooms),
-      datasets: [{
-        label: "Submissions",
-        data: Object.values(rooms)
-      }]
+      datasets: [{ label: "Submissions", data: Object.values(rooms) }]
     }
   });
 
-  const shifts = ["Morning", "Afternoon", "Evening", "Night"];
+  const shifts = ["Morning","Afternoon","Evening","Night"];
 
   shiftChart = new Chart(shiftCtx, {
     type: "pie",
@@ -136,9 +117,7 @@ function renderCharts(data) {
   });
 }
 
-/* =========================
-   LEADERBOARD
-========================= */
+/* ================= LEADERBOARD ================= */
 function splitStaff(staff) {
   return (staff || "").split(",").map(s => s.trim()).filter(Boolean);
 }
@@ -146,15 +125,13 @@ function splitStaff(staff) {
 function getStaffStats(data) {
   const map = {};
 
-  data.forEach(entry => {
-    splitStaff(entry.staff).forEach(name => {
-      if (!map[name]) {
-        map[name] = { name, shifts: 0, yes: 0, total: 0 };
-      }
+  data.forEach(d => {
+    splitStaff(d.staff).forEach(name => {
+      if (!map[name]) map[name] = { name, shifts: 0, yes: 0, total: 0 };
 
       map[name].shifts++;
 
-      Object.values(entry.tasks_completed || {}).forEach(v => {
+      Object.values(d.tasks_completed || {}).forEach(v => {
         map[name].total++;
         if (v === "Y") map[name].yes++;
       });
@@ -168,25 +145,23 @@ function getStaffStats(data) {
 }
 
 function renderLeaderboard(data) {
-  const container = document.getElementById("staff-leaderboard");
-  if (!container) return;
+  const el = document.getElementById("staff-leaderboard");
+  if (!el) return;
 
   const stats = getStaffStats(data)
-    .sort((a, b) => b.compliance - a.compliance);
+    .sort((a,b) => b.compliance - a.compliance);
 
-  container.innerHTML = stats.length
-    ? stats.map((s, i) => `
-        <div style="padding:8px;border-bottom:1px solid #eee">
-          <b>#${i + 1} ${s.name}</b><br>
-          Compliance: ${s.compliance}% | Shifts: ${s.shifts}
-        </div>
-      `).join("")
-    : "No data yet";
+  el.innerHTML = stats.length
+    ? stats.map((s,i)=>`
+      <div style="padding:8px;border-bottom:1px solid #eee">
+        <b>#${i+1} ${s.name}</b><br>
+        ${s.compliance}% | ${s.shifts} shifts
+      </div>
+    `).join("")
+    : "No data";
 }
 
-/* =========================
-   EXPORT V2
-========================= */
+/* ================= EXPORT ================= */
 function exportCSV() {
   const data = applyFilters(allData);
 
@@ -194,10 +169,10 @@ function exportCSV() {
 
   data.forEach(d => {
     const tasks = Object.entries(d.tasks_completed || {})
-      .map(([k, v]) => `${k}:${v}`)
+      .map(([k,v]) => `${k}:${v}`)
       .join(" | ");
 
-    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${(d.created_at || "").split("T")[0]}\n`;
+    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${(d.created_at||"").split("T")[0]}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -220,24 +195,22 @@ function exportExcel() {
 }
 
 async function exportPDF() {
-  const element = document.querySelector(".main-layout");
-  if (!element) return;
+  const el = document.querySelector(".main-layout");
+  if (!el) return;
 
-  const canvas = await html2canvas(element, { scale: 2 });
+  const canvas = await html2canvas(el, { scale: 2 });
   const img = canvas.toDataURL("image/png");
 
-  const pdf = new jspdf.jsPDF("p", "mm", "a4");
+  const pdf = new jspdf.jsPDF("p","mm","a4");
 
   const w = pdf.internal.pageSize.getWidth();
-  const h = (canvas.height * w) / canvas.width;
+  const h = (canvas.height*w)/canvas.width;
 
-  pdf.addImage(img, "PNG", 0, 0, w, h);
+  pdf.addImage(img,"PNG",0,0,w,h);
   pdf.save("cleaning-dashboard.pdf");
 }
 
-/* =========================
-   REFRESH LOOP
-========================= */
+/* ================= REFRESH ================= */
 async function refresh() {
   const filtered = applyFilters(allData);
 
@@ -247,12 +220,10 @@ async function refresh() {
   renderLeaderboard(filtered);
 }
 
-/* =========================
-   INIT
-========================= */
+/* ================= INIT ================= */
 async function init() {
   allData = await fetchData();
-  await refresh();
+  refresh();
 
   setInterval(async () => {
     allData = await fetchData();
@@ -262,24 +233,15 @@ async function init() {
 
 init();
 
-/* =========================
-   REAL-TIME (FIXED)
-========================= */
-const channel = client
-  .channel("surveys-live");
-
-channel.on(
-  "postgres_changes",
-  {
+/* ================= REALTIME ================= */
+client
+  .channel("surveys-live")
+  .on("postgres_changes", {
     event: "*",
     schema: "public",
     table: "surveys"
-  },
-  async () => {
-    console.log("Live update received");
+  }, async () => {
     allData = await fetchData();
     refresh();
-  }
-);
-
-channel.subscribe();
+  })
+  .subscribe();
