@@ -7,10 +7,10 @@
 
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Charts -->
+  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Export tools -->
+  <!-- Export libs -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -18,129 +18,126 @@
 
 <body>
 
-  <!-- HEADER -->
-  <header class="top-bar">
+<header class="top-bar">
+
+  <div class="top-bar-left">
     <div>
       <h1>Cleaning Compliance Dashboard</h1>
-      <p>Hospital-Grade Cleaning Performance System</p>
+      <p>Hospital-Grade Performance System</p>
     </div>
-
-    <div class="action-bar">
-      <button class="btn" onclick="exportCSV()">CSV</button>
-      <button class="btn" onclick="exportExcel()">Excel</button>
-      <button class="btn" onclick="exportPDF()">PDF</button>
-
-      <a href="survey.html" class="btn">New Survey</a>
-    </div>
-  </header>
-  <div class="export-console">
-  <button class="export-main-btn">
-    Export Reports ▼
-  </button>
-
-  <div class="export-menu">
-    <button onclick="exportCSV()">📄 CSV Report</button>
-    <button onclick="exportExcel()">📊 Excel Report</button>
-    <button onclick="exportPDF()">🧾 PDF Dashboard</button>
   </div>
-</div>
 
-  <!-- MAIN -->
-  <main class="main-layout">
+  <!-- EXPORT SYSTEM V2 -->
+  <div class="export-box">
+    <button id="exportBtn" class="btn primary">Export ⬇</button>
 
-    <!-- SUMMARY -->
-    <section class="summary-grid">
-      <div class="card">
-        <h3>Total Submissions</h3>
-        <p id="total-submissions">--</p>
+    <div id="exportMenu" class="export-menu hidden">
+      <button onclick="exportCSV()">📄 CSV</button>
+      <button onclick="exportExcel()">📊 Excel</button>
+      <button onclick="exportPDF()">🧾 PDF</button>
+    </div>
+  </div>
+
+</header>
+
+<!-- MAIN -->
+<main class="main-layout">
+
+  <!-- SUMMARY -->
+  <section class="summary-grid">
+    <div class="card">
+      <h3>Total Submissions</h3>
+      <p id="total-submissions">--</p>
+    </div>
+
+    <div class="card">
+      <h3>Overall Compliance</h3>
+      <p id="overall-compliance">--%</p>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="card">
+    <h3>Staff Leaderboard</h3>
+    <div id="staff-leaderboard">Loading...</div>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="card filters-card">
+
+    <div class="filters-grid">
+      <div>
+        <label>Room</label>
+        <select id="filter-room">
+          <option value="all">All Rooms</option>
+        </select>
       </div>
 
-      <div class="card">
-        <h3>Overall Compliance</h3>
-        <p id="overall-compliance">--%</p>
-      </div>
-    </section>
-
-    <!-- LEADERBOARD -->
-    <section class="card">
-      <h3>Staff Leaderboard</h3>
-      <div id="staff-leaderboard">Loading...</div>
-    </section>
-
-    <!-- FILTERS -->
-    <section class="card filters-card">
-      <div class="filters-grid">
-
-        <div>
-          <label>Room</label>
-          <select id="filter-room">
-            <option value="all">All Rooms</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Staff</label>
-          <input id="filter-staff" placeholder="Search staff"/>
-        </div>
-
-        <div>
-          <label>Shift</label>
-          <select id="filter-shift">
-            <option value="all">All Shifts</option>
-            <option>Morning</option>
-            <option>Afternoon</option>
-            <option>Evening</option>
-            <option>Night</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Date</label>
-          <input type="date" id="filter-date"/>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- CHARTS -->
-    <section class="charts-grid">
-      <div class="card">
-        <h3>Room Activity</h3>
-        <canvas id="roomChart"></canvas>
+      <div>
+        <label>Staff</label>
+        <input id="filter-staff" placeholder="Search staff" />
       </div>
 
-      <div class="card">
-        <h3>Shift Distribution</h3>
-        <canvas id="shiftChart"></canvas>
+      <div>
+        <label>Shift</label>
+        <select id="filter-shift">
+          <option value="all">All</option>
+          <option>Morning</option>
+          <option>Afternoon</option>
+          <option>Evening</option>
+          <option>Night</option>
+        </select>
       </div>
-    </section>
 
-    <!-- TABLE -->
-    <section class="card">
-      <h3>Submission Records</h3>
+      <div>
+        <label>Date</label>
+        <input type="date" id="filter-date" />
+      </div>
+    </div>
 
-      <table id="submissions-table">
-        <thead>
-          <tr>
-            <th>Room</th>
-            <th>Shift</th>
-            <th>Staff</th>
-            <th>Tasks</th>
-            <th>Notes</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+  </section>
 
-  </main>
+  <!-- CHARTS -->
+  <section class="charts-grid">
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div class="card">
+      <h3>Room Activity</h3>
+      <canvas id="roomChart"></canvas>
+    </div>
 
-  <!-- DASHBOARD LOGIC -->
-  <script src="dashboard.js"></script>
+    <div class="card">
+      <h3>Shift Distribution</h3>
+      <canvas id="shiftChart"></canvas>
+    </div>
+
+  </section>
+
+  <!-- TABLE -->
+  <section class="card">
+    <h3>Submission Records</h3>
+
+    <table id="submissions-table">
+      <thead>
+        <tr>
+          <th>Room</th>
+          <th>Shift</th>
+          <th>Staff</th>
+          <th>Tasks</th>
+          <th>Notes</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+</main>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- DASHBOARD -->
+<script src="dashboard.js"></script>
 
 </body>
 </html>
