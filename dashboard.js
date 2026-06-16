@@ -1,42 +1,25 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allData = [];
 
 /* =========================
-   FETCH (FIXED + STABLE)
+   FETCH (SINGLE SOURCE OF TRUTH)
 ========================= */
 async function fetchData() {
-  const { data: surveys, error: surveyError } = await client
+  const { data, error } = await client
     .from("surveys")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (surveyError) {
-    console.error("Survey error:", surveyError);
+  if (error) {
+    console.error("Fetch error:", error);
     return [];
   }
 
-  const { data: tasks, error: taskError } = await client
-    .from("tasks")
-    .select("*");
-
-  if (taskError) {
-    console.error("Task error:", taskError);
-  }
-
-  const taskMap = {};
-
-  (tasks || []).forEach(t => {
-    if (!taskMap[t.survey_id]) taskMap[t.survey_id] = {};
-    taskMap[t.survey_id][t.task_name] = t.completed;
-  });
-
-  return (surveys || []).map(s => ({
-    ...s,
-    tasks_completed: taskMap[s.id] || {}
-  }));
+  return data || [];
 }
 
 /* =========================
@@ -61,7 +44,10 @@ function applyFilters(data) {
    SUMMARY
 ========================= */
 function updateSummary(data) {
-  document.getElementById("total-submissions").textContent = data.length;
+  const totalEl = document.getElementById("total-submissions");
+  const compEl = document.getElementById("overall-compliance");
+
+  if (totalEl) totalEl.textContent = data.length;
 
   let total = 0;
   let yes = 0;
@@ -74,7 +60,7 @@ function updateSummary(data) {
   });
 
   const compliance = total ? Math.round((yes / total) * 100) : 0;
-  document.getElementById("overall-compliance").textContent = compliance + "%";
+  if (compEl) compEl.textContent = compliance + "%";
 }
 
 /* =========================
@@ -107,22 +93,21 @@ function renderTable(data) {
 }
 
 /* =========================
-   CHARTS (SAFE RESET)
+   CHARTS
 ========================= */
 let roomChart, shiftChart;
 
 function renderCharts(data) {
-  const rooms = {};
-
-  data.forEach(d => {
-    if (!d.room) return;
-    rooms[d.room] = (rooms[d.room] || 0) + 1;
-  });
-
   const roomCtx = document.getElementById("roomChart");
   const shiftCtx = document.getElementById("shiftChart");
 
   if (!roomCtx || !shiftCtx) return;
+
+  const rooms = {};
+  data.forEach(d => {
+    if (!d.room) return;
+    rooms[d.room] = (rooms[d.room] || 0) + 1;
+  });
 
   if (roomChart) roomChart.destroy();
   if (shiftChart) shiftChart.destroy();
@@ -192,7 +177,7 @@ function renderLeaderboard(data) {
   container.innerHTML = stats.length
     ? stats.map((s, i) => `
         <div style="padding:8px;border-bottom:1px solid #eee">
-          <b>#${i+1} ${s.name}</b><br>
+          <b>#${i + 1} ${s.name}</b><br>
           Compliance: ${s.compliance}% | Shifts: ${s.shifts}
         </div>
       `).join("")
@@ -200,7 +185,7 @@ function renderLeaderboard(data) {
 }
 
 /* =========================
-   EXPORT (STABLE)
+   EXPORT V2
 ========================= */
 function exportCSV() {
   const data = applyFilters(allData);
@@ -263,7 +248,7 @@ async function refresh() {
 }
 
 /* =========================
-   INIT (SAFE)
+   INIT
 ========================= */
 async function init() {
   allData = await fetchData();
@@ -276,20 +261,25 @@ async function init() {
 }
 
 init();
-client
-  .channel("surveys-live")
-  .on(
-    "postgres_changes",
-    {
-      event: "*",
-      schema: "public",
-      table: "surveys"
-    },
-    async () => {
-      console.log("Live update received");
 
-      allData = await fetchData();
-      refresh();
-    }
-  )
-  .subscribe();
+/* =========================
+   REAL-TIME (FIXED)
+========================= */
+const channel = client
+  .channel("surveys-live");
+
+channel.on(
+  "postgres_changes",
+  {
+    event: "*",
+    schema: "public",
+    table: "surveys"
+  },
+  async () => {
+    console.log("Live update received");
+    allData = await fetchData();
+    refresh();
+  }
+);
+
+channel.subscribe();
