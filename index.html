@@ -10,169 +10,123 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Excel Export -->
+  <!-- XLSX Export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-  <!-- PDF Export (Android‑Safe Legacy Build) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.legacy.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
+  <!-- html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
 
-  <!-- HEADER -->
+  <!-- ================= HEADER ================= -->
   <header class="top-bar">
     <div class="top-bar-left">
       <div>
         <h1>Cleaning Compliance Dashboard</h1>
-        <p>Daily room cleaning performance overview</p>
+        <p>Hospital-Grade Cleaning Performance System</p>
       </div>
-
-      <nav class="top-nav-links">
-        <a href="survey.html">Daily Survey</a>
-        <a href="reports.html">Reports Dashboard</a>
-      </nav>
-    </div>
-
-    <div class="top-actions">
-
-      <!-- LOCAL PDF -->
-      <button id="btn-local-pdf" class="btn primary">Download PDF</button>
-
-      <!-- EXCEL -->
-      <button id="btn-export-excel" class="btn secondary">Export Excel</button>
-
-      <!-- CSV -->
-      <button id="btn-export-csv" class="btn secondary">Export CSV</button>
-
-      <!-- NEW: PDF WITH CHARTS -->
-      <button id="exportPdfWithChartsBtn" class="btn secondary">
-        Export PDF with Charts
-      </button>
-
-      <!-- REPORTS DROPDOWN -->
-      <div class="dropdown">
-        <button class="btn dropdown-btn">Reports ▼</button>
-        <div class="dropdown-content">
-          <button class="dropdown-item" id="email-dashboard-pdf">Email Dashboard PDF</button>
-          <button class="dropdown-item" id="email-weekly-report">Email Weekly Report</button>
-          <button class="dropdown-item" id="email-monthly-report">Email Monthly Report</button>
-          <button class="dropdown-item" id="email-quarterly-report">Email Quarterly Report</button>
-          <button class="dropdown-item" id="email-yearly-report">Email Yearly Report</button>
-        </div>
-      </div>
-
     </div>
   </header>
 
-  <!-- MAIN LAYOUT -->
+  <!-- ================= ACTION BAR ================= -->
+  <div class="action-bar">
+    <a href="survey.html" class="btn">New Survey</a>
+    <a href="index.html" class="btn">Dashboard</a>
+  </div>
+
+  <!-- ================= MAIN ================= -->
   <main class="main-layout">
 
-    <!-- SUMMARY CARDS -->
+    <!-- ===== SUMMARY CARDS ===== -->
     <section class="summary-grid">
-      <div class="card summary-card">
-        <h3>Overall Compliance</h3>
-        <p id="overall-compliance" class="summary-value">--%</p>
-      </div>
 
       <div class="card summary-card">
         <h3>Total Submissions</h3>
-        <p id="total-submissions" class="summary-value">--</p>
+        <p id="total-submissions">--</p>
       </div>
 
       <div class="card summary-card">
-        <h3>Top Shift</h3>
-        <p id="top-shift" class="summary-value">--</p>
+        <h3>Overall Compliance</h3>
+        <p id="overall-compliance">--%</p>
       </div>
 
-      <div class="card summary-card">
-        <h3>Avg Tasks Completed</h3>
-        <p id="avg-tasks" class="summary-value">--</p>
-      </div>
     </section>
 
-    <!-- FILTERS -->
-    <section class="card filters-card">
-      <div class="filters-row">
+    <!-- ===== STAFF LEADERBOARD ===== -->
+    <section class="card">
+      <h3>Staff Performance Leaderboard</h3>
+      <div id="staff-leaderboard">Loading...</div>
+    </section>
 
-        <div class="filter-group">
-          <label for="filter-room">Room</label>
+    <!-- ===== FILTERS ===== -->
+    <section class="card filters-card">
+
+      <div class="filters-grid">
+
+        <div>
+          <label>Room</label>
           <select id="filter-room">
             <option value="all">All Rooms</option>
-            <option value="Andrology/Embryology Lab">Andrology/Embryology Lab</option>
-            <option value="Blood Lab">Blood Lab</option>
-            <option value="Recovery Room">Recovery Room</option>
-            <option value="Procedure Room">Procedure Room</option>
-            <option value="Ultrasound Room 1">Ultrasound Room 1</option>
-            <option value="Ultrasound Room 2">Ultrasound Room 2</option>
-            <option value="Ultrasound Room 3">Ultrasound Room 3</option>
-            <option value="Ultrasound Room 4">Ultrasound Room 4</option>
-            <option value="Ultrasound Room 5">Ultrasound Room 5</option>
-            <option value="Ultrasound Room 6">Ultrasound Room 6</option>
-            <option value="Ultrasound Room 7">Ultrasound Room 7</option>
-            <option value="Collection Room 1">Collection Room 1</option>
-            <option value="Collection Room 2">Collection Room 2</option>
           </select>
         </div>
 
-        <div class="filter-group">
-          <label for="filter-staff">Staff</label>
-          <input type="text" id="filter-staff" placeholder="Enter staff name" />
+        <div>
+          <label>Staff</label>
+          <input id="filter-staff" placeholder="Search staff" />
         </div>
 
-        <div class="filter-group">
-          <label for="filter-shift">Shift</label>
+        <div>
+          <label>Shift</label>
           <select id="filter-shift">
             <option value="all">All Shifts</option>
-            <option value="Morning">Morning</option>
-            <option value="Afternoon">Afternoon</option>
-            <option value="Evening">Evening</option>
-            <option value="Night">Night</option>
+            <option>Morning</option>
+            <option>Afternoon</option>
+            <option>Evening</option>
+            <option>Night</option>
           </select>
         </div>
 
-        <div class="filter-group">
-          <label for="filter-date">Date</label>
+        <div>
+          <label>Date</label>
           <input type="date" id="filter-date" />
         </div>
 
       </div>
 
-      <div class="filters-actions">
-        <button id="btn-clear-filters" class="btn secondary">Clear Filters</button>
-      </div>
     </section>
 
-    <!-- CHARTS -->
+    <!-- ===== CHARTS ===== -->
     <section class="charts-grid">
-      <div class="card chart-card">
-        <h3>Room Compliance</h3>
+
+      <div class="card">
+        <h3>Room Activity</h3>
         <canvas id="roomChart"></canvas>
       </div>
 
-      <div class="card chart-card">
+      <div class="card">
         <h3>Shift Distribution</h3>
         <canvas id="shiftChart"></canvas>
       </div>
 
-      <div class="card chart-card">
-        <h3>Tasks Completed Trend</h3>
-        <canvas id="tasksTrendChart"></canvas>
-      </div>
     </section>
 
-    <!-- TABLE -->
-    <section class="card table-card">
+    <!-- ===== TABLE ===== -->
+    <section class="card">
       <h3>Submission Records</h3>
+
       <table id="submissions-table">
         <thead>
           <tr>
             <th>Room</th>
             <th>Shift</th>
             <th>Staff</th>
-            <th>Tasks Completed</th>
+            <th>Tasks</th>
             <th>Notes</th>
-            <th>Timestamp</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -181,28 +135,18 @@
 
   </main>
 
-  <!-- FOOTER -->
+  <!-- ================= FOOTER ================= -->
   <footer class="footer">
-    <p>Cleaning Compliance Dashboard · Local + Email Reporting Enabled</p>
+    <p>Hospital Cleaning Compliance System</p>
   </footer>
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ================= SCRIPTS ================= -->
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- XLSX -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<!-- html2canvas -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<!-- Dashboard Logic -->
-<script src="dashboard.js"></script>
+  <!-- Dashboard Logic -->
+  <script src="dashboard.js"></script>
 
 </body>
 </html>
