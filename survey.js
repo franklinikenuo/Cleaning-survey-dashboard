@@ -84,6 +84,8 @@ form?.addEventListener("submit", async (e) => {
       shift: shiftEl.value,
       notes: notesEl.value,
       tasks_completed: getTasks(),
+      work_date: new
+  Date().toISOString().split("T")[0]
       created_at: new Date().toISOString()
     };
 
