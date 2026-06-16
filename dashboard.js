@@ -1,10 +1,11 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allData = [];
 
-/* ================= FETCH ================= */
+/* ================= FETCH (STABLE SINGLE SOURCE OF TRUTH) ================= */
 async function fetchData() {
   const { data, error } = await client
     .from("surveys")
@@ -12,7 +13,7 @@ async function fetchData() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
+    console.error("Fetch error:", error);
     return [];
   }
 
@@ -37,7 +38,10 @@ function applyFilters(data) {
 
 /* ================= SUMMARY ================= */
 function updateSummary(data) {
-  document.getElementById("total-submissions").textContent = data.length;
+  const totalEl = document.getElementById("total-submissions");
+  const compEl = document.getElementById("overall-compliance");
+
+  if (totalEl) totalEl.textContent = data.length;
 
   let total = 0;
   let yes = 0;
@@ -49,8 +53,9 @@ function updateSummary(data) {
     });
   });
 
-  document.getElementById("overall-compliance").textContent =
-    total ? Math.round((yes / total) * 100) + "%" : "0%";
+  const compliance = total ? Math.round((yes / total) * 100) : 0;
+
+  if (compEl) compEl.textContent = compliance + "%";
 }
 
 /* ================= TABLE ================= */
@@ -62,7 +67,7 @@ function renderTable(data) {
 
   data.forEach(d => {
     const tasks = Object.entries(d.tasks_completed || {})
-      .map(([k,v]) => `${k}:${v}`)
+      .map(([k, v]) => `${k}:${v}`)
       .join(" | ");
 
     const tr = document.createElement("tr");
@@ -80,17 +85,21 @@ function renderTable(data) {
   });
 }
 
-/* ================= CHARTS ================= */
-let roomChart, shiftChart;
+/* ================= CHARTS (SAFE + CLEAN RESET) ================= */
+let roomChart;
+let shiftChart;
 
 function renderCharts(data) {
   const roomCtx = document.getElementById("roomChart");
   const shiftCtx = document.getElementById("shiftChart");
+
   if (!roomCtx || !shiftCtx) return;
 
   const rooms = {};
   data.forEach(d => {
-    if (d.room) rooms[d.room] = (rooms[d.room] || 0) + 1;
+    if (d.room) {
+      rooms[d.room] = (rooms[d.room] || 0) + 1;
+    }
   });
 
   if (roomChart) roomChart.destroy();
@@ -100,11 +109,14 @@ function renderCharts(data) {
     type: "bar",
     data: {
       labels: Object.keys(rooms),
-      datasets: [{ label: "Submissions", data: Object.values(rooms) }]
+      datasets: [{
+        label: "Submissions",
+        data: Object.values(rooms)
+      }]
     }
   });
 
-  const shifts = ["Morning","Afternoon","Evening","Night"];
+  const shifts = ["Morning", "Afternoon", "Evening", "Night"];
 
   shiftChart = new Chart(shiftCtx, {
     type: "pie",
@@ -119,7 +131,10 @@ function renderCharts(data) {
 
 /* ================= LEADERBOARD ================= */
 function splitStaff(staff) {
-  return (staff || "").split(",").map(s => s.trim()).filter(Boolean);
+  return (staff || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
 }
 
 function getStaffStats(data) {
@@ -127,7 +142,9 @@ function getStaffStats(data) {
 
   data.forEach(d => {
     splitStaff(d.staff).forEach(name => {
-      if (!map[name]) map[name] = { name, shifts: 0, yes: 0, total: 0 };
+      if (!map[name]) {
+        map[name] = { name, shifts: 0, yes: 0, total: 0 };
+      }
 
       map[name].shifts++;
 
@@ -149,15 +166,15 @@ function renderLeaderboard(data) {
   if (!el) return;
 
   const stats = getStaffStats(data)
-    .sort((a,b) => b.compliance - a.compliance);
+    .sort((a, b) => b.compliance - a.compliance);
 
   el.innerHTML = stats.length
-    ? stats.map((s,i)=>`
-      <div style="padding:8px;border-bottom:1px solid #eee">
-        <b>#${i+1} ${s.name}</b><br>
-        ${s.compliance}% | ${s.shifts} shifts
-      </div>
-    `).join("")
+    ? stats.map((s, i) => `
+        <div style="padding:8px;border-bottom:1px solid #eee">
+          <b>#${i + 1} ${s.name}</b><br>
+          ${s.compliance}% | ${s.shifts} shifts
+        </div>
+      `).join("")
     : "No data";
 }
 
@@ -169,10 +186,10 @@ function exportCSV() {
 
   data.forEach(d => {
     const tasks = Object.entries(d.tasks_completed || {})
-      .map(([k,v]) => `${k}:${v}`)
+      .map(([k, v]) => `${k}:${v}`)
       .join(" | ");
 
-    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${(d.created_at||"").split("T")[0]}\n`;
+    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${(d.created_at || "").split("T")[0]}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -201,16 +218,16 @@ async function exportPDF() {
   const canvas = await html2canvas(el, { scale: 2 });
   const img = canvas.toDataURL("image/png");
 
-  const pdf = new jspdf.jsPDF("p","mm","a4");
+  const pdf = new jspdf.jsPDF("p", "mm", "a4");
 
   const w = pdf.internal.pageSize.getWidth();
-  const h = (canvas.height*w)/canvas.width;
+  const h = (canvas.height * w) / canvas.width;
 
-  pdf.addImage(img,"PNG",0,0,w,h);
+  pdf.addImage(img, "PNG", 0, 0, w, h);
   pdf.save("cleaning-dashboard.pdf");
 }
 
-/* ================= REFRESH ================= */
+/* ================= REFRESH LOOP ================= */
 async function refresh() {
   const filtered = applyFilters(allData);
 
@@ -245,6 +262,8 @@ client
     refresh();
   })
   .subscribe();
+
+/* ================= EXPORT MENU TOGGLE ================= */
 function toggleExportMenu() {
   const el = document.getElementById("exportConsole");
   if (!el) return;
