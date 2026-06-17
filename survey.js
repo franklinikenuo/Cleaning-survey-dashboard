@@ -79,15 +79,17 @@ form?.addEventListener("submit", async (e) => {
 
   try {
     const payload = {
-      room: roomEl.value,
-      staff: staffEl.value,
-      shift: shiftEl.value,
-      notes: notesEl.value,
-      tasks_completed: getTasks(),
-      work_date: new
-      Date().toISOString().split("T")[0],
-      created_at: new Date().toISOString()
-    };
+  room: roomEl.value,
+  staff: staffEl.value,
+  shift: shiftEl.value,
+  notes: notesEl.value,
+  tasks_completed: getTasks(),
+
+  work_date: document.getElementById("work_date")?.value ||
+             new Date().toISOString().split("T")[0],
+
+  created_at: new Date().toISOString()
+}
 
     if (!payload.room || !payload.staff || !payload.shift) {
       throw new Error("Please complete Room, Staff, Shift");
