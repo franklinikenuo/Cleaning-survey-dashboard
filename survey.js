@@ -112,3 +112,11 @@ form?.addEventListener("submit", async (e) => {
 });
 
 updateProgress();
+
+/* ================= DATE INIT ================= */
+const workDateEl = document.getElementById("work_date");
+
+if (workDateEl) {
+  workDateEl.max = new Date().toISOString().split("T")[0];
+  workDateEl.value = new Date().toISOString().split("T")[0];
+}
