@@ -1,5 +1,6 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 /* ================= ELEMENTS ================= */
@@ -10,7 +11,20 @@ const roomEl = document.getElementById("room");
 const staffEl = document.getElementById("staff");
 const shiftEl = document.getElementById("shift");
 const notesEl = document.getElementById("notes");
+const workDateEl = document.getElementById("work_date");
 const progressBar = document.getElementById("progressBar");
+
+/* ================= INIT DATE ================= */
+function initDate() {
+  if (!workDateEl) return;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  workDateEl.max = today;
+  workDateEl.value = today;
+}
+
+initDate();
 
 /* ================= TASKS ================= */
 function getTasks() {
@@ -45,7 +59,7 @@ function updateProgress() {
   progressBar.style.width = Math.round((done / total) * 100) + "%";
 }
 
-/* ================= TASK UI COLOR ================= */
+/* ================= TASK COLOR ================= */
 function handleTaskColor(select) {
   const card = select.closest(".task-card");
   if (!card) return;
@@ -74,22 +88,26 @@ form?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const btn = form.querySelector("button[type='submit']");
+  if (!btn) return;
+
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
   try {
+    const today = new Date().toISOString().split("T")[0];
+
     const payload = {
-  room: roomEl.value,
-  staff: staffEl.value,
-  shift: shiftEl.value,
-  notes: notesEl.value,
-  tasks_completed: getTasks(),
+      room: roomEl?.value || "",
+      staff: staffEl?.value || "",
+      shift: shiftEl?.value || "",
+      notes: notesEl?.value || "",
+      tasks_completed: getTasks(),
 
-  work_date: document.getElementById("work_date")?.value ||
-             new Date().toISOString().split("T")[0],
+      // ✅ FIXED: uses selected date OR fallback
+      work_date: workDateEl?.value || today,
 
-  created_at: new Date().toISOString()
-}
+      created_at: new Date().toISOString()
+    };
 
     if (!payload.room || !payload.staff || !payload.shift) {
       throw new Error("Please complete Room, Staff, Shift");
@@ -105,20 +123,13 @@ form?.addEventListener("submit", async (e) => {
     successScreen.style.display = "block";
 
   } catch (err) {
-    alert(err.message);
     console.error(err);
+    alert(err.message);
   }
 
   btn.disabled = false;
   btn.textContent = "Submit Survey";
 });
 
+/* ================= START ================= */
 updateProgress();
-
-/* ================= DATE INIT ================= */
-const workDateEl = document.getElementById("work_date");
-
-if (workDateEl) {
-  workDateEl.max = new Date().toISOString().split("T")[0];
-  workDateEl.value = new Date().toISOString().split("T")[0];
-}
