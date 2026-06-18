@@ -118,7 +118,18 @@ form?.addEventListener("submit", async (e) => {
       .insert([payload]);
 
     if (error) throw error;
+    
 
+    await fetch(
+  "https://cpbkdtcrimppsxlstlob.supabase.co/functions/v1/send-survey-email",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  }
+);
     form.style.display = "none";
     successScreen.style.display = "block";
 
