@@ -94,80 +94,45 @@ updateProgress();
 
 /* ================= SUBMIT ================= */
 form?.addEventListener("submit", async (e) => {
-e.preventDefault();
+  e.preventDefault();
 
-const btn = form.querySelector("button[type='submit']");
-if (!btn) return;
+  console.log("SUBMIT FIRED");
 
-btn.disabled = true;
-btn.textContent = "Submitting...";
+  const btn = form.querySelector("button[type='submit']");
+  if (!btn) return;
 
-try {
-const today = new Date().toISOString().split("T")[0];
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
 
-const payload = {
-  room: roomEl?.value || "",
-  staff: staffEl?.value || "",
-  shift: shiftEl?.value || "",
-  notes: notesEl?.value || "",
-  tasks_completed: getTasks(),
-  work_date: workDateEl?.value || today,
-  created_at: new Date().toISOString()
-};
+  try {
+    const today = new Date().toISOString().split("T")[0];
 
-if (!payload.room || !payload.staff || !payload.shift) {
-  throw new Error("Please complete Room, Staff and Shift.");
-}
+    const payload = {
+      room: roomEl?.value || "",
+      staff: staffEl?.value || "",
+      shift: shiftEl?.value || "",
+      notes: notesEl?.value || "",
+      tasks_completed: getTasks(),
+      work_date: workDateEl?.value || today,
+      created_at: new Date().toISOString()
+    };
 
-/* Save survey */
-const { error } = await client
-  .from("surveys")
-  .insert([payload]);
+    const { error } = await client
+      .from("surveys")
+      .insert([payload]);
 
-if (error) throw error;
+    if (error) throw error;
 
-/* Email notification */
-try {
-  const response = await fetch(
-    "https://cpbkdtcrimppsxlstlob.supabase.co/functions/v1/super-processor",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    }
-  );
+    form.style.display = "none";
+    successScreen.style.display = "block";
 
-  console.log(
-    "Email Function Status:",
-    response.status
-  );
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
 
-  const result = await response.text();
-
-  console.log(
-    "Email Function Response:",
-    result
-  );
-
-} catch (emailError) {
-  console.error(
-    "Email Function Error:",
-    emailError
-  );
-}
-
-form.style.display = "none";
-successScreen.style.display = "block";
-
-} catch (err) {
-console.error(err);
-alert(err.message);
-}
-
-btn.disabled = false;
-btn.textContent = "Submit Survey";
+  btn.disabled = false;
+  btn.textContent = "Submit Survey";
 });
 
 /* ================= START ================= */
