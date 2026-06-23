@@ -78,69 +78,84 @@ function handleTaskColor(select) {
 
 document.querySelectorAll(".task-select").forEach(s => {
   s.addEventListener("change", e => {
-    handleTaskColor(e.target);
+    
+    /* ================= SUBMIT ================= */
+form?.addEventListener("submit", async (e) => {
+e.preventDefault();
+
+const btn = form.querySelector("button[type='submit']");
+if (!btn) return;
+
+btn.disabled = true;
+btn.textContent = "Submitting...";
+
+try {
+const today = new Date().toISOString().split("T")[0];
+
+```
+const payload = {
+  room: roomEl?.value || "",
+  staff: staffEl?.value || "",
+  shift: shiftEl?.value || "",
+  notes: notesEl?.value || "",
+  tasks_completed: getTasks(),
+  work_date: workDateEl?.value || today,
+  created_at: new Date().toISOString()
+};
+
+if (!payload.room || !payload.staff || !payload.shift) {
+  throw new Error("Please complete Room, Staff, Shift");
+}
+
+/* Save survey */
+const { error } = await client
+  .from("surveys")
+  .insert([payload]);
+
+if (error) throw error;
+
+/* Trigger email function */
+try {
+  const response = await fetch(
+    "https://cpbkdtcrimppsxlstlob.supabase.co/functions/v1/super-processor",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+
+  console.log("Email Function Status:", response.status);
+
+  const result = await response.text();
+  console.log("Email Function Response:", result);
+
+} catch (emailErr) {
+  console.error("Email Function Error:", emailErr);
+
+  /* Do NOT fail survey submission if email fails */
+}
+
+form.style.display = "none";
+successScreen.style.display = "block";
+```
+
+} catch (err) {
+console.error(err);
+alert(err.message);
+}
+
+btn.disabled = false;
+btn.textContent = "Submit Survey";
+});
+handleTaskColor(e.target);
     updateProgress();
   });
 });
 
-/* ================= SUBMIT ================= */
-form?.addEventListener("submit", async (e) => {
-  e.preventDefault();
 
-  const btn = form.querySelector("button[type='submit']");
-  if (!btn) return;
-
-  btn.disabled = true;
-  btn.textContent = "Submitting...";
-
-  try {
-    const today = new Date().toISOString().split("T")[0];
-
-    const payload = {
-      room: roomEl?.value || "",
-      staff: staffEl?.value || "",
-      shift: shiftEl?.value || "",
-      notes: notesEl?.value || "",
-      tasks_completed: getTasks(),
-
-      // ✅ FIXED: uses selected date OR fallback
-      work_date: workDateEl?.value || today,
-
-      created_at: new Date().toISOString()
-    };
-
-    if (!payload.room || !payload.staff || !payload.shift) {
-      throw new Error("Please complete Room, Staff, Shift");
-    }
-
-    const { error } = await client
-      .from("surveys")
-      .insert([payload]);
-
-    if (error) throw error;
-    
-
-    await fetch(
-  "https://cpbkdtcrimppsxlstlob.supabase.co/functions/v1/send-survey-email",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  }
-);
-    form.style.display = "none";
-    successScreen.style.display = "block";
-
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-
-  btn.disabled = false;
-  btn.textContent = "Submit Survey";
-});
 
 /* ================= START ================= */
 updateProgress();
