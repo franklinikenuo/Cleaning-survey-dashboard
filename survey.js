@@ -1,5 +1,5 @@
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+const supabaseKey = "";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -14,61 +14,70 @@ const notesEl = document.getElementById("notes");
 const workDateEl = document.getElementById("work_date");
 const progressBar = document.getElementById("progressBar");
 
-/* ================= INIT DATE ================= */
+/* ================= DATE INIT ================= */
 function initDate() {
-  if (!workDateEl) return;
+if (!workDateEl) return;
 
-  const today = new Date().toISOString().split("T")[0];
+const today = new Date().toISOString().split("T")[0];
 
-  workDateEl.max = today;
-  workDateEl.value = today;
+workDateEl.max = today;
+workDateEl.value = today;
 }
 
 initDate();
 
 /* ================= TASKS ================= */
 function getTasks() {
-  const tasks = {};
+const tasks = {};
 
-  document.querySelectorAll(".task-card").forEach(card => {
-    const key = card.dataset.task;
-    const value = card.querySelector(".task-select")?.value || "";
-    tasks[key] = value;
-  });
+document.querySelectorAll(".task-card").forEach(card => {
+const key = card.dataset.task;
+const value = card.querySelector(".task-select")?.value || "";
+tasks[key] = value;
+});
 
-  return tasks;
+return tasks;
 }
 
 /* ================= PROGRESS ================= */
 function updateProgress() {
-  if (!progressBar) return;
+if (!progressBar) return;
 
-  const selects = document.querySelectorAll(".task-select");
+const selects = document.querySelectorAll(".task-select");
 
-  let total = selects.length + 3;
-  let done = 0;
+let total = selects.length + 3;
+let done = 0;
 
-  if (roomEl?.value) done++;
-  if (staffEl?.value) done++;
-  if (shiftEl?.value) done++;
+if (roomEl?.value) done++;
+if (staffEl?.value) done++;
+if (shiftEl?.value) done++;
 
-  selects.forEach(s => {
-    if (s.value) done++;
-  });
+selects.forEach(select => {
+if (select.value) done++;
+});
 
-  progressBar.style.width = Math.round((done / total) * 100) + "%";
+progressBar.style.width =
+Math.round((done / total) * 100) + "%";
 }
 
-/* ================= TASK COLOR ================= */
+/* ================= TASK COLORS ================= */
 function handleTaskColor(select) {
-  const card = select.closest(".task-card");
-  if (!card) return;
+const card = select.closest(".task-card");
+if (!card) return;
 
-  card.classList.remove("glow-yes", "glow-no", "glow-na");
+card.classList.remove("glow-yes", "glow-no", "glow-na");
 
-  if (select.value === "Y") card.classList.add("glow-yes");
-  if (select.value === "N") card.classList.add("glow-no");
-  if (select.value === "NA") card.classList.add("glow-na");
+if (select.value === "Y") {
+card.classList.add("glow-yes");
+}
+
+if (select.value === "N") {
+card.classList.add("glow-no");
+}
+
+if (select.value === "NA") {
+card.classList.add("glow-na");
+}
 }
 
 /* ================= LISTENERS ================= */
@@ -76,13 +85,13 @@ function handleTaskColor(select) {
 el?.addEventListener("change", updateProgress);
 });
 
-document.querySelectorAll(".task-select").forEach(s => {
-s.addEventListener("change", e => {
+document.querySelectorAll(".task-select").forEach(select => {
+select.addEventListener("change", e => {
 handleTaskColor(e.target);
 updateProgress();
 });
 });
-   
+
 /* ================= SUBMIT ================= */
 form?.addEventListener("submit", async (e) => {
 e.preventDefault();
@@ -96,7 +105,6 @@ btn.textContent = "Submitting...";
 try {
 const today = new Date().toISOString().split("T")[0];
 
-```
 const payload = {
   room: roomEl?.value || "",
   staff: staffEl?.value || "",
@@ -108,15 +116,17 @@ const payload = {
 };
 
 if (!payload.room || !payload.staff || !payload.shift) {
-  throw new Error("Please complete Room, Staff, Shift");
+  throw new Error("Please complete Room, Staff and Shift.");
 }
 
+/* Save survey */
 const { error } = await client
   .from("surveys")
   .insert([payload]);
 
 if (error) throw error;
 
+/* Email notification */
 try {
   const response = await fetch(
     "https://cpbkdtcrimppsxlstlob.supabase.co/functions/v1/super-processor",
@@ -129,18 +139,27 @@ try {
     }
   );
 
-  console.log("Email Function Status:", response.status);
+  console.log(
+    "Email Function Status:",
+    response.status
+  );
 
   const result = await response.text();
-  console.log("Email Function Response:", result);
 
-} catch (emailErr) {
-  console.error("Email Function Error:", emailErr);
+  console.log(
+    "Email Function Response:",
+    result
+  );
+
+} catch (emailError) {
+  console.error(
+    "Email Function Error:",
+    emailError
+  );
 }
 
 form.style.display = "none";
 successScreen.style.display = "block";
-```
 
 } catch (err) {
 console.error(err);
