@@ -73,13 +73,17 @@ function handleTaskColor(select) {
 
 /* ================= LISTENERS ================= */
 [roomEl, staffEl, shiftEl].forEach(el => {
-  el?.addEventListener("change", updateProgress);
+el?.addEventListener("change", updateProgress);
 });
 
 document.querySelectorAll(".task-select").forEach(s => {
-  s.addEventListener("change", e => {
-    
-    /* ================= SUBMIT ================= */
+s.addEventListener("change", e => {
+handleTaskColor(e.target);
+updateProgress();
+});
+});
+   
+/* ================= SUBMIT ================= */
 form?.addEventListener("submit", async (e) => {
 e.preventDefault();
 
@@ -107,14 +111,12 @@ if (!payload.room || !payload.staff || !payload.shift) {
   throw new Error("Please complete Room, Staff, Shift");
 }
 
-/* Save survey */
 const { error } = await client
   .from("surveys")
   .insert([payload]);
 
 if (error) throw error;
 
-/* Trigger email function */
 try {
   const response = await fetch(
     "https://cpbkdtcrimppsxlstlob.supabase.co/functions/v1/super-processor",
@@ -134,8 +136,6 @@ try {
 
 } catch (emailErr) {
   console.error("Email Function Error:", emailErr);
-
-  /* Do NOT fail survey submission if email fails */
 }
 
 form.style.display = "none";
@@ -150,12 +150,6 @@ alert(err.message);
 btn.disabled = false;
 btn.textContent = "Submit Survey";
 });
-handleTaskColor(e.target);
-    updateProgress();
-  });
-});
-
-
 
 /* ================= START ================= */
 updateProgress();
