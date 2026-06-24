@@ -123,6 +123,23 @@ form?.addEventListener("submit", async (e) => {
 
     if (error) throw error;
 
+    /* Send Email Notification */
+try {
+const { data, error: functionError } =
+await client.functions.invoke("send-survey-email", {
+body: payload
+});
+
+if (functionError) {
+console.error("Function Error:", functionError);
+} else {
+console.log("Function Success:", data);
+}
+
+} catch (emailErr) {
+console.error("Email Function Error:", emailErr);
+}
+
     form.style.display = "none";
     successScreen.style.display = "block";
 
