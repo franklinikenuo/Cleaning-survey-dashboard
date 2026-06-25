@@ -144,7 +144,6 @@ try {
   console.error("Email Function Error:", emailErr);
   alert("Email function failed: " + emailErr.message);
 }
-
     form.style.display = "none";
     successScreen.style.display = "block";
 
