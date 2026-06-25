@@ -92,6 +92,32 @@ updateProgress();
 });
 });
 
+// YES TO ALL
+const yesToAllBtn = document.getElementById("yesToAllBtn");
+
+yesToAllBtn?.addEventListener("click", () => {
+  document.querySelectorAll(".task-select").forEach(select => {
+    select.value = "Y";
+    handleTaskColor(select);
+  });
+
+  updateProgress();
+});
+
+// RESET ALL
+const resetAllBtn = document.getElementById("resetAllBtn");
+
+resetAllBtn?.addEventListener("click", () => {
+  document.querySelectorAll(".task-select").forEach(select => {
+    select.value = "";
+    const card = select.closest(".task-card");
+    card?.classList.remove("glow-yes", "glow-no", "glow-na");
+  });
+
+  updateProgress();
+});
+
+
 /* ================= SUBMIT ================= */
 alert("JS IS UPDATED");
 form?.addEventListener("submit", async (e) => {
