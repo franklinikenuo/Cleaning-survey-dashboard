@@ -123,21 +123,25 @@ form?.addEventListener("submit", async (e) => {
 
     if (error) throw error;
 
-    /* Send Email Notification */
+/* Send Email Notification */
 try {
-const { data, error: functionError } =
-await client.functions.invoke("send-survey-email", {
-body: payload
-});
+  const { data, error: functionError } =
+    await client.functions.invoke("super-processor", {
+      body: payload
+    });
 
-if (functionError) {
-console.error("Function Error:", functionError);
-} else {
-console.log("Function Success:", data);
-}
+  console.log("Function Data:", data);
+
+  if (functionError) {
+    console.error("Function Error:", functionError);
+    alert("Email error: " + JSON.stringify(functionError));
+  } else {
+    console.log("Email sent successfully");
+  }
 
 } catch (emailErr) {
-console.error("Email Function Error:", emailErr);
+  console.error("Email Function Error:", emailErr);
+  alert("Email function failed: " + emailErr.message);
 }
 
     form.style.display = "none";
