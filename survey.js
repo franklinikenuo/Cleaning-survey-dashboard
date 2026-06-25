@@ -129,6 +129,7 @@ try {
   const { data, error: functionError } =
     await client.functions.invoke("super-processor", {
       body: payload
+      headers: { "Content-Type": "application/json" }   // <-- REQUIRED
     });
 
   console.log("Function Data:", data);
