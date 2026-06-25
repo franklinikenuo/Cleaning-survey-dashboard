@@ -93,6 +93,7 @@ updateProgress();
 });
 
 /* ================= SUBMIT ================= */
+alert("JS IS UPDATED");
 form?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
