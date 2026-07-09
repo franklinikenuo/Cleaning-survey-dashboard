@@ -326,3 +326,259 @@ function addExecutiveSummary(pdf, data) {
     pdf.text(
         "Summary",
         
+/* ============================================================
+   ROOM STATISTICS
+============================================================ */
+
+function getRoomStatistics(data) {
+
+    const rooms = {};
+
+    data.forEach(record => {
+
+        if (!record.room) return;
+
+        if (!rooms[record.room]) {
+
+            rooms[record.room] = {
+                room: record.room,
+                surveys: 0,
+                yes: 0,
+                total: 0
+            };
+
+        }
+
+        rooms[record.room].surveys++;
+
+        Object.values(record.tasks_completed || {}).forEach(task => {
+
+            rooms[record.room].total++;
+
+            if (task === "Y")
+                rooms[record.room].yes++;
+
+        });
+
+    });
+
+    return Object.values(rooms).map(r => ({
+
+        ...r,
+
+        compliance:
+            r.total === 0
+                ? 0
+                : Math.round((r.yes / r.total) * 100)
+
+    }))
+    .sort((a,b)=>b.compliance-a.compliance);
+
+}
+
+/* ============================================================
+   STAFF STATISTICS
+============================================================ */
+
+function getStaffStatistics(data){
+
+    const staff={};
+
+    data.forEach(record=>{
+
+        if(!record.staff) return;
+
+        record.staff
+            .split(",")
+            .map(s=>s.trim())
+            .forEach(name=>{
+
+                if(!staff[name]){
+
+                    staff[name]={
+                        name,
+                        surveys:0,
+                        yes:0,
+                        total:0
+                    };
+
+                }
+
+                staff[name].surveys++;
+
+                Object.values(record.tasks_completed || {})
+                    .forEach(task=>{
+
+                        staff[name].total++;
+
+                        if(task==="Y")
+                            staff[name].yes++;
+
+                    });
+
+            });
+
+    });
+
+    return Object.values(staff)
+        .map(s=>({
+
+            ...s,
+
+            compliance:
+                s.total===0
+                    ?0
+                    :Math.round((s.yes/s.total)*100)
+
+        }))
+        .sort((a,b)=>b.compliance-a.compliance);
+
+}
+
+/* ============================================================
+   SHIFT STATISTICS
+============================================================ */
+
+function getShiftStatistics(data){
+
+    const shifts={
+
+        Morning:0,
+        Afternoon:0,
+        Evening:0,
+        Night:0
+
+    };
+
+    data.forEach(record=>{
+
+        if(record.shift && shifts[record.shift]!=null)
+            shifts[record.shift]++;
+
+    });
+
+    return shifts;
+
+}/* ============================================================
+   EXECUTIVE ANALYTICS
+============================================================ */
+
+function addAnalyticsPage(pdf,data){
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFontSize(18);
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+        "Operational Analytics",
+        15,
+        45
+    );
+
+    const roomStats=getRoomStatistics(data);
+
+    const staffStats=getStaffStatistics(data);
+
+    const shiftStats=getShiftStatistics(data);
+
+    pdf.setFontSize(12);
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text("Top Performing Rooms",15,65);
+
+    pdf.setFont("helvetica","normal");
+
+    let y=75;
+
+    roomStats.slice(0,5).forEach(room=>{
+
+        pdf.text(
+
+            `${room.room}  (${room.compliance}% Compliance)`,
+
+            20,
+
+            y
+
+        );
+
+        y+=8;
+
+    });
+
+    y+=10;
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+
+        "Top Staff",
+
+        15,
+
+        y
+
+    );
+
+    y+=10;
+
+    pdf.setFont("helvetica","normal");
+
+    staffStats.slice(0,5).forEach(person=>{
+
+        pdf.text(
+
+            `${person.name} (${person.compliance}%)`,
+
+            20,
+
+            y
+
+        );
+
+        y+=8;
+
+    });
+
+    y+=10;
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+
+        "Shift Activity",
+
+        15,
+
+        y
+
+    );
+
+    y+=10;
+
+    pdf.setFont("helvetica","normal");
+
+    Object.entries(shiftStats).forEach(([shift,count])=>{
+
+        pdf.text(
+
+            `${shift}: ${count} surveys`,
+
+            20,
+
+            y
+
+        );
+
+        y+=8;
+
+    });
+
+    addFooter(pdf,3);
+
+}
