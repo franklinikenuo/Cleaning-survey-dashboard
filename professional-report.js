@@ -553,6 +553,10 @@ addExecutiveSummary(pdf, allData);
 
 addOperationalAnalytics(pdf, allData);
 
+addExecutiveKPIs(pdf, allData);
+
+await addDashboardCharts(pdf);
+       
 pdf.save(
     `Executive_Cleaning_Report_${
         new Date().toISOString().split("T")[0]
@@ -730,6 +734,87 @@ function addOperationalAnalytics(pdf, data) {
         y += 8;
 
     });
+
+    addFooter(pdf);
+
+}
+
+/* ============================================================
+   DASHBOARD CHARTS
+============================================================ */
+
+async function addDashboardCharts(pdf){
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Dashboard Charts",
+        15,
+        45
+    );
+
+    const roomCanvas =
+        document.getElementById("roomChart");
+
+    const shiftCanvas =
+        document.getElementById("shiftChart");
+
+    let y = 60;
+
+    if(roomCanvas){
+
+        pdf.setFontSize(13);
+
+        pdf.text(
+            "Room Activity",
+            15,
+            y
+        );
+
+        const roomImage =
+            roomCanvas.toDataURL("image/png");
+
+        pdf.addImage(
+            roomImage,
+            "PNG",
+            15,
+            y+5,
+            170,
+            70
+        );
+
+        y += 90;
+
+    }
+
+    if(shiftCanvas){
+
+        pdf.setFontSize(13);
+
+        pdf.text(
+            "Shift Distribution",
+            15,
+            y
+        );
+
+        const shiftImage =
+            shiftCanvas.toDataURL("image/png");
+
+        pdf.addImage(
+            shiftImage,
+            "PNG",
+            25,
+            y+5,
+            120,
+            80
+        );
+
+    }
 
     addFooter(pdf);
 
