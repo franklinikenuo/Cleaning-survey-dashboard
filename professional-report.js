@@ -547,17 +547,17 @@ async function exportProfessionalPDF() {
 
     const pdf = createPDF();
 
-    addCoverPage(pdf);
+addCoverPage(pdf);
 
-    addExecutiveSummary(pdf, allData);
+addExecutiveSummary(pdf, allData);
 
-    pdf.save(
-        `Executive_Cleaning_Report_${new Date()
-            .toISOString()
-            .split("T")[0]}.pdf`
-    );
+addOperationalAnalytics(pdf, allData);
 
-}
+pdf.save(
+    `Executive_Cleaning_Report_${
+        new Date().toISOString().split("T")[0]
+    }.pdf`
+);
 
 /* ============================================================
    PART 2A
