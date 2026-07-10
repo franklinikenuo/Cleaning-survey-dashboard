@@ -558,3 +558,179 @@ async function exportProfessionalPDF() {
     );
 
 }
+
+/* ============================================================
+   PART 2A
+   OPERATIONAL ANALYTICS PAGE
+============================================================ */
+
+function addOperationalAnalytics(pdf, data) {
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Operational Analytics",
+        15,
+        45
+    );
+
+    const roomStats = getRoomStatistics(data);
+    const staffStats = getStaffStatistics(data);
+    const shifts = getShiftStatistics(data);
+
+    let y = 60;
+
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+
+    pdf.text(
+        "Top Performing Rooms",
+        15,
+        y
+    );
+
+    y += 10;
+
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+
+    roomStats.slice(0,5).forEach(room => {
+
+        pdf.text(
+
+            `${room.room}`,
+
+            20,
+
+            y
+
+        );
+
+        pdf.text(
+
+            `${room.compliance}%`,
+
+            165,
+
+            y,
+
+            { align:"right" }
+
+        );
+
+        y += 8;
+
+    });
+
+    y += 10;
+
+    pdf.setFontSize(14);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.text(
+        "Top Staff",
+        15,
+        y
+    );
+
+    y += 10;
+
+    pdf.setFontSize(11);
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    staffStats.slice(0,5).forEach(person=>{
+
+        pdf.text(
+
+            person.name,
+
+            20,
+
+            y
+
+        );
+
+        pdf.text(
+
+            `${person.compliance}%`,
+
+            165,
+
+            y,
+
+            {align:"right"}
+
+        );
+
+        y += 8;
+
+    });
+
+    y += 10;
+
+    pdf.setFontSize(14);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.text(
+        "Shift Activity",
+        15,
+        y
+    );
+
+    y += 10;
+
+    pdf.setFontSize(11);
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    Object.entries(shifts).forEach(([shift,count])=>{
+
+        pdf.text(
+
+            shift,
+
+            20,
+
+            y
+
+        );
+
+        pdf.text(
+
+            `${count} Surveys`,
+
+            165,
+
+            y,
+
+            {align:"right"}
+
+        );
+
+        y += 8;
+
+    });
+
+    addFooter(pdf);
+
+}
