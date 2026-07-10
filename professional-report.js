@@ -560,8 +560,9 @@ await addDashboardCharts(pdf);
 pdf.save(
     `Executive_Cleaning_Report_${
         new Date().toISOString().split("T")[0]
-    }.pdf`
-);
+    }.pdf`);
+
+}
 
 /* ============================================================
    PART 2A
