@@ -741,6 +741,191 @@ function addOperationalAnalytics(pdf, data) {
 }
 
 /* ============================================================
+   EXECUTIVE KPI DASHBOARD
+============================================================ */
+
+function addExecutiveKPIs(pdf, data){
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Executive Performance Dashboard",
+        15,
+        45
+    );
+
+    const kpi = calculateKPIs(data);
+
+    const roomStats = getRoomStatistics(data);
+
+    const staffStats = getStaffStatistics(data);
+
+    const shifts = getShiftStatistics(data);
+
+    const topRoom =
+        roomStats.length
+            ? roomStats[0]
+            : null;
+
+    const topStaff =
+        staffStats.length
+            ? staffStats[0]
+            : null;
+
+    const busiestShift =
+        Object.entries(shifts)
+            .sort((a,b)=>b[1]-a[1])[0];
+
+    const cards = [
+
+        {
+            title:"Compliance",
+            value:kpi.compliance+"%"
+        },
+
+        {
+            title:"Surveys",
+            value:String(kpi.totalSurveys)
+        },
+
+        {
+            title:"Rooms",
+            value:String(kpi.totalRooms)
+        },
+
+        {
+            title:"Staff",
+            value:String(kpi.totalStaff)
+        }
+
+    ];
+
+    let x=15;
+
+    cards.forEach(card=>{
+
+        pdf.setDrawColor(180);
+
+        pdf.roundedRect(
+            x,
+            60,
+            40,
+            35,
+            2,
+            2
+        );
+
+        pdf.setFontSize(10);
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+        pdf.text(
+            card.title,
+            x+20,
+            70,
+            {
+                align:"center"
+            }
+        );
+
+        pdf.setFontSize(16);
+
+        pdf.text(
+            card.value,
+            x+20,
+            85,
+            {
+                align:"center"
+            }
+        );
+
+        x+=45;
+
+    });
+
+    let y=120;
+
+    pdf.setFontSize(14);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.text(
+        "Executive Highlights",
+        15,
+        y
+    );
+
+    y+=12;
+
+    pdf.setFontSize(11);
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    pdf.text(
+        `Top Performing Room: ${topRoom ? topRoom.room : "N/A"}`,
+        20,
+        y
+    );
+
+    y+=8;
+
+    pdf.text(
+        `Room Compliance: ${topRoom ? topRoom.compliance+"%" : "N/A"}`,
+        20,
+        y
+    );
+
+    y+=10;
+
+    pdf.text(
+        `Top Staff: ${topStaff ? topStaff.name : "N/A"}`,
+        20,
+        y
+    );
+
+    y+=8;
+
+    pdf.text(
+        `Staff Compliance: ${topStaff ? topStaff.compliance+"%" : "N/A"}`,
+        20,
+        y
+    );
+
+    y+=10;
+
+    pdf.text(
+        `Most Active Shift: ${busiestShift ? busiestShift[0] : "N/A"}`,
+        20,
+        y
+    );
+
+    y+=8;
+
+    pdf.text(
+        `Shift Surveys: ${busiestShift ? busiestShift[1] : 0}`,
+        20,
+        y
+    );
+
+    addFooter(pdf);
+
+                             }
+
+/* ============================================================
    DASHBOARD CHARTS
 ============================================================ */
 
