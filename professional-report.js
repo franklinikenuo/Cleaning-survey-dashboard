@@ -975,6 +975,105 @@ async function addDashboardCharts(pdf){
 }
 
 /* ============================================================
+   PART 3A
+   DETAILED SURVEY RECORDS
+============================================================ */
+
+function addSurveyTable(pdf, data) {
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Detailed Survey Records",
+        15,
+        45
+    );
+
+    const rows = data.map(record => {
+
+        const completed =
+            Object.values(record.tasks_completed || {})
+                .filter(v => v === "Y")
+                .length;
+
+        const total =
+            Object.keys(record.tasks_completed || {}).length;
+
+        return [
+
+            record.work_date ||
+            (record.created_at || "").split("T")[0],
+
+            record.room || "",
+
+            record.shift || "",
+
+            record.staff || "",
+
+            `${completed}/${total}`,
+
+            record.notes || ""
+
+        ];
+
+    });
+
+    pdf.autoTable({
+
+        startY: 55,
+
+        head: [[
+            "Date",
+            "Room",
+            "Shift",
+            "Staff",
+            "Completed",
+            "Notes"
+        ]],
+
+        body: rows,
+
+        theme: "grid",
+
+        styles: {
+            fontSize: 8,
+            cellPadding: 2,
+            overflow: "linebreak"
+        },
+
+        headStyles: {
+            fillColor: [30, 70, 140],
+            textColor: 255,
+            fontStyle: "bold"
+        },
+
+        alternateRowStyles: {
+            fillColor: [245,245,245]
+        },
+
+        columnStyles: {
+
+            0:{cellWidth:22},
+            1:{cellWidth:40},
+            2:{cellWidth:20},
+            3:{cellWidth:38},
+            4:{cellWidth:18},
+            5:{cellWidth:52}
+
+        }
+
+    });
+
+    addFooter(pdf);
+
+}
+
+/* ============================================================
    MAIN EXPORT
 ============================================================ */
 
@@ -998,6 +1097,9 @@ addOperationalAnalytics(pdf, allData);
 addExecutiveKPIs(pdf, allData);
 
 await addDashboardCharts(pdf);
+    
+addSurveyTable(pdf, allData);
+
        
 pdf.save(
     `Executive_Cleaning_Report_${
