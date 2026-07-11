@@ -533,38 +533,6 @@ function getShiftStatistics(data) {
 }
 
 /* ============================================================
-   MAIN EXPORT
-============================================================ */
-
-async function exportProfessionalPDF() {
-
-    if (typeof allData === "undefined") {
-
-        alert("Dashboard data has not loaded yet.");
-        return;
-
-    }
-
-    const pdf = createPDF();
-
-addCoverPage(pdf);
-
-addExecutiveSummary(pdf, allData);
-
-addOperationalAnalytics(pdf, allData);
-
-addExecutiveKPIs(pdf, allData);
-
-await addDashboardCharts(pdf);
-       
-pdf.save(
-    `Executive_Cleaning_Report_${
-        new Date().toISOString().split("T")[0]
-    }.pdf`);
-
-}
-
-/* ============================================================
    PART 2A
    OPERATIONAL ANALYTICS PAGE
 ============================================================ */
@@ -1003,5 +971,37 @@ async function addDashboardCharts(pdf){
     }
 
     addFooter(pdf);
+
+}
+
+/* ============================================================
+   MAIN EXPORT
+============================================================ */
+
+async function exportProfessionalPDF() {
+
+    if (typeof allData === "undefined") {
+
+        alert("Dashboard data has not loaded yet.");
+        return;
+
+    }
+
+    const pdf = createPDF();
+
+addCoverPage(pdf);
+
+addExecutiveSummary(pdf, allData);
+
+addOperationalAnalytics(pdf, allData);
+
+addExecutiveKPIs(pdf, allData);
+
+await addDashboardCharts(pdf);
+       
+pdf.save(
+    `Executive_Cleaning_Report_${
+        new Date().toISOString().split("T")[0]
+    }.pdf`);
 
 }
