@@ -1404,22 +1404,22 @@ addCoverPage(pdf);
 
 addExecutiveSummary(pdf, allData);
 
-addOperationalAnalytics(pdf, allData);
-
 addExecutiveKPIs(pdf, allData);
 
+addOperationalAnalytics(pdf, allData);
+
 await addDashboardCharts(pdf);
-    
+
 addSurveyTable(pdf, allData);
 
 addPerformanceTables(pdf, allData);
-    
+
 addRecommendations(pdf, allData);
-   
 
 pdf.save(
     `Executive_Cleaning_Report_${
         new Date().toISOString().split("T")[0]
-    }.pdf`);
+    }.pdf`
+);
 
 }
