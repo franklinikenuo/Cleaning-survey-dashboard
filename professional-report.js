@@ -1071,6 +1071,133 @@ function addSurveyTable(pdf, data) {
 
     addFooter(pdf);
 
+}/* ============================================================
+   PART 3B
+   STAFF & ROOM PERFORMANCE TABLES
+============================================================ */
+
+function addPerformanceTables(pdf, data) {
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Performance Analysis",
+        15,
+        45
+    );
+
+    /* ===========================
+       STAFF TABLE
+    ============================ */
+
+    pdf.setFontSize(14);
+
+    pdf.text(
+        "Staff Performance",
+        15,
+        58
+    );
+
+    const staffRows = getStaffStatistics(data).map(person => [
+
+        person.name,
+
+        person.surveys,
+
+        person.compliance + "%"
+
+    ]);
+
+    pdf.autoTable({
+
+        startY: 65,
+
+        head: [[
+            "Staff",
+            "Surveys",
+            "Compliance"
+        ]],
+
+        body: staffRows,
+
+        theme: "striped",
+
+        headStyles: {
+
+            fillColor: [0,102,204]
+
+        },
+
+        styles: {
+
+            fontSize: 9
+
+        }
+
+    });
+
+    /* ===========================
+       ROOM TABLE
+    ============================ */
+
+    const nextY =
+        pdf.lastAutoTable.finalY + 15;
+
+    pdf.setFontSize(14);
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+        "Room Performance",
+        15,
+        nextY
+    );
+
+    const roomRows = getRoomStatistics(data).map(room => [
+
+        room.room,
+
+        room.surveys,
+
+        room.compliance + "%"
+
+    ]);
+
+    pdf.autoTable({
+
+        startY: nextY + 5,
+
+        head: [[
+            "Room",
+            "Surveys",
+            "Compliance"
+        ]],
+
+        body: roomRows,
+
+        theme: "striped",
+
+        headStyles: {
+
+            fillColor: [34,139,34]
+
+        },
+
+        styles: {
+
+            fontSize: 9
+
+        }
+
+    });
+
+    addFooter(pdf);
+
 }
 
 /* ============================================================
@@ -1099,6 +1226,8 @@ addExecutiveKPIs(pdf, allData);
 await addDashboardCharts(pdf);
     
 addSurveyTable(pdf, allData);
+
+addPerformanceTables(pdf, allData);
 
        
 pdf.save(
