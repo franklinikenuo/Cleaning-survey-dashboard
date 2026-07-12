@@ -1201,6 +1201,191 @@ function addPerformanceTables(pdf, data) {
 }
 
 /* ============================================================
+   PART 3C
+   MANAGEMENT RECOMMENDATIONS & SIGN-OFF
+============================================================ */
+
+function addRecommendations(pdf, data) {
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    const kpi = calculateKPIs(data);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Management Recommendations",
+        15,
+        45
+    );
+
+    let y = 60;
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+
+    pdf.text(
+        "Executive Summary",
+        15,
+        y
+    );
+
+    y += 10;
+
+    if (kpi.compliance >= 95) {
+
+        pdf.text(
+            "Overall cleaning compliance is excellent. Continue current",
+            20,
+            y
+        );
+
+        y += 7;
+
+        pdf.text(
+            "quality assurance practices and maintain routine audits.",
+            20,
+            y
+        );
+
+    } else if (kpi.compliance >= 85) {
+
+        pdf.text(
+            "Cleaning performance is good but there are opportunities",
+            20,
+            y
+        );
+
+        y += 7;
+
+        pdf.text(
+            "to improve consistency across rooms and staff.",
+            20,
+            y
+        );
+
+    } else {
+
+        pdf.text(
+            "Compliance requires immediate management attention.",
+            20,
+            y
+        );
+
+        y += 7;
+
+        pdf.text(
+            "Additional supervision and refresher training are recommended.",
+            20,
+            y
+        );
+
+    }
+
+    y += 20;
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+        "Recommended Actions",
+        15,
+        y
+    );
+
+    y += 12;
+
+    pdf.setFont("helvetica","normal");
+
+    const actions = [
+
+        "• Continue daily cleaning audits.",
+
+        "• Review rooms with lower compliance weekly.",
+
+        "• Recognize top-performing staff.",
+
+        "• Provide coaching for staff below expected performance.",
+
+        "• Review shift workload distribution monthly.",
+
+        "• Monitor trends through dashboard analytics.",
+
+        "• Archive this report for accreditation and quality assurance."
+
+    ];
+
+    actions.forEach(item => {
+
+        pdf.text(
+            item,
+            20,
+            y
+        );
+
+        y += 8;
+
+    });
+
+    y += 18;
+
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+        "Management Approval",
+        15,
+        y
+    );
+
+    y += 18;
+
+    pdf.line(20, y, 90, y);
+
+    pdf.line(110, y, 180, y);
+
+    y += 6;
+
+    pdf.setFont("helvetica","normal");
+
+    pdf.text(
+        "Supervisor",
+        35,
+        y
+    );
+
+    pdf.text(
+        "Manager",
+        135,
+        y
+    );
+
+    y += 25;
+
+    pdf.line(20, y, 90, y);
+
+    pdf.line(110, y, 180, y);
+
+    y += 6;
+
+    pdf.text(
+        "Date",
+        48,
+        y
+    );
+
+    pdf.text(
+        "Date",
+        138,
+        y
+    );
+
+    addFooter(pdf);
+
+}
+
+/* ============================================================
    MAIN EXPORT
 ============================================================ */
 
@@ -1228,8 +1413,10 @@ await addDashboardCharts(pdf);
 addSurveyTable(pdf, allData);
 
 addPerformanceTables(pdf, allData);
+    
+addRecommendations(pdf, allData);
+   
 
-       
 pdf.save(
     `Executive_Cleaning_Report_${
         new Date().toISOString().split("T")[0]
