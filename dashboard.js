@@ -3,6 +3,21 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
+// Require login before showing dashboard
+(async () => {
+  const {
+    data: { session }
+  } = await client.auth.getSession();
+
+  if (!session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Optional: show logged in user's email
+  console.log("Logged in as:", session.user.email);
+})();
+
 let allData = [];
 
 /* =========================
