@@ -7,6 +7,23 @@
 
   <link rel="stylesheet" href="styles.css" />
 
+  <script>
+const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
+const supabaseKey = "YOUR_ANON_KEY";
+
+const authClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+(async () => {
+    const {
+        data: { session }
+    } = await authClient.auth.getSession();
+
+    if (!session) {
+        window.location.href = "login.html";
+    }
+})();
+  </script>
+
   <!-- =========================
        CORE LIBRARIES (LOAD FIRST)
   ========================== -->
