@@ -144,11 +144,18 @@ form?.addEventListener("submit", async (e) => {
       created_at: new Date().toISOString()
     };
 
-    const { error } = await client
-      .from("surveys")
-      .insert([payload]);
+    const result = await client
+  .from("surveys")
+  .insert([payload])
+  .select();
 
-    if (error) throw error;
+console.log("Insert result:", result);
+
+if (result.error) {
+  console.error("Full Supabase Error:", result.error);
+  alert(JSON.stringify(result.error, null, 2));
+  throw result.error;
+}
 
 /* Send Email Notification */
 try {
