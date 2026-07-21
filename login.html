@@ -89,8 +89,6 @@ Sign In
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-
 
 const supabase = window.supabase.createClient(
 "https://cpbkdtcrimppsxlstlob.supabase.co",
@@ -99,27 +97,35 @@ const supabase = window.supabase.createClient(
 );
 
 async function login() {
-  alert("Login button clicked");
+  try {
+    alert("Step 1");
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+    alert("Step 2");
 
-  console.log(data);
-  console.log(error);
+    const result = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-  if (error) {
-    document.getElementById("error").textContent = error.message;
-    return;
+    alert("Step 3");
+
+    console.log(result);
+
+    if (result.error) {
+      alert("Supabase Error: " + result.error.message);
+      return;
+    }
+
+    alert("Login successful");
+    window.location.href = "index.html";
+
+  } catch (err) {
+    alert("JavaScript Error: " + err.message);
+    console.error(err);
   }
-
-  alert("Login successful");
-
-  window.location.href = "index.html";
 }
 </script>
 
