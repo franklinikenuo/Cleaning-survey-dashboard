@@ -94,35 +94,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const supabase = window.supabase.createClient(
 "https://cpbkdtcrimppsxlstlob.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI"
 
 );
 
 async function login() {
-    
-alert("Login button clicked");
+  alert("Login button clicked");
 
-const email=document.getElementById("email").value;
-const password=document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-const {error}=await supabase.auth.signInWithPassword({
-email,
-password
-});
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
-if(error){
+  console.log(data);
+  console.log(error);
 
-document.getElementById("error").textContent=error.message;
-return;
+  if (error) {
+    document.getElementById("error").textContent = error.message;
+    return;
+  }
 
+  alert("Login successful");
+
+  window.location.href = "index.html";
 }
-
-window.location.href="index.html";
-}
-    
-window.login = login; // ⭐ expose login() globally for the button
-});
-
 </script>
 
 </body>
