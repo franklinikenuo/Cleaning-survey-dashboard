@@ -1,17 +1,24 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Login</title>
+
+<title>Cleaning Dashboard Login</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f8fc;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#eef4fb;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -19,34 +26,41 @@ body{
 }
 
 .card{
-    width:350px;
+    width:380px;
     background:#fff;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,.15);
+    padding:35px;
+    border-radius:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,.15);
 }
 
-h2{
+h1{
+    margin-top:0;
+    color:#0b4da2;
     text-align:center;
-    color:#0d47a1;
+}
+
+p{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
 }
 
 input{
     width:100%;
-    padding:12px;
-    margin:10px 0;
+    padding:14px;
+    margin-bottom:15px;
     border:1px solid #ccc;
-    border-radius:6px;
-    box-sizing:border-box;
+    border-radius:8px;
+    font-size:15px;
 }
 
 button{
     width:100%;
-    padding:12px;
+    padding:14px;
     border:none;
-    border-radius:6px;
-    background:#0d47a1;
-    color:#fff;
+    border-radius:8px;
+    background:#0b4da2;
+    color:white;
     font-size:16px;
     cursor:pointer;
 }
@@ -56,10 +70,16 @@ button:hover{
 }
 
 #error{
-    color:red;
-    margin-top:10px;
+    color:#d32f2f;
+    text-align:center;
+    margin-top:15px;
+}
+
+.success{
+    color:#2e7d32;
     text-align:center;
 }
+
 </style>
 
 </head>
@@ -68,66 +88,118 @@ button:hover{
 
 <div class="card">
 
-<h2>Dashboard Login</h2>
+<h1>Dashboard Login</h1>
+
+<p>Cleaning Compliance Dashboard</p>
 
 <input
-id="email"
 type="email"
-placeholder="Email">
+id="email"
+placeholder="Email Address">
 
 <input
-id="password"
 type="password"
+id="password"
 placeholder="Password">
 
-<button onclick="login()">
+<button id="loginBtn">
 Sign In
 </button>
 
-<p id="error"></p>
+<div id="error"></div>
 
 </div>
 
 <script>
 
-const supabase = window.supabase.createClient(
+const supabaseUrl =
+"https://cpbkdtcrimppsxlstlob.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+
+const client =
+supabase.createClient(
 "https://cpbkdtcrimppsxlstlob.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI"
-
 );
 
-async function login() {
-  try {
-    alert("Step 1");
+(async ()=>{
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+const {
+data:{session}
+}=await client.auth.getSession();
 
-    alert("Step 2");
+if(session){
 
-    const result = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+window.location.href="index.html";
 
-    alert("Step 3");
-
-    console.log(result);
-
-    if (result.error) {
-      alert("Supabase Error: " + result.error.message);
-      return;
-    }
-
-    alert("Login successful");
-    window.location.href = "index.html";
-
-  } catch (err) {
-    alert("JavaScript Error: " + err.message);
-    console.error(err);
-  }
 }
+
+})();
+
+document
+.getElementById("loginBtn")
+.addEventListener("click",login);
+
+async function login(){
+
+const errorBox =
+document.getElementById("error");
+
+errorBox.textContent="";
+
+const btn =
+document.getElementById("loginBtn");
+
+btn.disabled=true;
+btn.textContent="Signing In...";
+
+const email =
+document.getElementById("email").value.trim();
+
+const password =
+document.getElementById("password").value;
+
+try{
+
+const {
+data,
+error
+}=await client.auth.signInWithPassword({
+
+email,
+password
+
+});
+
+if(error){
+
+errorBox.textContent=error.message;
+
+btn.disabled=false;
+btn.textContent="Sign In";
+
+return;
+
+}
+
+window.location.href="index.html";
+
+}catch(err){
+
+console.error(err);
+
+errorBox.textContent=
+err.message;
+
+btn.disabled=false;
+btn.textContent="Sign In";
+
+}
+
+}
+
 </script>
 
 </body>
 </html>
+```
