@@ -50,6 +50,10 @@
         onclick="toggleExportMenu()">
         Export ▼
       </button>
+      
+      <button class="btn" onclick="openReportingCenter()">
+    📊 Executive Reports
+</button>
 
       <button onclick="exportWeeklyPDF()">
         Weekly Report (7 Days)
@@ -233,6 +237,71 @@
 
 <!-- Dashboard -->
 <script src="dashboard.js"></script>
+
+  <div id="reportModal" class="report-modal">
+
+    <div class="report-card">
+
+        <h2>Executive Reporting Center</h2>
+
+        <label>Report Type</label>
+
+        <select id="reportType">
+
+            <option value="professional">Professional Report</option>
+
+            <option value="weekly">Weekly Report</option>
+
+            <option value="monthly">Monthly Report</option>
+
+            <option value="quarterly">Quarterly Report</option>
+
+            <option value="annual">Annual Report</option>
+
+        </select>
+
+        <label>Month</label>
+
+        <select id="reportMonth">
+
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+
+        </select>
+
+        <label>Year</label>
+
+        <select id="reportYear"></select>
+
+        <div class="report-buttons">
+
+            <button onclick="generateSelectedReport()">
+
+                Generate Report
+
+            </button>
+
+            <button onclick="closeReportingCenter()">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+  </div>
 
 </body>
 </html>
