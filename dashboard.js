@@ -432,3 +432,32 @@ function closeReportingCenter(){
     }
 
 })();
+function generateSelectedReport() {
+
+    const type = document.getElementById("reportType").value;
+
+    switch(type){
+
+        case "professional":
+            exportProfessionalPDF();
+            break;
+
+        case "weekly":
+            exportWeeklyPDF();
+            break;
+
+        case "monthly":
+            exportMonthlyPDF();
+            break;
+
+        case "quarterly":
+            alert("Quarterly report coming next.");
+            break;
+
+        case "annual":
+            alert("Annual report coming next.");
+            break;
+    }
+
+    closeReportingCenter();
+}
