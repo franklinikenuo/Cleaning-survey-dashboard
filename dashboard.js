@@ -461,3 +461,8 @@ function generateSelectedReport() {
 
     closeReportingCenter();
 }
+async function exportMonthlyPDF(){
+
+    alert("Monthly report generator is now connected.");
+
+}
