@@ -404,3 +404,31 @@ function toggleExportMenu() {
 
   el.classList.toggle("active");
 }
+
+function openReportingCenter(){
+
+    document.getElementById("reportModal").style.display="flex";
+
+}
+
+function closeReportingCenter(){
+
+    document.getElementById("reportModal").style.display="none";
+
+}
+
+(function(){
+
+    const year=document.getElementById("reportYear");
+
+    if(!year) return;
+
+    const current=new Date().getFullYear();
+
+    for(let y=current;y>=2024;y--){
+
+        year.innerHTML += `<option value="${y}">${y}</option>`;
+
+    }
+
+})();
