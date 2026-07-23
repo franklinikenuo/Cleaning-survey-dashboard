@@ -477,20 +477,23 @@ async function exportMonthlyPDF() {
     }
 
     // Backup current dashboard data
-    const originalData = [...allData];
+const originalData = [...allData];
 
-    // Use only the selected month's data
-    allData = monthlyData;
+// Use only the selected month's data
+allData = monthlyData;
 
-    // Refresh dashboard components so the report reflects monthly data
-    await refresh();
+// Refresh dashboard
+await refresh();
 
-    // Generate the existing Professional PDF
-    await exportProfessionalPDF();
+// Give charts time to redraw
+await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Restore original dashboard data
-    allData = originalData;
+console.log("Generating Professional PDF...");
+await exportProfessionalPDF();
 
-    await refresh();
+// Restore original dashboard data
+allData = originalData;
 
-   } 
+await refresh();
+
+}
