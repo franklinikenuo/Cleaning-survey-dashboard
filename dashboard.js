@@ -461,8 +461,32 @@ function generateSelectedReport() {
 
     closeReportingCenter();
 }
-async function exportMonthlyPDF(){
+async function exportMonthlyPDF() {
 
-    alert("Monthly report generator is now connected.");
+    const month = Number(document.getElementById("reportMonth").value);
+    const year = Number(document.getElementById("reportYear").value);
 
+    const monthlyData = allData.filter(d => {
+
+        const date = new Date(d.work_date || d.created_at);
+
+        return (
+            date.getMonth() === month &&
+            date.getFullYear() === year
+        );
+
+    });
+
+    if (!monthlyData.length) {
+        alert("No surveys found for the selected month.");
+        return;
+    }
+
+    alert(
+        `Found ${monthlyData.length} surveys for ${
+            document.getElementById("reportMonth").options[month].text
+        } ${year}.`
+    );
+
+    // Next we'll generate the professional PDF here.
 }
