@@ -95,8 +95,56 @@ async function fetchData(){
 
 }
 
+// ============================================================
+// POPULATE ROOM FILTER
+// ============================================================
+
+function populateRoomFilter(){
+
+    const select =
+    document.getElementById("filter-room");
 
 
+    if(!select) return;
+
+
+    const rooms =
+    [
+        ...new Set(
+            allData
+            .map(row=>row.room)
+            .filter(Boolean)
+        )
+    ];
+
+
+
+    select.innerHTML = `
+
+    <option value="all">
+    All Rooms
+    </option>
+
+    `;
+
+
+
+    rooms.forEach(room=>{
+
+
+        select.innerHTML += `
+
+        <option value="${room}">
+        ${room}
+        </option>
+
+        `;
+
+
+    });
+
+
+}
 
 // =========================
 // FILTERS
