@@ -2148,33 +2148,25 @@ async function refresh(){
 async function init(){
 
 
-
     console.log(
         "Loading Dashboard..."
     );
 
 
-
     allData =
     await fetchData();
 
-
+    populateRoomFilter();
 
 
     await refresh();
-
-
 
 
     console.log(
         "Dashboard Ready"
     );
 
-
-
-
-
-
+}
     // AUTO REFRESH EVERY 60 SECONDS
 
 
@@ -2202,10 +2194,42 @@ async function init(){
 
 
 
+// ============================================================
+// LIVE FILTER LISTENERS
+// ============================================================
 
+
+function setupFilters(){
+
+
+document
+.querySelectorAll(
+"#filter-room,#filter-staff,#filter-shift,#filter-date"
+)
+
+.forEach(filter=>{
+
+
+filter.addEventListener(
+"change",
+refresh
+);
+
+
+filter.addEventListener(
+"keyup",
+refresh
+);
+
+
+});
+
+
+}
 
 // START SYSTEM
 
+setupFilters();
 
 init();
 
