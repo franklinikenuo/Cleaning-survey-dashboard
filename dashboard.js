@@ -1592,6 +1592,65 @@ ${bestRoom[0]}
 
 }
 
+}
+function exportAnalyticsExcel(){
+
+
+let report=[];
+
+
+allData.forEach(row=>{
+
+
+report.push({
+
+Date:
+row.Created_at,
+
+Room:
+row.Room,
+
+Staff:
+row.Staff,
+
+Shift:
+row.Shift,
+
+CompletedTasks:
+row.tasks?.filter(
+t=>t.completed===true
+).length ||0
+
+
+});
+
+
+});
+
+
+
+let ws =
+XLSX.utils.json_to_sheet(report);
+
+
+
+let wb =
+XLSX.utils.book_new();
+
+
+
+XLSX.utils.book_append_sheet(
+wb,
+ws,
+"Analytics"
+);
+
+
+
+XLSX.writeFile(
+wb,
+"Cleaning-Analytics.xlsx"
+);
 
 
 }
