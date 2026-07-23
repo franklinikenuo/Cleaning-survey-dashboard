@@ -2022,3 +2022,249 @@ wb,
 
 }
 
+// ============================================================
+// PART 4
+// FINAL PIPELINE + INIT + REALTIME
+// ============================================================
+
+
+
+// ============================================================
+// REFRESH PIPELINE
+// ============================================================
+
+
+async function refresh(){
+
+
+    if(isRefreshing)
+    return;
+
+
+
+    isRefreshing=true;
+
+
+
+    const filtered =
+    applyFilters(allData);
+
+
+
+    updateSummary(filtered);
+
+
+    renderTable(filtered);
+
+
+    renderCharts(filtered);
+
+
+    renderLeaderboard(filtered);
+
+
+    renderInsights(filtered);
+
+
+
+    // PHASE 3B
+
+    generateAdvancedAnalytics();
+
+
+
+    // PHASE 3C
+
+    generateCleaningIntelligence();
+
+
+
+    isRefreshing=false;
+
+
+
+}
+
+
+
+
+
+
+
+
+// ============================================================
+// DASHBOARD INITIALIZATION
+// ============================================================
+
+
+async function init(){
+
+
+
+    console.log(
+        "Loading Dashboard..."
+    );
+
+
+
+    allData =
+    await fetchData();
+
+
+
+
+    await refresh();
+
+
+
+
+    console.log(
+        "Dashboard Ready"
+    );
+
+
+
+
+
+
+    // AUTO REFRESH EVERY 60 SECONDS
+
+
+    setInterval(
+    async()=>{
+
+
+        allData =
+        await fetchData();
+
+
+        await refresh();
+
+
+
+    },
+    60000
+    );
+
+
+
+}
+
+
+
+
+
+
+
+// START SYSTEM
+
+
+init();
+
+
+
+
+
+
+
+
+// ============================================================
+// REALTIME SUPABASE SYNC
+// ============================================================
+
+
+client
+
+.channel(
+    "surveys-live"
+)
+
+
+.on(
+
+"postgres_changes",
+
+{
+
+event:"*",
+
+schema:"public",
+
+table:"surveys"
+
+},
+
+
+async()=>{
+
+
+console.log(
+"Realtime update received"
+);
+
+
+
+allData =
+await fetchData();
+
+
+
+await refresh();
+
+
+
+}
+
+)
+
+
+.subscribe();
+
+
+
+
+
+
+// ============================================================
+// EXPORT BUTTON HELPERS
+// ============================================================
+
+
+window.exportProfessionalPDF =
+exportProfessionalPDF;
+
+
+window.exportAnalyticsExcel =
+exportAnalyticsExcel;
+
+
+window.exportExcel =
+exportExcel;
+
+
+window.exportCSV =
+exportCSV;
+
+
+window.exportPDF =
+exportPDF;
+
+
+window.openReportingCenter =
+openReportingCenter;
+
+
+window.closeReportingCenter =
+closeReportingCenter;
+
+
+window.generateSelectedReport =
+generateSelectedReport;
+
+
+window.exportMonthlyPDF =
+exportMonthlyPDF;
+
+
+window.exportWeeklyPDF =
+exportWeeklyPDF;
