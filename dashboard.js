@@ -407,26 +407,17 @@ function toggleExportMenu() {
 }
 function openReportingCenter() {
 
-    alert("Step 1");
-
     const year = document.getElementById("reportYear");
 
-    alert("Step 2");
-
-    if (year && year.options.length === 0) {
-
+    if (year.options.length === 0) {
         const current = new Date().getFullYear();
 
         for (let y = current; y >= 2024; y--) {
             year.innerHTML += `<option value="${y}">${y}</option>`;
         }
-
-        alert("Years added");
     }
 
     document.getElementById("reportModal").style.display = "flex";
-
-    alert("Step 3");
 }
 
 function closeReportingCenter() {
