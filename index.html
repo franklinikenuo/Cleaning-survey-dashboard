@@ -222,26 +222,11 @@
     </table>
 
   </section>
-
+ 
 </main>
 
-  <!-- =========================
-     APP SCRIPTS
-========================= -->
-  
 <!-- Executive Reporting Modal -->
 <div id="reportModal" class="report-modal">
-    ...
-</div>
-
-<!-- Existing Email Reports -->
-<script src="reports.js"></script>
-
-<!-- Professional PDF Reports -->
-<script src="professional-report.js"></script>
-
-<!-- Dashboard -->
-<script src="dashboard.js"></script>
 
     <div class="report-card">
 
@@ -250,23 +235,16 @@
         <label>Report Type</label>
 
         <select id="reportType">
-
             <option value="professional">Professional Report</option>
-
             <option value="weekly">Weekly Report</option>
-
             <option value="monthly">Monthly Report</option>
-
             <option value="quarterly">Quarterly Report</option>
-
             <option value="annual">Annual Report</option>
-
         </select>
 
         <label>Month</label>
 
         <select id="reportMonth">
-
             <option value="0">January</option>
             <option value="1">February</option>
             <option value="2">March</option>
@@ -279,7 +257,6 @@
             <option value="9">October</option>
             <option value="10">November</option>
             <option value="11">December</option>
-
         </select>
 
         <label>Year</label>
@@ -289,22 +266,28 @@
         <div class="report-buttons">
 
             <button onclick="generateSelectedReport()">
-
                 Generate Report
-
             </button>
 
             <button onclick="closeReportingCenter()">
-
                 Close
-
             </button>
 
         </div>
 
     </div>
 
-  </div>
+</div>
+
+<!-- Existing Email Reports -->
+<script src="reports.js"></script>
+
+<!-- Professional PDF Reports -->
+<script src="professional-report.js"></script>
+
+<!-- Dashboard -->
+<script src="dashboard.js"></script>
 
 </body>
 </html>
+  
