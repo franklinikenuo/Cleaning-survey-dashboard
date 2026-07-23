@@ -1292,3 +1292,306 @@ Object.values(monthly)
 
 
 }
+
+// =================================================
+// PHASE 3C INTELLIGENCE ENGINE
+// =================================================
+
+
+function generateCleaningIntelligence(){
+
+
+
+let totalTasks = 0;
+
+let completedTasks = 0;
+
+
+
+allData.forEach(row=>{
+
+
+totalTasks += 6;
+
+
+completedTasks +=
+row.tasks?.filter(
+t=>t.completed===true
+).length || 0;
+
+
+});
+
+
+
+let compliance =
+(
+completedTasks /
+totalTasks
+*100
+).toFixed(1);
+
+
+
+
+
+// ==============================
+// PREDICTION SCORE
+// ==============================
+
+
+let prediction =
+Math.min(
+100,
+Number(compliance)+2
+);
+
+
+
+document.getElementById(
+"predictionScore"
+).innerHTML =
+
+`
+
+${prediction.toFixed(1)}%
+
+<br>
+
+<small>
+Expected next period compliance
+</small>
+
+`;
+
+
+
+
+
+// ==============================
+// HIGH RISK ROOMS
+// ==============================
+
+
+const rooms={};
+
+
+
+allData.forEach(row=>{
+
+
+let room=row.Room;
+
+
+if(!rooms[room]){
+
+rooms[room]={
+done:0,
+total:0
+};
+
+}
+
+
+rooms[room].total+=6;
+
+
+rooms[room].done +=
+row.tasks?.filter(
+t=>t.completed===true
+).length ||0;
+
+
+});
+
+
+
+
+let risks =
+document.getElementById(
+"riskRooms"
+);
+
+
+
+risks.innerHTML="";
+
+
+
+Object.entries(rooms)
+.forEach(([room,data])=>{
+
+
+let score =
+data.done/data.total*100;
+
+
+
+if(score < 90){
+
+
+risks.innerHTML +=`
+
+<li class="alert-item">
+
+${room}
+
+<br>
+
+Compliance:
+${score.toFixed(1)}%
+
+</li>
+
+`;
+
+
+}
+
+
+
+});
+
+
+
+
+
+// ==============================
+// SUPERVISOR ALERTS
+// ==============================
+
+
+let alerts =
+document.getElementById(
+"supervisorAlerts"
+);
+
+
+
+alerts.innerHTML="";
+
+
+
+if(compliance <95){
+
+
+alerts.innerHTML +=`
+
+<li class="alert-item">
+
+Overall compliance below target.
+Review cleaning workflow.
+
+</li>
+
+`;
+
+
+
+}
+
+
+
+if(risks.children.length>0){
+
+
+alerts.innerHTML +=`
+
+<li class="alert-item">
+
+Some rooms require additional monitoring.
+
+</li>
+
+`;
+
+
+
+}
+
+
+
+
+// ==============================
+// AUTO INSIGHTS
+// ==============================
+
+
+let insights =
+document.getElementById(
+"aiInsights"
+);
+
+
+
+insights.innerHTML="";
+
+
+
+if(compliance>=95){
+
+
+insights.innerHTML +=`
+
+<li class="insight-item">
+
+Excellent cleaning consistency detected.
+
+</li>
+
+`;
+
+}
+
+
+
+else{
+
+
+insights.innerHTML +=`
+
+<li class="insight-item">
+
+Cleaning compliance improvement recommended.
+
+</li>
+
+`;
+
+}
+
+
+
+let bestRoom =
+Object.entries(rooms)
+.sort(
+(a,b)=>
+
+(b[1].done/b[1].total)
+
+-
+(a[1].done/a[1].total)
+
+)[0];
+
+
+
+if(bestRoom){
+
+
+insights.innerHTML +=`
+
+<li class="insight-item">
+
+Best performing room:
+${bestRoom[0]}
+
+</li>
+
+`;
+
+}
+
+
+
+}
