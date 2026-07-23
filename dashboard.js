@@ -405,33 +405,27 @@ function toggleExportMenu() {
   el.classList.toggle("active");
 }
 
-function openReportingCenter(){
+function openReportingCenter() {
 
-    document.getElementById("reportModal").style.display="flex";
+    const year = document.getElementById("reportYear");
 
-}
+    if (year && year.options.length === 0) {
 
-function closeReportingCenter(){
+        const current = new Date().getFullYear();
 
-    document.getElementById("reportModal").style.display="none";
-
-}
-
-(function(){
-
-    const year=document.getElementById("reportYear");
-
-    if(!year) return;
-
-    const current=new Date().getFullYear();
-
-    for(let y=current;y>=2024;y--){
-
-        year.innerHTML += `<option value="${y}">${y}</option>`;
-
+        for (let y = current; y >= 2024; y--) {
+            year.innerHTML += `<option value="${y}">${y}</option>`;
+        }
     }
 
-})();
+    document.getElementById("reportModal").style.display = "flex";
+}
+
+function closeReportingCenter() {
+
+    document.getElementById("reportModal").style.display = "none";
+}
+
 function generateSelectedReport() {
 
     const type = document.getElementById("reportType").value;
