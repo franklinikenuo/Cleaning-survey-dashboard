@@ -1872,7 +1872,66 @@ Expected compliance
 
 
 
+// ==============================
+// HIGH RISK ROOMS
+// ==============================
 
+
+const riskList =
+document.getElementById(
+"riskRooms"
+);
+
+
+
+if(riskList){
+
+
+riskList.innerHTML="";
+
+
+
+Object.entries(rooms)
+
+.forEach(([room,data])=>{
+
+
+const score =
+data.total
+?
+data.completed /
+data.total *
+100
+:
+0;
+
+
+
+if(score < 90){
+
+
+riskList.innerHTML += `
+
+<li class="alert-item">
+
+${room}
+
+<br>
+
+Compliance:
+${score.toFixed(1)}%
+
+</li>
+
+`;
+
+}
+
+
+});
+
+
+}
 
 
 const alerts =
