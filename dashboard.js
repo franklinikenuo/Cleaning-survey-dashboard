@@ -1,584 +1,1097 @@
+// ============================================================
+// CLEANING SURVEY DASHBOARD
+// UPDATED HOSPITAL ANALYTICS VERSION
+// PART 1 - CORE ENGINE
+// ============================================================
+
+
+// =========================
+// SUPABASE
+// =========================
 const supabaseUrl = "https://cpbkdtcrimppsxlstlob.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Require login before showing dashboard
+);
+
+
+// =========================
+// LOGIN CHECK
+// =========================
+
 (async () => {
-  const {
-    data: { session }
-  } = await client.auth.getSession();
 
-  if (!session) {
-    window.location.href = "login.html";
-    return;
-  }
+    const {
+        data:{session}
+    } = await client.auth.getSession();
 
-  // Optional: show logged in user's email
-  console.log("Logged in as:", session.user.email);
+
+    if(!session){
+
+        window.location.href="login.html";
+        return;
+
+    }
+
+
+    console.log(
+        "Logged in:",
+        session.user.email
+    );
+
+
 })();
+
+
+
+// =========================
+// GLOBAL STATE
+// =========================
 
 let allData = [];
 
-/* =========================
-   STATE GUARD (prevents UI race issues)
-========================= */
 let isRefreshing = false;
 
-/* =========================
-   FETCH (SINGLE SOURCE OF TRUTH)
-========================= */
-async function fetchData() {
-  const { data, error } = await client
+
+
+// =========================
+// FETCH DATA
+// SINGLE SOURCE OF TRUTH
+// =========================
+
+async function fetchData(){
+
+    const {
+        data,
+        error
+    } = await client
+
     .from("surveys")
+
     .select("*")
-    .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Fetch error:", error);
-    return [];
-  }
-
-  return data || [];
-}
-
-/* =========================
-   FILTERS
-========================= */
-function applyFilters(data) {
-  const room = document.getElementById("filter-room")?.value || "all";
-  const staff = (document.getElementById("filter-staff")?.value || "").toLowerCase();
-  const shift = document.getElementById("filter-shift")?.value || "all";
-  const date = document.getElementById("filter-date")?.value || "";
-
-  return data.filter(d => {
-    if (room !== "all" && d.room !== room) return false;
-    if (shift !== "all" && d.shift !== shift) return false;
-    if (staff && !(d.staff || "").toLowerCase().includes(staff)) return false;
-    if (date && d.work_date !== date) return false;
-    return true;
-  });
-}
-
-/* =========================
-   SUMMARY
-========================= */
-function updateSummary(data) {
-  const totalEl = document.getElementById("total-submissions");
-  const compEl = document.getElementById("overall-compliance");
-
-  if (totalEl) totalEl.textContent = data.length;
-
-  let total = 0;
-  let yes = 0;
-
-  for (const d of data) {
-    const tasks = d.tasks_completed || {};
-    for (const v of Object.values(tasks)) {
-      total++;
-      if (v === "Y") yes++;
-    }
-  }
-
-  const compliance = total ? Math.round((yes / total) * 100) : 0;
-  if (compEl) compEl.textContent = compliance + "%";
-}
-
-function renderInsights(data) {
-  const el = document.getElementById("insightsPanel");
-  if (!el) return;
-
-  if (!data.length) {
-    el.innerHTML = "No data yet";
-    return;
-  }
-
-  // Most active room
-  const roomCount = {};
-  data.forEach(d => {
-    if (d.room) roomCount[d.room] = (roomCount[d.room] || 0) + 1;
-  });
-
-  const topRoom = Object.entries(roomCount)
-    .sort((a, b) => b[1] - a[1])[0];
-
-  // Average compliance
-  let total = 0;
-  let yes = 0;
-
-  data.forEach(d => {
-    Object.values(d.tasks_completed || {}).forEach(v => {
-      total++;
-      if (v === "Y") yes++;
-    });
-  });
-
-  const compliance = total ? Math.round((yes / total) * 100) : 0;
-
-  el.innerHTML = `
-    <div><b>Top Room:</b> ${topRoom ? topRoom[0] : "N/A"}</div>
-    <div><b>Total Submissions:</b> ${data.length}</div>
-    <div><b>Compliance:</b> ${compliance}%</div>
-  `;
-}
-
-/* =========================
-   TABLE
-========================= */
-function renderTable(data) {
-  const tbody = document.querySelector("#submissions-table tbody");
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  for (const d of data) {
-    const tasks = Object.entries(d.tasks_completed || {})
-      .map(([k, v]) => `${k}:${v}`)
-      .join(" | ");
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d.room || ""}</td>
-      <td>${d.shift || ""}</td>
-      <td>${d.staff || ""}</td>
-      <td>${tasks}</td>
-      <td>${d.notes || ""}</td>
-      <td>${d.work_date || (d.created_at || "").split("T")[0]}</td>
-    `;
-
-    tbody.appendChild(tr);
-  }
-}
-
-/* =========================
-   CHARTS
-========================= */
-let roomChart;
-let shiftChart;
-
-function renderCharts(data) {
-  const roomCtx = document.getElementById("roomChart");
-  const shiftCtx = document.getElementById("shiftChart");
-
-  if (!roomCtx || !shiftCtx) return;
-  if (!data || data.length === 0) return;
-
-  const rooms = {};
-
-  for (const d of data) {
-    if (!d.room) continue;
-    rooms[d.room] = (rooms[d.room] || 0) + 1;
-  }
-
-  if (roomChart) roomChart.destroy();
-  if (shiftChart) shiftChart.destroy();
-
-  roomChart = new Chart(roomCtx, {
-    type: "bar",
-    data: {
-      labels: Object.keys(rooms),
-      datasets: [{
-        label: "Submissions",
-        data: Object.values(rooms)
-      }]
-    }
-  });
-
-  const shifts = ["Morning", "Afternoon", "Evening", "Night"];
-
-  shiftChart = new Chart(shiftCtx, {
-    type: "pie",
-    data: {
-      labels: shifts,
-      datasets: [{
-        data: shifts.map(s => data.filter(d => d.shift === s).length)
-      }]
-    }
-  });
-}
-
-/* =========================
-   LEADERBOARD
-========================= */
-function splitStaff(staff) {
-  return (staff || "")
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-}
-
-function getStaffStats(data) {
-  const map = {};
-
-  for (const d of data) {
-    for (const name of splitStaff(d.staff)) {
-      if (!map[name]) {
-        map[name] = { name, shifts: 0, yes: 0, total: 0 };
-      }
-
-      map[name].shifts++;
-
-      const tasks = d.tasks_completed || {};
-      for (const v of Object.values(tasks)) {
-        map[name].total++;
-        if (v === "Y") map[name].yes++;
-      }
-    }
-  }
-
-  return Object.values(map).map(s => ({
-    ...s,
-    compliance: s.total ? Math.round((s.yes / s.total) * 100) : 0
-  }));
-}
-
-function renderLeaderboard(data) {
-  const el = document.getElementById("staff-leaderboard");
-  if (!el) return;
-
-  const stats = getStaffStats(data).sort((a, b) => b.compliance - a.compliance);
-
-  if (!stats.length) {
-    el.innerHTML = "No data";
-    return;
-  }
-
-  el.innerHTML = stats
-    .map((s, i) => `
-      <div style="padding:8px;border-bottom:1px solid #eee">
-        <b>#${i + 1} ${s.name}</b><br>
-        ${s.compliance}% | ${s.shifts} shifts
-      </div>
-    `)
-    .join("");
-}
-
-/* =========================
-   EXPORTS
-========================= */
-function exportCSV() {
-  const data = applyFilters(allData);
-
-  let csv = "Room,Shift,Staff,Tasks,Notes,Date\n";
-
-  for (const d of data) {
-    const tasks = Object.entries(d.tasks_completed || {})
-      .map(([k, v]) => `${k}:${v}`)
-      .join(" | ");
-
-    csv += `${d.room},${d.shift},${d.staff},"${tasks}",${d.notes},${d.work_date || (d.created_at || "").split("T")[0]}\n`;
-  }
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "cleaning-report.csv";
-  a.click();
-}
-
-function exportExcel() {
-  const data = applyFilters(allData);
-
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(wb, ws, "Report");
-  XLSX.writeFile(wb, "cleaning-report.xlsx");
-}
-
-async function exportPDF() {
-  const el = document.querySelector(".main-layout");
-  if (!el) return;
-
-  const canvas = await html2canvas(el, { scale: 2 });
-  const img = canvas.toDataURL("image/png");
-
-  const pdf = new jspdf.jsPDF("p", "mm", "a4");
-
-  const w = pdf.internal.pageSize.getWidth();
-  const h = (canvas.height * w) / canvas.width;
-
-  pdf.addImage(img, "PNG", 0, 0, w, h);
-  pdf.save("cleaning-dashboard.pdf");
-}
-
-async function exportWeeklyPDF() {
-  const today = new Date();
-
-  const last7Days = new Date();
-  last7Days.setDate(today.getDate() - 7);
-
-  const filtered = allData.filter(d => {
-    const date = new Date(d.work_date || d.created_at);
-    return date >= last7Days && date <= today;
-  });
-
-  if (!filtered.length) {
-    alert("No data for last 7 days");
-    return;
-  }
-
-  // temporarily render filtered view
-  updateSummary(filtered);
-  renderTable(filtered);
-  renderCharts(filtered);
-  renderLeaderboard(filtered);
-  renderInsights(filtered);
-
-  await new Promise(r => setTimeout(r, 500)); // allow DOM render
-
-  const element = document.querySelector(".main-layout");
-  const canvas = await html2canvas(element, { scale: 2 });
-  const img = canvas.toDataURL("image/png");
-
-  const pdf = new jspdf.jsPDF("p", "mm", "a4");
-
-  const w = pdf.internal.pageSize.getWidth();
-  const h = (canvas.height * w) / canvas.width;
-
-  pdf.addImage(img, "PNG", 0, 0, w, h);
-  pdf.save(`weekly-cleaning-report-${today.toISOString().split("T")[0]}.pdf`);
-
-  // restore full dashboard after export
-  refresh();
-}
-/* =========================
-   REFRESH PIPELINE
-========================= */
-async function refresh() {
-  if (isRefreshing) return;
-  isRefreshing = true;
-
-  const filtered = applyFilters(allData);
-
-  updateSummary(filtered);
-  renderTable(filtered);
-  renderCharts(filtered);
-  renderLeaderboard(filtered);
-  renderInsights(filtered);
-  isRefreshing = false;
-}
-
-/* =========================
-   INIT
-========================= */
-async function init() {
-  allData = await fetchData();
-  await refresh();
-
-  setInterval(async () => {
-    allData = await fetchData();
-    refresh();
-  }, 60000);
-}
-
-init();
-
-/* =========================
-   REALTIME SYNC
-========================= */
-client
-  .channel("surveys-live")
-  .on(
-    "postgres_changes",
-    {
-      event: "*",
-      schema: "public",
-      table: "surveys"
-    },
-    async () => {
-      allData = await fetchData();
-      refresh();
-    }
-  )
-  .subscribe();
-
-/* =========================
-   EXPORT MENU
-========================= */
-function toggleExportMenu() {
-  const el = document.getElementById("exportConsole");
-  if (!el) return;
-
-  el.classList.toggle("active");
-
-}
-function openReportingCenter() {
-
-    const year = document.getElementById("reportYear");
-
-    if (year.options.length === 0) {
-        const current = new Date().getFullYear();
-
-        for (let y = current; y >= 2024; y--) {
-            year.innerHTML += `<option value="${y}">${y}</option>`;
+    .order(
+        "created_at",
+        {
+            ascending:false
         }
-    }
+    );
 
-    document.getElementById("reportModal").style.display = "flex";
-}
 
-function closeReportingCenter() {
+    if(error){
 
-    document.getElementById("reportModal").style.display = "none";
-}
-
-function generateSelectedReport() {
-
-    const type = document.getElementById("reportType").value;
-
-    switch(type){
-
-        case "professional":
-            exportProfessionalPDF();
-            break;
-
-        case "weekly":
-            exportWeeklyPDF();
-            break;
-
-        case "monthly":
-            exportMonthlyPDF();
-            break;
-
-        case "quarterly":
-            alert("Quarterly report coming next.");
-            break;
-
-        case "annual":
-            alert("Annual report coming next.");
-            break;
-    }
-
-    closeReportingCenter();
-}
-
-async function exportMonthlyPDF() {
-
-    const month = Number(document.getElementById("reportMonth").value);
-    const year = Number(document.getElementById("reportYear").value);
-
-    const monthlyData = allData.filter(d => {
-
-        const date = new Date(d.work_date || d.created_at);
-
-        return (
-            date.getMonth() === month &&
-            date.getFullYear() === year
+        console.error(
+            "Database error:",
+            error
         );
 
-    });
+        return [];
 
-    if (!monthlyData.length) {
-        alert("No surveys found for the selected month.");
-        return;
     }
 
-    // Backup current dashboard data
-const originalData = [...allData];
 
-// Use only the selected month's data
-allData = monthlyData;
-
-// Refresh dashboard
-await refresh();
-
-// Give charts time to redraw
-await new Promise(resolve => setTimeout(resolve, 2500));
-
-console.log("Generating Professional PDF...");
-await exportProfessionalPDF();
-
-// Restore original dashboard data
-allData = originalData;
-
-await refresh();
+    return data || [];
 
 }
+
+
+
+
+// =========================
+// FILTERS
+// =========================
+
+
+function applyFilters(data){
+
+
+    const room =
+    document.getElementById(
+        "filter-room"
+    )?.value || "all";
+
+
+    const staff =
+    (
+        document.getElementById(
+            "filter-staff"
+        )?.value || ""
+    )
+    .toLowerCase();
+
+
+
+    const shift =
+    document.getElementById(
+        "filter-shift"
+    )?.value || "all";
+
+
+
+    const date =
+    document.getElementById(
+        "filter-date"
+    )?.value || "";
+
+
+
+    return data.filter(d=>{
+
+
+        if(
+            room !== "all" &&
+            d.room !== room
+        )
+        return false;
+
+
+
+        if(
+            shift !== "all" &&
+            d.shift !== shift
+        )
+        return false;
+
+
+
+        if(
+            staff &&
+            !(d.staff || "")
+            .toLowerCase()
+            .includes(staff)
+        )
+        return false;
+
+
+
+        if(
+            date &&
+            d.work_date !== date
+        )
+        return false;
+
+
+
+        return true;
+
+
+    });
+
+
+}
+
+
+
+
+// =========================
+// TASK CALCULATOR
+// USED EVERYWHERE
+// =========================
+
+
+function getTaskStats(row){
+
+
+    const tasks =
+    row.tasks_completed || {};
+
+
+
+    let total = 0;
+
+    let completed = 0;
+
+
+
+    Object.values(tasks)
+    .forEach(value=>{
+
+
+        total++;
+
+
+        if(value==="Y"){
+
+            completed++;
+
+        }
+
+
+    });
+
+
+
+    return {
+
+        total,
+
+        completed
+
+    };
+
+
+}
+
+
+
+
+
+
+// =========================
+// SUMMARY CARDS
+// =========================
+
+
+function updateSummary(data){
+
+
+    const totalEl =
+    document.getElementById(
+        "total-submissions"
+    );
+
+
+    const complianceEl =
+    document.getElementById(
+        "overall-compliance"
+    );
+
+
+
+    if(totalEl){
+
+        totalEl.textContent =
+        data.length;
+
+    }
+
+
+
+    let totalTasks=0;
+
+    let completedTasks=0;
+
+
+
+    data.forEach(row=>{
+
+
+        const stats =
+        getTaskStats(row);
+
+
+
+        totalTasks += stats.total;
+
+        completedTasks += stats.completed;
+
+
+    });
+
+
+
+
+    const percentage =
+    totalTasks
+
+    ?
+
+    Math.round(
+        completedTasks /
+        totalTasks *
+        100
+    )
+
+    :
+
+    0;
+
+
+
+
+    if(complianceEl){
+
+        complianceEl.textContent =
+        percentage+"%";
+
+    }
+
+
+          }
+
 // ============================================================
-// PHASE 3A - PROFESSIONAL PDF REPORT ENGINE
+// PART 2
+// TABLE + CHARTS + STAFF ANALYTICS
 // ============================================================
 
-async function exportProfessionalPDF() {
-
-    console.log("Generating Professional PDF...");
-
-    const { jsPDF } = window.jspdf;
-
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    const today = new Date().toLocaleDateString();
-
-    // -----------------------------
-    // DATA ANALYSIS
-    // -----------------------------
-
-    const totalSurveys = allData.length;
-
-    const completedTasks = allData.reduce((sum, row) => {
-        return sum + (row.tasks?.filter(t => t.completed === true).length || 0);
-    }, 0);
 
 
-    const totalPossibleTasks = totalSurveys * 6;
+// =========================
+// TABLE RENDER
+// =========================
+
+function renderTable(data){
+
+
+    const tbody =
+    document.querySelector(
+        "#submissions-table tbody"
+    );
+
+
+    if(!tbody) return;
+
+
+
+    tbody.innerHTML="";
+
+
+
+    data.forEach(row=>{
+
+
+        const tasks =
+        Object.entries(
+            row.tasks_completed || {}
+        )
+
+        .map(
+            ([name,value]) =>
+            `${name}:${value}`
+        )
+
+        .join(" | ");
+
+
+
+
+        const tr =
+        document.createElement("tr");
+
+
+
+        tr.innerHTML = `
+
+        <td>
+        ${row.room || ""}
+        </td>
+
+        <td>
+        ${row.shift || ""}
+        </td>
+
+        <td>
+        ${row.staff || ""}
+        </td>
+
+        <td>
+        ${tasks}
+        </td>
+
+        <td>
+        ${row.notes || ""}
+        </td>
+
+        <td>
+        ${
+        row.work_date ||
+        (row.created_at || "")
+        .split("T")[0]
+        }
+        </td>
+
+        `;
+
+
+
+        tbody.appendChild(tr);
+
+
+    });
+
+
+}
+
+
+
+
+
+
+// =========================
+// CHARTS
+// =========================
+
+
+let roomChart;
+
+let shiftChart;
+
+
+
+function renderCharts(data){
+
+
+    const roomCanvas =
+    document.getElementById(
+        "roomChart"
+    );
+
+
+    const shiftCanvas =
+    document.getElementById(
+        "shiftChart"
+    );
+
+
+
+    if(
+        !roomCanvas ||
+        !shiftCanvas
+    )
+    return;
+
+
+
+
+    if(!data.length)
+    return;
+
+
+
+
+    const rooms={};
+
+
+
+    data.forEach(row=>{
+
+
+        const room =
+        row.room || "Unknown";
+
+
+
+        rooms[room] =
+        (
+            rooms[room] || 0
+        ) + 1;
+
+
+    });
+
+
+
+
+
+    if(roomChart){
+
+        roomChart.destroy();
+
+    }
+
+
+
+    roomChart =
+    new Chart(
+        roomCanvas,
+        {
+
+        type:"bar",
+
+        data:{
+
+            labels:
+            Object.keys(rooms),
+
+            datasets:[{
+
+                label:
+                "Room Activity",
+
+                data:
+                Object.values(rooms)
+
+            }]
+
+        }
+
+    });
+
+
+
+
+
+
+    const shifts = [
+        "Morning",
+        "Afternoon",
+        "Evening",
+        "Night"
+    ];
+
+
+
+    if(shiftChart){
+
+        shiftChart.destroy();
+
+    }
+
+
+
+
+    shiftChart =
+    new Chart(
+        shiftCanvas,
+        {
+
+
+        type:"pie",
+
+
+        data:{
+
+
+            labels:shifts,
+
+
+            datasets:[{
+
+
+                label:
+                "Shift Distribution",
+
+
+                data:
+
+                shifts.map(
+                    shift=>
+
+                    data.filter(
+                        row=>
+                        row.shift===shift
+                    )
+                    .length
+
+                )
+
+
+            }]
+
+
+        }
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// STAFF ANALYTICS
+// =========================
+
+
+function splitStaff(staff){
+
+
+    return (
+
+        staff || ""
+
+    )
+
+    .split(",")
+
+    .map(
+        name=>name.trim()
+    )
+
+    .filter(Boolean);
+
+
+}
+
+
+
+
+
+
+
+function getStaffStats(data){
+
+
+    const staff={};
+
+
+
+    data.forEach(row=>{
+
+
+        const names =
+        splitStaff(
+            row.staff
+        );
+
+
+
+        names.forEach(name=>{
+
+
+            if(!staff[name]){
+
+
+                staff[name]={
+
+                    name,
+
+                    shifts:0,
+
+                    completed:0,
+
+                    total:0
+
+                };
+
+
+            }
+
+
+
+
+            staff[name].shifts++;
+
+
+
+
+            const stats =
+            getTaskStats(row);
+
+
+
+            staff[name].completed +=
+            stats.completed;
+
+
+
+            staff[name].total +=
+            stats.total;
+
+
+
+        });
+
+
+    });
+
+
+
+
+
+
+    return Object.values(staff)
+
+    .map(person=>{
+
+
+        return {
+
+
+            ...person,
+
+
+            compliance:
+
+            person.total
+
+            ?
+
+            Math.round(
+
+                person.completed /
+                person.total *
+                100
+
+            )
+
+            :
+
+            0
+
+
+        };
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+
+function renderLeaderboard(data){
+
+
+
+    const el =
+    document.getElementById(
+        "staff-leaderboard"
+    );
+
+
+
+    if(!el)
+    return;
+
+
+
+    const ranking =
+
+    getStaffStats(data)
+
+    .sort(
+        (a,b)=>
+        b.compliance -
+        a.compliance
+    );
+
+
+
+
+    if(!ranking.length){
+
+
+        el.innerHTML =
+        "No data";
+
+
+        return;
+
+
+    }
+
+
+
+
+    el.innerHTML =
+
+    ranking.map(
+        (staff,index)=>
+
+`
+
+<div style="
+padding:10px;
+border-bottom:1px solid #eee">
+
+<b>
+#${index+1}
+${staff.name}
+</b>
+
+<br>
+
+${staff.compliance}% compliance
+
+<br>
+
+${staff.shifts} shifts
+
+</div>
+
+`
+
+    )
+
+    .join("");
+
+}
+
+
+
+
+
+
+
+// =========================
+// DASHBOARD INSIGHTS
+// =========================
+
+
+function renderInsights(data){
+
+
+    const el =
+    document.getElementById(
+        "insightsPanel"
+    );
+
+
+
+    if(!el)
+    return;
+
+
+
+    if(!data.length){
+
+        el.innerHTML =
+        "No data available";
+
+        return;
+
+    }
+
+
+
+
+
+    const rooms={};
+
+
+
+    data.forEach(row=>{
+
+
+        const room =
+        row.room ||
+        "Unknown";
+
+
+
+        rooms[room] =
+        (
+            rooms[room] || 0
+        ) + 1;
+
+
+
+    });
+
+
+
+
+
+    const topRoom =
+
+    Object.entries(rooms)
+
+    .sort(
+        (a,b)=>
+        b[1]-a[1]
+    )[0];
+
+
+
+
+
+    let total=0;
+
+    let completed=0;
+
+
+
+    data.forEach(row=>{
+
+
+        const stats =
+        getTaskStats(row);
+
+
+        total += stats.total;
+
+
+        completed += stats.completed;
+
+
+    });
+
+
+
+
 
     const compliance =
-        totalPossibleTasks ?
-        ((completedTasks / totalPossibleTasks) * 100).toFixed(1)
-        : 0;
+
+    total
+
+    ?
+
+    Math.round(
+        completed /
+        total *
+        100
+    )
+
+    :
+
+    0;
 
 
-    // Room statistics
 
-    const roomStats = {};
 
-    allData.forEach(row => {
 
-        const room = row.Room || "Unknown";
 
-        roomStats[room] =
-            (roomStats[room] || 0) + 1;
+    el.innerHTML = `
+
+
+<div>
+
+<b>
+Top Room:
+</b>
+
+${
+
+topRoom
+?
+topRoom[0]
+:
+"N/A"
+
+}
+
+</div>
+
+
+
+<div>
+
+<b>
+Submissions:
+</b>
+
+${data.length}
+
+</div>
+
+
+
+<div>
+
+<b>
+Compliance:
+</b>
+
+${compliance}%
+
+</div>
+
+
+`;
+
+
+
+}
+
+// ============================================================
+// PART 3
+// PROFESSIONAL REPORT + ADVANCED ANALYTICS + INTELLIGENCE
+// ============================================================
+
+
+
+// ============================================================
+// PHASE 3A
+// PROFESSIONAL PDF REPORT
+// ============================================================
+
+
+async function exportProfessionalPDF(){
+
+
+    console.log(
+        "Generating Professional PDF..."
+    );
+
+
+
+    const {jsPDF} =
+    window.jspdf;
+
+
+
+    const pdf =
+    new jsPDF(
+        "p",
+        "mm",
+        "a4"
+    );
+
+
+
+    const today =
+    new Date()
+    .toLocaleDateString();
+
+
+
+
+
+    let totalTasks=0;
+
+    let completedTasks=0;
+
+
+
+    allData.forEach(row=>{
+
+
+        const stats =
+        getTaskStats(row);
+
+
+        totalTasks += stats.total;
+
+        completedTasks += stats.completed;
+
 
     });
 
 
-    // Shift statistics
-
-    const shiftStats = {};
-
-    allData.forEach(row => {
-
-        const shift = row.Shift || "Unknown";
-
-        shiftStats[shift] =
-            (shiftStats[shift] || 0) + 1;
-
-    });
 
 
-    // Staff statistics
+    const compliance =
 
-    const staffStats = {};
+    totalTasks
 
-    allData.forEach(row => {
+    ?
 
-        const staff = row.Staff || "Unknown";
+    (
+    completedTasks /
+    totalTasks *
+    100
 
-        staffStats[staff] =
-            (staffStats[staff] || 0) + 1;
+    )
 
-    });
+    .toFixed(1)
+
+    :
+
+    0;
 
 
 
-    // =====================================================
-    // PAGE 1 - COVER + KPI
-    // =====================================================
 
+
+    // PAGE 1
 
     pdf.setFontSize(20);
+
+
     pdf.text(
         "Daily Cleaning Performance Report",
         20,
@@ -586,215 +1099,111 @@ async function exportProfessionalPDF() {
     );
 
 
-    pdf.setFontSize(11);
+
+    pdf.setFontSize(12);
+
+
 
     pdf.text(
         `Generated: ${today}`,
         20,
-        35
+        40
     );
 
 
     pdf.text(
-        `Total Surveys: ${totalSurveys}`,
+        `Total Surveys: ${allData.length}`,
         20,
-        45
+        50
     );
 
 
     pdf.text(
-        `Compliance Score: ${compliance}%`,
+        `Compliance: ${compliance}%`,
         20,
-        55
+        60
     );
 
 
 
-    // KPI boxes
-
-    let y = 75;
 
 
-    const cards = [
-        ["Surveys", totalSurveys],
-        ["Compliance", compliance+"%"],
-        ["Completed Tasks", completedTasks],
-        ["Total Tasks", totalPossibleTasks]
-    ];
-
-
-    cards.forEach((card,index)=>{
-
-
-        let x = 20 + (index%2)*85;
-
-        let cy = y + Math.floor(index/2)*35;
-
-
-        pdf.rect(
-            x,
-            cy,
-            70,
-            25
-        );
-
-
-        pdf.setFontSize(10);
-
-        pdf.text(
-            card[0],
-            x+5,
-            cy+8
-        );
-
-
-        pdf.setFontSize(14);
-
-        pdf.text(
-            String(card[1]),
-            x+5,
-            cy+18
-        );
-
-
-    });
-
-
+    // PAGE 2
 
     pdf.addPage();
 
 
 
-    // =====================================================
-    // PAGE 2 - CHARTS
-    // =====================================================
-
-
     pdf.setFontSize(16);
 
+
     pdf.text(
-        "Performance Analytics",
+        "Room Activity Summary",
         20,
         20
     );
 
 
-    // Create temporary charts
 
-    const chartCanvas =
-        document.createElement("canvas");
-
-
-    chartCanvas.width = 700;
-    chartCanvas.height = 350;
-
-
-    document.body.appendChild(chartCanvas);
-
-
-    const ctx =
-        chartCanvas.getContext("2d");
+    const roomCount={};
 
 
 
-    new Chart(ctx,{
-        type:"bar",
-
-        data:{
-            labels:Object.keys(roomStats),
-
-            datasets:[{
-                label:"Room Activity",
-
-                data:Object.values(roomStats)
-            }]
-        }
-
-    });
+    allData.forEach(row=>{
 
 
-    await new Promise(
-        r=>setTimeout(r,1000)
-    );
+        const room =
+        row.room || "Unknown";
 
 
-    const roomImage =
-        chartCanvas.toDataURL("image/png");
+        roomCount[room] =
+        (
+            roomCount[room] || 0
+        ) + 1;
 
-
-    pdf.addImage(
-        roomImage,
-        "PNG",
-        15,
-        35,
-        180,
-        80
-    );
-
-
-
-    // clear canvas
-
-    ctx.clearRect(
-        0,
-        0,
-        chartCanvas.width,
-        chartCanvas.height
-    );
-
-
-
-    new Chart(ctx,{
-        type:"pie",
-
-        data:{
-            labels:Object.keys(shiftStats),
-
-            datasets:[{
-
-                data:Object.values(shiftStats)
-
-            }]
-        }
 
     });
 
 
 
-    await new Promise(
-        r=>setTimeout(r,1000)
-    );
 
-
-    const shiftImage =
-        chartCanvas.toDataURL("image/png");
+    let y=35;
 
 
 
-    pdf.addImage(
-        shiftImage,
-        "PNG",
-        15,
-        130,
-        90,
-        70
-    );
+    Object.entries(roomCount)
+
+    .forEach(([room,count])=>{
 
 
-    document.body.removeChild(chartCanvas);
+        pdf.setFontSize(11);
 
 
+        pdf.text(
+            `${room}: ${count}`,
+            20,
+            y
+        );
+
+
+        y+=8;
+
+
+    });
+
+
+
+
+
+
+    // PAGE 3
 
     pdf.addPage();
 
 
 
-    // =====================================================
-    // PAGE 3 - STAFF + TASK ANALYSIS
-    // =====================================================
-
-
     pdf.setFontSize(16);
+
 
     pdf.text(
         "Staff Performance",
@@ -803,234 +1212,124 @@ async function exportProfessionalPDF() {
     );
 
 
-    let staffY = 35;
+
+    let staffY=35;
 
 
-    Object.entries(staffStats)
-    .forEach(([name,count])=>{
+
+    getStaffStats(allData)
+
+    .sort(
+        (a,b)=>
+        b.compliance-a.compliance
+    )
+
+    .forEach((staff,index)=>{
 
 
         pdf.text(
-            `${name}: ${count} completed surveys`,
-            20,
-            staffY
-        );
 
+        `${index+1}. ${staff.name}
+        ${staff.compliance}%`,
 
-        staffY += 10;
-
-    });
-
-
-
-    pdf.text(
-        "Task Compliance Summary",
         20,
-        staffY+10
-    );
 
+        staffY
 
-
-    let taskY = staffY+25;
-
-
-    const tasks = [
-        "Trash",
-        "Mop",
-        "Sanitize",
-        "Sweep",
-        "Linen Change",
-        "Vacuum"
-    ];
-
-
-
-    tasks.forEach(task=>{
-
-
-        let count = 0;
-
-
-        allData.forEach(row=>{
-
-
-            row.tasks?.forEach(t=>{
-
-
-                if(
-                    t.task_name===task &&
-                    t.completed===true
-                ){
-                    count++;
-                }
-
-
-            });
-
-
-        });
-
-
-
-        pdf.text(
-            `${task}: ${count}`,
-            20,
-            taskY
         );
 
 
-        taskY += 8;
+        staffY+=10;
 
 
     });
 
 
 
-    pdf.addPage();
 
-
-
-    // =====================================================
-    // PAGE 4 - SUMMARY
-    // =====================================================
-
-
-    pdf.setFontSize(16);
-
-
-    pdf.text(
-        "Performance Summary",
-        20,
-        25
-    );
-
-
-    pdf.setFontSize(12);
-
-
-    const summary = `
-
-Cleaning operations achieved a ${compliance}% compliance rate.
-
-The report analyzed ${totalSurveys} room cleaning surveys.
-
-Continuous monitoring of room activity,
-staff performance and task completion
-will support ongoing quality improvement.
-
-`;
-
-
-
-    pdf.text(
-        summary,
-        20,
-        45
-    );
-
-
-
-    // SAVE
 
     pdf.save(
-        "Professional-Cleaning-Performance-Report.pdf"
+        "Professional-Cleaning-Report.pdf"
     );
 
 
-    console.log(
-        "Professional PDF Completed"
-    );
 
 }
-// =================================================
-// PHASE 3B ADVANCED ANALYTICS
-// =================================================
+
+
+
+
+
+
+
+
+// ============================================================
+// PHASE 3B
+// ADVANCED ANALYTICS
+// ============================================================
 
 
 function generateAdvancedAnalytics(){
 
 
 
-// ------------------------------
-// STAFF RANKING
-// ------------------------------
-
-const staff={};
+    generateStaffRanking();
 
 
-allData.forEach(row=>{
+    generateRoomHeatmap();
 
 
-let name=row.Staff || "Unknown";
+    generateMissedTasks();
 
 
-if(!staff[name]){
+    generateMonthlyChart();
 
-staff[name]={
-surveys:0,
-tasks:0
-};
 
 }
 
 
-staff[name].surveys++;
-
-
-staff[name].tasks +=
-row.tasks?.filter(
-t=>t.completed===true
-).length || 0;
-
-
-});
 
 
 
-let ranking =
-Object.entries(staff)
-.map(([name,data])=>{
+
+// =========================
+// STAFF RANKING TABLE
+// =========================
 
 
-return {
-
-name,
-
-surveys:data.surveys,
-
-score:
-(
-(data.tasks /
-(data.surveys*6))
-*100
-
-).toFixed(1)
-
-};
-
-
-})
-.sort(
-(a,b)=>b.score-a.score
-);
+function generateStaffRanking(){
 
 
 
-const tbody =
-document.querySelector(
-"#staffRankingTable tbody"
-);
+    const tbody =
+    document.querySelector(
+        "#staffRankingTable tbody"
+    );
 
 
 
-tbody.innerHTML="";
+    if(!tbody)
+    return;
 
 
 
-ranking.forEach((person,index)=>{
+
+    tbody.innerHTML="";
 
 
-tbody.innerHTML += `
+
+    getStaffStats(allData)
+
+    .sort(
+        (a,b)=>
+        b.compliance-a.compliance
+    )
+
+    .forEach((person,index)=>{
+
+
+        tbody.innerHTML += `
+
 
 <tr>
 
@@ -1038,32 +1337,62 @@ tbody.innerHTML += `
 ${index+1}
 </td>
 
+
 <td>
 ${person.name}
 </td>
 
-<td>
-${person.surveys}
-</td>
 
 <td>
-${person.score}%
+${person.shifts}
 </td>
+
+
+<td>
+${person.compliance}%
+</td>
+
 
 </tr>
+
 
 `;
 
 
-});
+
+    });
+
+
+
+}
 
 
 
 
 
-// ------------------------------
+
+
+
+
+// =========================
 // ROOM HEATMAP
-// ------------------------------
+// =========================
+
+
+function generateRoomHeatmap(){
+
+
+
+const el =
+document.getElementById(
+"roomHeatmap"
+);
+
+
+
+if(!el)
+return;
+
 
 
 const rooms={};
@@ -1073,27 +1402,38 @@ const rooms={};
 allData.forEach(row=>{
 
 
-let room=row.Room || "Unknown";
+const room =
+row.room || "Unknown";
+
 
 
 if(!rooms[room]){
 
+
 rooms[room]={
-done:0,
+
+completed:0,
+
 total:0
+
 };
+
 
 }
 
 
 
-rooms[room].total +=6;
+const stats =
+getTaskStats(row);
 
 
-rooms[room].done +=
-row.tasks?.filter(
-t=>t.completed===true
-).length ||0;
+
+rooms[room].completed +=
+stats.completed;
+
+
+rooms[room].total +=
+stats.total;
 
 
 
@@ -1101,42 +1441,56 @@ t=>t.completed===true
 
 
 
-const heat =
-document.getElementById(
-"roomHeatmap"
-);
 
 
+el.innerHTML="";
 
-heat.innerHTML="";
 
 
 
 Object.entries(rooms)
+
 .forEach(([room,data])=>{
 
 
-let percent =
-(
-data.done /
+const score =
+
 data.total
-*100
-).toFixed(0);
+
+?
+
+Math.round(
+data.completed /
+data.total *
+100
+)
+
+:
+
+0;
 
 
 
 let status =
-percent>=95
-?"good"
+score>=95
+?
+"good"
+
 :
-percent>=85
-?"medium"
+
+score>=85
+?
+"medium"
+
 :
 "bad";
 
 
 
-heat.innerHTML +=`
+
+
+el.innerHTML += `
+
 
 <div class="room-box ${status}">
 
@@ -1144,21 +1498,48 @@ ${room}
 
 <br>
 
-${percent}%
+${score}%
 
 </div>
 
+
 `;
+
 
 
 });
 
 
 
+}
 
-// ------------------------------
-// MISSED TASK DETECTION
-// ------------------------------
+
+
+
+
+
+
+
+// =========================
+// MISSED TASKS
+// =========================
+
+
+function generateMissedTasks(){
+
+
+
+const el =
+document.getElementById(
+"missedTaskList"
+);
+
+
+
+if(!el)
+return;
+
+
 
 
 const missed={};
@@ -1168,123 +1549,176 @@ const missed={};
 allData.forEach(row=>{
 
 
-row.tasks?.forEach(task=>{
+Object.entries(
+row.tasks_completed || {}
+)
+
+.forEach(([task,value])=>{
 
 
-if(!task.completed){
+if(value==="N"){
 
 
-missed[task.task_name]=
-(missed[task.task_name]||0)+1;
+missed[task]=
+(missed[task]||0)+1;
 
 
 }
 
 
-});
-
 
 });
 
 
-
-const missedList =
-document.getElementById(
-"missedTaskList"
-);
+});
 
 
 
-missedList.innerHTML="";
+
+el.innerHTML="";
 
 
 
 Object.entries(missed)
-.sort((a,b)=>b[1]-a[1])
-.forEach(item=>{
+
+.sort(
+(a,b)=>b[1]-a[1]
+)
+
+.forEach(([task,count])=>{
 
 
-missedList.innerHTML +=`
+el.innerHTML += `
+
 
 <li>
 
-${item[0]}
+${task}
 :
-${item[1]} missed
+${count}
+missed
 
 </li>
 
+
 `;
+
 
 
 });
 
 
 
+}
 
 
-// ------------------------------
-// MONTHLY TREND CHART
-// ------------------------------
 
 
-const monthly={};
+
+
+
+// =========================
+// MONTHLY CHART
+// =========================
+
+
+let monthlyChart;
+
+
+
+function generateMonthlyChart(){
+
+
+
+const canvas =
+document.getElementById(
+"monthlyComparisonChart"
+);
+
+
+
+if(!canvas)
+return;
+
+
+
+
+const months={};
 
 
 
 allData.forEach(row=>{
 
 
-let month =
-new Date(row.Created_at)
+const month =
+
+new Date(
+row.created_at
+)
+
 .toLocaleString(
 "default",
-{month:"short"}
+{
+month:"short"
+}
 );
 
 
 
-if(!monthly[month])
-monthly[month]=0;
+months[month] =
+(months[month]||0)+1;
 
 
-monthly[month]++;
 
 });
 
 
 
 
+
+if(monthlyChart)
+
+monthlyChart.destroy();
+
+
+
+
+
+monthlyChart =
+
 new Chart(
-
-document.getElementById(
-"monthlyComparisonChart"
-),
-
+canvas,
 {
 
+
 type:"line",
+
 
 data:{
 
 
 labels:
-Object.keys(monthly),
+Object.keys(months),
 
 
 datasets:[{
 
+
 label:
 "Cleaning Surveys",
 
+
 data:
-Object.values(monthly)
+Object.values(months)
+
 
 }]
 
 
 }
 
+
+
 }
 
 );
@@ -1293,65 +1727,87 @@ Object.values(monthly)
 
 }
 
-// =================================================
-// PHASE 3C INTELLIGENCE ENGINE
-// =================================================
+
+
+
+
+
+
+
+
+
+// ============================================================
+// PHASE 3C
+// INTELLIGENCE ENGINE
+// ============================================================
 
 
 function generateCleaningIntelligence(){
 
 
 
-let totalTasks = 0;
+let total=0;
 
-let completedTasks = 0;
+let completed=0;
 
 
 
 allData.forEach(row=>{
 
 
-totalTasks += 6;
+const stats =
+getTaskStats(row);
 
 
-completedTasks +=
-row.tasks?.filter(
-t=>t.completed===true
-).length || 0;
+total += stats.total;
+
+
+completed += stats.completed;
 
 
 });
 
 
 
-let compliance =
-(
-completedTasks /
-totalTasks
-*100
-).toFixed(1);
+
+const compliance =
+
+total
+
+?
+
+completed /
+total *
+100
+
+:
+
+0;
 
 
 
 
 
-// ==============================
-// PREDICTION SCORE
-// ==============================
-
-
-let prediction =
+const prediction =
 Math.min(
 100,
-Number(compliance)+2
+compliance+2
 );
 
 
 
+
+
+const score =
 document.getElementById(
 "predictionScore"
-).innerHTML =
+);
 
+
+
+if(score){
+
+score.innerHTML =
 `
 
 ${prediction.toFixed(1)}%
@@ -1359,152 +1815,47 @@ ${prediction.toFixed(1)}%
 <br>
 
 <small>
-Expected next period compliance
+Expected compliance
 </small>
 
 `;
 
-
-
-
-
-// ==============================
-// HIGH RISK ROOMS
-// ==============================
-
-
-const rooms={};
-
-
-
-allData.forEach(row=>{
-
-
-let room=row.Room;
-
-
-if(!rooms[room]){
-
-rooms[room]={
-done:0,
-total:0
-};
-
-}
-
-
-rooms[room].total+=6;
-
-
-rooms[room].done +=
-row.tasks?.filter(
-t=>t.completed===true
-).length ||0;
-
-
-});
-
-
-
-
-let risks =
-document.getElementById(
-"riskRooms"
-);
-
-
-
-risks.innerHTML="";
-
-
-
-Object.entries(rooms)
-.forEach(([room,data])=>{
-
-
-let score =
-data.done/data.total*100;
-
-
-
-if(score < 90){
-
-
-risks.innerHTML +=`
-
-<li class="alert-item">
-
-${room}
-
-<br>
-
-Compliance:
-${score.toFixed(1)}%
-
-</li>
-
-`;
-
-
 }
 
 
 
-});
 
 
 
-
-
-// ==============================
-// SUPERVISOR ALERTS
-// ==============================
-
-
-let alerts =
+const alerts =
 document.getElementById(
 "supervisorAlerts"
 );
 
 
 
+if(alerts){
+
+
 alerts.innerHTML="";
 
 
 
-if(compliance <95){
+if(compliance<95){
 
 
-alerts.innerHTML +=`
+alerts.innerHTML +=
 
+`
 <li class="alert-item">
 
-Overall compliance below target.
-Review cleaning workflow.
+Compliance below target
 
 </li>
 
 `;
-
-
 
 }
-
-
-
-if(risks.children.length>0){
-
-
-alerts.innerHTML +=`
-
-<li class="alert-item">
-
-Some rooms require additional monitoring.
-
-</li>
-
-`;
-
 
 
 }
@@ -1512,145 +1863,162 @@ Some rooms require additional monitoring.
 
 
 
-// ==============================
-// AUTO INSIGHTS
-// ==============================
 
 
-let insights =
+const insights =
 document.getElementById(
 "aiInsights"
 );
 
 
 
-insights.innerHTML="";
+if(insights){
 
 
+insights.innerHTML =
 
-if(compliance>=95){
 
-
-insights.innerHTML +=`
+`
 
 <li class="insight-item">
 
-Excellent cleaning consistency detected.
+Current compliance:
+${compliance.toFixed(1)}%
+
+</li>
+
+
+<li class="insight-item">
+
+Total surveys:
+${allData.length}
 
 </li>
 
 `;
 
-}
-
-
-
-else{
-
-
-insights.innerHTML +=`
-
-<li class="insight-item">
-
-Cleaning compliance improvement recommended.
-
-</li>
-
-`;
 
 }
 
 
 
-let bestRoom =
-Object.entries(rooms)
-.sort(
-(a,b)=>
-
-(b[1].done/b[1].total)
-
--
-(a[1].done/a[1].total)
-
-)[0];
-
-
-
-if(bestRoom){
-
-
-insights.innerHTML +=`
-
-<li class="insight-item">
-
-Best performing room:
-${bestRoom[0]}
-
-</li>
-
-`;
-
 }
 
-}
+
+
+
+
+
+
+// ============================================================
+// ANALYTICS EXCEL EXPORT
+// ============================================================
+
+
 function exportAnalyticsExcel(){
 
 
-let report=[];
+
+const report = [];
+
 
 
 allData.forEach(row=>{
 
 
+const stats =
+getTaskStats(row);
+
+
+
 report.push({
 
+
 Date:
-row.Created_at,
+row.created_at,
+
 
 Room:
-row.Room,
+row.room,
+
 
 Staff:
-row.Staff,
+row.staff,
+
 
 Shift:
-row.Shift,
+row.shift,
+
 
 CompletedTasks:
-row.tasks?.filter(
-t=>t.completed===true
-).length ||0
+stats.completed,
+
+
+TotalTasks:
+stats.total,
+
+
+Compliance:
+
+stats.total
+
+?
+
+Math.round(
+stats.completed /
+stats.total *
+100
+)
+
+:
+
+0
+
 
 
 });
 
 
+
 });
 
 
 
-let ws =
-XLSX.utils.json_to_sheet(report);
+
+
+const ws =
+XLSX.utils.json_to_sheet(
+report
+);
 
 
 
-let wb =
+const wb =
 XLSX.utils.book_new();
 
 
 
 XLSX.utils.book_append_sheet(
+
 wb,
+
 ws,
+
 "Analytics"
+
 );
 
 
 
 XLSX.writeFile(
+
 wb,
+
 "Cleaning-Analytics.xlsx"
+
 );
 
 
+
 }
+
