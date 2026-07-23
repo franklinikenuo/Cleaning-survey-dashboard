@@ -454,6 +454,7 @@ function generateSelectedReport() {
 
     closeReportingCenter();
 }
+
 async function exportMonthlyPDF() {
 
     const month = Number(document.getElementById("reportMonth").value);
@@ -475,11 +476,20 @@ async function exportMonthlyPDF() {
         return;
     }
 
-    alert(
-        `Found ${monthlyData.length} surveys for ${
-            document.getElementById("reportMonth").options[month].text
-        } ${year}.`
-    );
+    // Backup current dashboard data
+    const originalData = [...allData];
 
-    // Next we'll generate the professional PDF here.
+    // Use only the selected month's data
+    allData = monthlyData;
+
+    // Refresh dashboard components so the report reflects monthly data
+    await refresh();
+
+    // Generate the existing Professional PDF
+    await exportProfessionalPDF();
+
+    // Restore original dashboard data
+    allData = originalData;
+
+    await refresh();
 }
