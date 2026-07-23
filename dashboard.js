@@ -493,3 +493,20 @@ async function exportMonthlyPDF() {
 
     await refresh();
 }
+
+// Temporarily swap dashboard data
+const originalData = [...allData];
+allData = monthlyData;
+
+// Refresh dashboard with only that month
+await refresh();
+
+// Give charts time to redraw
+await new Promise(resolve => setTimeout(resolve, 800));
+
+// Generate the professional PDF
+await exportProfessionalPDF();
+
+// Restore full dashboard
+allData = originalData;
+await refresh();
