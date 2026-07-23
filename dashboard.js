@@ -942,3 +942,353 @@ will support ongoing quality improvement.
     );
 
 }
+// =================================================
+// PHASE 3B ADVANCED ANALYTICS
+// =================================================
+
+
+function generateAdvancedAnalytics(){
+
+
+
+// ------------------------------
+// STAFF RANKING
+// ------------------------------
+
+const staff={};
+
+
+allData.forEach(row=>{
+
+
+let name=row.Staff || "Unknown";
+
+
+if(!staff[name]){
+
+staff[name]={
+surveys:0,
+tasks:0
+};
+
+}
+
+
+staff[name].surveys++;
+
+
+staff[name].tasks +=
+row.tasks?.filter(
+t=>t.completed===true
+).length || 0;
+
+
+});
+
+
+
+let ranking =
+Object.entries(staff)
+.map(([name,data])=>{
+
+
+return {
+
+name,
+
+surveys:data.surveys,
+
+score:
+(
+(data.tasks /
+(data.surveys*6))
+*100
+
+).toFixed(1)
+
+};
+
+
+})
+.sort(
+(a,b)=>b.score-a.score
+);
+
+
+
+const tbody =
+document.querySelector(
+"#staffRankingTable tbody"
+);
+
+
+
+tbody.innerHTML="";
+
+
+
+ranking.forEach((person,index)=>{
+
+
+tbody.innerHTML += `
+
+<tr>
+
+<td>
+${index+1}
+</td>
+
+<td>
+${person.name}
+</td>
+
+<td>
+${person.surveys}
+</td>
+
+<td>
+${person.score}%
+</td>
+
+</tr>
+
+`;
+
+
+});
+
+
+
+
+
+// ------------------------------
+// ROOM HEATMAP
+// ------------------------------
+
+
+const rooms={};
+
+
+
+allData.forEach(row=>{
+
+
+let room=row.Room || "Unknown";
+
+
+if(!rooms[room]){
+
+rooms[room]={
+done:0,
+total:0
+};
+
+}
+
+
+
+rooms[room].total +=6;
+
+
+rooms[room].done +=
+row.tasks?.filter(
+t=>t.completed===true
+).length ||0;
+
+
+
+});
+
+
+
+const heat =
+document.getElementById(
+"roomHeatmap"
+);
+
+
+
+heat.innerHTML="";
+
+
+
+Object.entries(rooms)
+.forEach(([room,data])=>{
+
+
+let percent =
+(
+data.done /
+data.total
+*100
+).toFixed(0);
+
+
+
+let status =
+percent>=95
+?"good"
+:
+percent>=85
+?"medium"
+:
+"bad";
+
+
+
+heat.innerHTML +=`
+
+<div class="room-box ${status}">
+
+${room}
+
+<br>
+
+${percent}%
+
+</div>
+
+`;
+
+
+});
+
+
+
+
+// ------------------------------
+// MISSED TASK DETECTION
+// ------------------------------
+
+
+const missed={};
+
+
+
+allData.forEach(row=>{
+
+
+row.tasks?.forEach(task=>{
+
+
+if(!task.completed){
+
+
+missed[task.task_name]=
+(missed[task.task_name]||0)+1;
+
+
+}
+
+
+});
+
+
+});
+
+
+
+const missedList =
+document.getElementById(
+"missedTaskList"
+);
+
+
+
+missedList.innerHTML="";
+
+
+
+Object.entries(missed)
+.sort((a,b)=>b[1]-a[1])
+.forEach(item=>{
+
+
+missedList.innerHTML +=`
+
+<li>
+
+${item[0]}
+:
+${item[1]} missed
+
+</li>
+
+`;
+
+
+});
+
+
+
+
+
+// ------------------------------
+// MONTHLY TREND CHART
+// ------------------------------
+
+
+const monthly={};
+
+
+
+allData.forEach(row=>{
+
+
+let month =
+new Date(row.Created_at)
+.toLocaleString(
+"default",
+{month:"short"}
+);
+
+
+
+if(!monthly[month])
+monthly[month]=0;
+
+
+monthly[month]++;
+
+});
+
+
+
+
+new Chart(
+
+document.getElementById(
+"monthlyComparisonChart"
+),
+
+{
+
+type:"line",
+
+data:{
+
+
+labels:
+Object.keys(monthly),
+
+
+datasets:[{
+
+label:
+"Cleaning Surveys",
+
+data:
+Object.values(monthly)
+
+}]
+
+
+}
+
+}
+
+);
+
+
+
+}
