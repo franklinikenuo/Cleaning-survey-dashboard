@@ -403,11 +403,15 @@ function toggleExportMenu() {
   if (!el) return;
 
   el.classList.toggle("active");
-}
 
+}
 function openReportingCenter() {
 
+    alert("Step 1");
+
     const year = document.getElementById("reportYear");
+
+    alert("Step 2");
 
     if (year && year.options.length === 0) {
 
@@ -416,9 +420,13 @@ function openReportingCenter() {
         for (let y = current; y >= 2024; y--) {
             year.innerHTML += `<option value="${y}">${y}</option>`;
         }
+
+        alert("Years added");
     }
 
     document.getElementById("reportModal").style.display = "flex";
+
+    alert("Step 3");
 }
 
 function closeReportingCenter() {
