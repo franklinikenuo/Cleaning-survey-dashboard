@@ -486,7 +486,7 @@ allData = monthlyData;
 await refresh();
 
 // Give charts time to redraw
-await new Promise(resolve => setTimeout(resolve, 1000));
+await new Promise(resolve => setTimeout(resolve, 2500));
 
 console.log("Generating Professional PDF...");
 await exportProfessionalPDF();
