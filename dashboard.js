@@ -497,3 +497,448 @@ allData = originalData;
 await refresh();
 
 }
+// ============================================================
+// PHASE 3A - PROFESSIONAL PDF REPORT ENGINE
+// ============================================================
+
+async function exportProfessionalPDF() {
+
+    console.log("Generating Professional PDF...");
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const today = new Date().toLocaleDateString();
+
+    // -----------------------------
+    // DATA ANALYSIS
+    // -----------------------------
+
+    const totalSurveys = allData.length;
+
+    const completedTasks = allData.reduce((sum, row) => {
+        return sum + (row.tasks?.filter(t => t.completed === true).length || 0);
+    }, 0);
+
+
+    const totalPossibleTasks = totalSurveys * 6;
+
+    const compliance =
+        totalPossibleTasks ?
+        ((completedTasks / totalPossibleTasks) * 100).toFixed(1)
+        : 0;
+
+
+    // Room statistics
+
+    const roomStats = {};
+
+    allData.forEach(row => {
+
+        const room = row.Room || "Unknown";
+
+        roomStats[room] =
+            (roomStats[room] || 0) + 1;
+
+    });
+
+
+    // Shift statistics
+
+    const shiftStats = {};
+
+    allData.forEach(row => {
+
+        const shift = row.Shift || "Unknown";
+
+        shiftStats[shift] =
+            (shiftStats[shift] || 0) + 1;
+
+    });
+
+
+    // Staff statistics
+
+    const staffStats = {};
+
+    allData.forEach(row => {
+
+        const staff = row.Staff || "Unknown";
+
+        staffStats[staff] =
+            (staffStats[staff] || 0) + 1;
+
+    });
+
+
+
+    // =====================================================
+    // PAGE 1 - COVER + KPI
+    // =====================================================
+
+
+    pdf.setFontSize(20);
+    pdf.text(
+        "Daily Cleaning Performance Report",
+        20,
+        25
+    );
+
+
+    pdf.setFontSize(11);
+
+    pdf.text(
+        `Generated: ${today}`,
+        20,
+        35
+    );
+
+
+    pdf.text(
+        `Total Surveys: ${totalSurveys}`,
+        20,
+        45
+    );
+
+
+    pdf.text(
+        `Compliance Score: ${compliance}%`,
+        20,
+        55
+    );
+
+
+
+    // KPI boxes
+
+    let y = 75;
+
+
+    const cards = [
+        ["Surveys", totalSurveys],
+        ["Compliance", compliance+"%"],
+        ["Completed Tasks", completedTasks],
+        ["Total Tasks", totalPossibleTasks]
+    ];
+
+
+    cards.forEach((card,index)=>{
+
+
+        let x = 20 + (index%2)*85;
+
+        let cy = y + Math.floor(index/2)*35;
+
+
+        pdf.rect(
+            x,
+            cy,
+            70,
+            25
+        );
+
+
+        pdf.setFontSize(10);
+
+        pdf.text(
+            card[0],
+            x+5,
+            cy+8
+        );
+
+
+        pdf.setFontSize(14);
+
+        pdf.text(
+            String(card[1]),
+            x+5,
+            cy+18
+        );
+
+
+    });
+
+
+
+    pdf.addPage();
+
+
+
+    // =====================================================
+    // PAGE 2 - CHARTS
+    // =====================================================
+
+
+    pdf.setFontSize(16);
+
+    pdf.text(
+        "Performance Analytics",
+        20,
+        20
+    );
+
+
+    // Create temporary charts
+
+    const chartCanvas =
+        document.createElement("canvas");
+
+
+    chartCanvas.width = 700;
+    chartCanvas.height = 350;
+
+
+    document.body.appendChild(chartCanvas);
+
+
+    const ctx =
+        chartCanvas.getContext("2d");
+
+
+
+    new Chart(ctx,{
+        type:"bar",
+
+        data:{
+            labels:Object.keys(roomStats),
+
+            datasets:[{
+                label:"Room Activity",
+
+                data:Object.values(roomStats)
+            }]
+        }
+
+    });
+
+
+    await new Promise(
+        r=>setTimeout(r,1000)
+    );
+
+
+    const roomImage =
+        chartCanvas.toDataURL("image/png");
+
+
+    pdf.addImage(
+        roomImage,
+        "PNG",
+        15,
+        35,
+        180,
+        80
+    );
+
+
+
+    // clear canvas
+
+    ctx.clearRect(
+        0,
+        0,
+        chartCanvas.width,
+        chartCanvas.height
+    );
+
+
+
+    new Chart(ctx,{
+        type:"pie",
+
+        data:{
+            labels:Object.keys(shiftStats),
+
+            datasets:[{
+
+                data:Object.values(shiftStats)
+
+            }]
+        }
+
+    });
+
+
+
+    await new Promise(
+        r=>setTimeout(r,1000)
+    );
+
+
+    const shiftImage =
+        chartCanvas.toDataURL("image/png");
+
+
+
+    pdf.addImage(
+        shiftImage,
+        "PNG",
+        15,
+        130,
+        90,
+        70
+    );
+
+
+    document.body.removeChild(chartCanvas);
+
+
+
+    pdf.addPage();
+
+
+
+    // =====================================================
+    // PAGE 3 - STAFF + TASK ANALYSIS
+    // =====================================================
+
+
+    pdf.setFontSize(16);
+
+    pdf.text(
+        "Staff Performance",
+        20,
+        20
+    );
+
+
+    let staffY = 35;
+
+
+    Object.entries(staffStats)
+    .forEach(([name,count])=>{
+
+
+        pdf.text(
+            `${name}: ${count} completed surveys`,
+            20,
+            staffY
+        );
+
+
+        staffY += 10;
+
+    });
+
+
+
+    pdf.text(
+        "Task Compliance Summary",
+        20,
+        staffY+10
+    );
+
+
+
+    let taskY = staffY+25;
+
+
+    const tasks = [
+        "Trash",
+        "Mop",
+        "Sanitize",
+        "Sweep",
+        "Linen Change",
+        "Vacuum"
+    ];
+
+
+
+    tasks.forEach(task=>{
+
+
+        let count = 0;
+
+
+        allData.forEach(row=>{
+
+
+            row.tasks?.forEach(t=>{
+
+
+                if(
+                    t.task_name===task &&
+                    t.completed===true
+                ){
+                    count++;
+                }
+
+
+            });
+
+
+        });
+
+
+
+        pdf.text(
+            `${task}: ${count}`,
+            20,
+            taskY
+        );
+
+
+        taskY += 8;
+
+
+    });
+
+
+
+    pdf.addPage();
+
+
+
+    // =====================================================
+    // PAGE 4 - SUMMARY
+    // =====================================================
+
+
+    pdf.setFontSize(16);
+
+
+    pdf.text(
+        "Performance Summary",
+        20,
+        25
+    );
+
+
+    pdf.setFontSize(12);
+
+
+    const summary = `
+
+Cleaning operations achieved a ${compliance}% compliance rate.
+
+The report analyzed ${totalSurveys} room cleaning surveys.
+
+Continuous monitoring of room activity,
+staff performance and task completion
+will support ongoing quality improvement.
+
+`;
+
+
+
+    pdf.text(
+        summary,
+        20,
+        45
+    );
+
+
+
+    // SAVE
+
+    pdf.save(
+        "Professional-Cleaning-Performance-Report.pdf"
+    );
+
+
+    console.log(
+        "Professional PDF Completed"
+    );
+
+}
