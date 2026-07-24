@@ -60,17 +60,18 @@ let isRefreshing = false;
 // SINGLE SOURCE OF TRUTH
 // =========================
 
+
 async function fetchData(){
+
+    console.log("Fetching surveys...");
+
 
     const {
         data,
         error
     } = await client
-
     .from("surveys")
-
     .select("*")
-
     .order(
         "created_at",
         {
@@ -79,11 +80,15 @@ async function fetchData(){
     );
 
 
+    console.log("SUPABASE DATA:", data);
+    console.log("SUPABASE ERROR:", error);
+
+
+
     if(error){
 
-        console.error(
-            "Database error:",
-            error
+        alert(
+            "Database Error: " + error.message
         );
 
         return [];
@@ -94,7 +99,6 @@ async function fetchData(){
     return data || [];
 
 }
-
 // ============================================================
 // POPULATE ROOM FILTER
 // ============================================================
