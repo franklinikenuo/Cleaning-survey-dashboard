@@ -13,9 +13,6 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-);
-
-
 // =========================
 // LOGIN CHECK
 // =========================
@@ -1880,64 +1877,88 @@ Expected compliance
 // HIGH RISK ROOMS
 // ==============================
 
-
 const riskList =
-document.getElementById(
-"riskRooms"
-);
-
+document.getElementById("riskRooms");
 
 
 if(riskList){
 
-
-riskList.innerHTML="";
-
+    riskList.innerHTML="";
 
 
-Object.entries(rooms)
-
-.forEach(([room,data])=>{
+    const rooms = {};
 
 
-const score =
-data.total
-?
-data.completed /
-data.total *
-100
-:
-0;
+    allData.forEach(row=>{
+
+        const room =
+        row.room || "Unknown";
+
+
+        if(!rooms[room]){
+
+            rooms[room]={
+                completed:0,
+                total:0
+            };
+
+        }
+
+
+        const stats =
+        getTaskStats(row);
+
+
+        rooms[room].completed += stats.completed;
+
+        rooms[room].total += stats.total;
+
+
+    });
 
 
 
-if(score < 90){
+    Object.entries(rooms)
+
+    .forEach(([room,data])=>{
 
 
-riskList.innerHTML += `
+        const score =
+        data.total
+        ?
+        data.completed /
+        data.total *
+        100
+        :
+        0;
 
-<li class="alert-item">
 
-${room}
 
-<br>
+        if(score < 90){
 
-Compliance:
-${score.toFixed(1)}%
 
-</li>
+            riskList.innerHTML += `
 
-`;
+            <li class="alert-item">
+
+            ${room}
+
+            <br>
+
+            Compliance:
+            ${score.toFixed(1)}%
+
+            </li>
+
+            `;
+
+        }
+
+
+    });
 
 }
-
-
-});
-
-
-}
-
-
+    
 const alerts =
 document.getElementById(
 "supervisorAlerts"
