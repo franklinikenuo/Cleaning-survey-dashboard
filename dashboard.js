@@ -2206,14 +2206,16 @@ async function refresh(){
 
 async function init(){
 
+    alert("Dashboard started");
 
-    console.log(
-        "Loading Dashboard..."
+
+    allData = await fetchData();
+
+
+    alert(
+        "Rows loaded: " + allData.length
     );
 
-
-    allData =
-    await fetchData();
 
     populateRoomFilter();
 
@@ -2221,9 +2223,8 @@ async function init(){
     await refresh();
 
 
-    console.log(
-        "Dashboard Ready"
-    );
+    alert("Dashboard finished");
+
 
 }
     // AUTO REFRESH EVERY 60 SECONDS
