@@ -485,3 +485,57 @@ function addOperationalAnalytics(pdf, data) {
 
                         }
 
+/* ==========================================================
+   FINAL REPORT GENERATOR
+========================================================== */
+
+async function exportProfessionalPDF(){
+
+    console.log(
+        "Starting Executive Report..."
+    );
+
+
+    const pdf = createPDF();
+
+
+    addCoverPage(pdf);
+
+
+    addExecutiveSummary(
+        pdf,
+        allData
+    );
+
+
+    addExecutiveKPIs(
+        pdf,
+        allData
+    );
+
+
+    addOperationalAnalytics(
+        pdf,
+        allData
+    );
+
+
+    drawFooter(pdf);
+
+
+    pdf.save(
+        "Cleaning-Compliance-Executive-Report.pdf"
+    );
+
+
+    console.log(
+        "Executive Report Complete"
+    );
+
+}
+
+
+/* Make available to dashboard */
+
+window.exportProfessionalPDF =
+exportProfessionalPDF;
