@@ -1112,6 +1112,39 @@ Close
 
 <script src="dashboard.js"></script>
 
+     <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const button =
+        document.getElementById("exportButton");
+
+    const consoleBox =
+        document.getElementById("exportConsole");
+
+    if (!button || !consoleBox) {
+        console.error("EXPORT ELEMENTS NOT FOUND");
+        return;
+    }
+
+    button.addEventListener("click", function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        console.log("EXPORT BUTTON CLICKED");
+
+        consoleBox.classList.toggle("active");
+
+        console.log(
+            "Export console:",
+            consoleBox.className
+        );
+
+    });
+
+});
+</script>
+
 </body>
 
 </html>
