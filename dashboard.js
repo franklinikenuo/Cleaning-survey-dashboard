@@ -2283,14 +2283,48 @@ client
 // FINAL EXPORT SYSTEM
 // ============================================================
 
-function toggleExportMenu(){
+function toggleExportMenu() {
 
     const exportConsole =
         document.getElementById("exportConsole");
 
-    if(!exportConsole) return;
+    const menu =
+        exportConsole?.querySelector(".export-menu");
 
-    exportConsole.classList.toggle("active");
+    const button =
+        exportConsole?.querySelector(".export-main-btn");
+
+    if (!menu || !button) return;
+
+    const isOpen =
+        exportConsole.classList.contains("active");
+
+    if (isOpen) {
+
+        menu.style.display = "none";
+
+        exportConsole.classList.remove("active");
+
+        return;
+
+    }
+
+    const rect =
+        button.getBoundingClientRect();
+
+    menu.style.position = "fixed";
+
+    menu.style.top =
+        (rect.bottom + 8) + "px";
+
+    menu.style.left = "auto";
+
+    menu.style.right =
+        (window.innerWidth - rect.right) + "px";
+
+    menu.style.display = "block";
+
+    exportConsole.classList.add("active");
 
 }
 
