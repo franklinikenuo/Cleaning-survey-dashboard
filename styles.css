@@ -395,70 +395,59 @@ border-radius:10px;
 }
 
 /* ============================================================
-   EXPORT MENU — FINAL VIEWPORT POSITION
+   EXPORT DROPDOWN — FINAL
 ============================================================ */
 
-.export-console {
-    position: static !important;
-    display: inline-block !important;
-    z-index: 999999 !important;
+.export-dropdown {
+    display: none;
+
+    position: fixed;
+
+    top: 80px;
+    right: 25px;
+
+    width: 280px;
+
+    background: #ffffff;
+
+    border: 1px solid #d5deea;
+    border-radius: 12px;
+
+    padding: 8px;
+
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+
+    z-index: 2147483647;
 }
 
-.export-menu {
-    display: none !important;
-
-    position: fixed !important;
-
-    top: 70px !important;
-    right: 20px !important;
-    left: auto !important;
-
-    width: 280px !important;
-    max-width: calc(100vw - 40px) !important;
-
-    padding: 8px !important;
-
-    background: #ffffff !important;
-
-    border: 1px solid #d5deea !important;
-    border-radius: 12px !important;
-
-    box-shadow: 0 15px 40px rgba(0,0,0,.25) !important;
-
-    z-index: 2147483647 !important;
-
-    overflow: visible !important;
+.export-dropdown.open {
+    display: block;
 }
 
-.export-console.active .export-menu {
-    display: block !important;
+.export-dropdown button {
+    display: block;
+
+    width: 100%;
+
+    padding: 13px 14px;
+
+    margin: 2px 0;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #102033;
+
+    text-align: left;
+
+    font-size: 14px;
+
+    cursor: pointer;
 }
 
-.export-menu button {
-    display: block !important;
-
-    width: 100% !important;
-
-    min-height: 42px !important;
-
-    padding: 11px 14px !important;
-    margin: 2px 0 !important;
-
-    background: #ffffff !important;
-    color: #102033 !important;
-
-    border: none !important;
-    border-radius: 8px !important;
-
-    text-align: left !important;
-
-    cursor: pointer !important;
-
-    font-size: 14px !important;
-
-    white-space: nowrap !important;
-}
-
-.export-menu button:hover {
-    background: #f1f5f9 !important;
+.export-dropdown button:hover {
+    background: #f1f5f9;
 }
