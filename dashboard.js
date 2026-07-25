@@ -4,7 +4,6 @@
 // PART 1 - CORE ENGINE
 // ============================================================
 
-
 // =========================
 // SUPABASE
 // =========================
@@ -40,8 +39,6 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 })();
 
-
-
 // =========================
 // GLOBAL STATE
 // =========================
@@ -50,18 +47,14 @@ let allData = [];
 
 let isRefreshing = false;
 
-
-
 // =========================
 // FETCH DATA
 // SINGLE SOURCE OF TRUTH
 // =========================
 
-
 async function fetchData(){
 
     console.log("Fetching surveys...");
-
 
     const {
         data,
@@ -80,8 +73,6 @@ async function fetchData(){
     console.log("SUPABASE DATA:", data);
     console.log("SUPABASE ERROR:", error);
 
-
-
     if(error){
 
         alert(
@@ -91,7 +82,6 @@ async function fetchData(){
         return [];
 
     }
-
 
     return data || [];
 
@@ -118,8 +108,6 @@ function populateRoomFilter(){
         )
     ];
 
-
-
     select.innerHTML = `
 
     <option value="all">
@@ -127,8 +115,6 @@ function populateRoomFilter(){
     </option>
 
     `;
-
-
 
     rooms.forEach(room=>{
 
@@ -231,8 +217,6 @@ function applyFilters(data){
 }
 
 
-
-
 // =========================
 // TASK CALCULATOR
 // USED EVERYWHERE
@@ -281,11 +265,6 @@ function getTaskStats(row){
 
 
 }
-
-
-
-
-
 
 // =========================
 // SUMMARY CARDS
@@ -374,8 +353,6 @@ function updateSummary(data){
 // TABLE + CHARTS + STAFF ANALYTICS
 // ============================================================
 
-
-
 // =========================
 // TABLE RENDER
 // =========================
@@ -461,11 +438,6 @@ function renderTable(data){
 
 
 }
-
-
-
-
-
 
 // =========================
 // CHARTS
@@ -639,12 +611,6 @@ function renderCharts(data){
 }
 
 
-
-
-
-
-
-
 // =========================
 // STAFF ANALYTICS
 // =========================
@@ -669,11 +635,6 @@ function splitStaff(staff){
 
 
 }
-
-
-
-
-
 
 
 function getStaffStats(data){
@@ -743,10 +704,6 @@ function getStaffStats(data){
     });
 
 
-
-
-
-
     return Object.values(staff)
 
     .map(person=>{
@@ -784,12 +741,6 @@ function getStaffStats(data){
 
 
 }
-
-
-
-
-
-
 
 
 function renderLeaderboard(data){
@@ -871,11 +822,6 @@ ${staff.shifts} shifts
 }
 
 
-
-
-
-
-
 // =========================
 // DASHBOARD INSIGHTS
 // =========================
@@ -904,10 +850,6 @@ function renderInsights(data){
         return;
 
     }
-
-
-
-
 
     const rooms={};
 
@@ -1052,7 +994,6 @@ ${compliance}%
 // ============================================================
 
 
-
 // ============================================================
 // PHASE 3A
 // PROFESSIONAL PDF REPORT
@@ -1132,10 +1073,6 @@ async function exportProfessionalPDF(){
 
     0;
 
-
-
-
-
     // PAGE 1
 
     pdf.setFontSize(20);
@@ -1172,10 +1109,6 @@ async function exportProfessionalPDF(){
         20,
         60
     );
-
-
-
-
 
     // PAGE 2
 
@@ -1240,11 +1173,6 @@ async function exportProfessionalPDF(){
 
     });
 
-
-
-
-
-
     // PAGE 3
 
     pdf.addPage();
@@ -1306,12 +1234,6 @@ async function exportProfessionalPDF(){
 }
 
 
-
-
-
-
-
-
 // ============================================================
 // PHASE 3B
 // ADVANCED ANALYTICS
@@ -1335,11 +1257,6 @@ function generateAdvancedAnalytics(){
 
 
 }
-
-
-
-
-
 
 // =========================
 // STAFF RANKING TABLE
@@ -1414,13 +1331,6 @@ ${person.compliance}%
 
 
 }
-
-
-
-
-
-
-
 
 
 // =========================
@@ -1562,13 +1472,6 @@ ${score}%
 
 }
 
-
-
-
-
-
-
-
 // =========================
 // MISSED TASKS
 // =========================
@@ -1659,11 +1562,6 @@ missed
 
 
 }
-
-
-
-
-
 
 
 // =========================
@@ -1775,15 +1673,6 @@ Object.values(months)
 
 
 }
-
-
-
-
-
-
-
-
-
 
 // ============================================================
 // PHASE 3C
@@ -1909,10 +1798,11 @@ if(riskList){
         getTaskStats(row);
 
 
-        rooms[room].completed += stats.completed;
+        rooms[room].completed +=
+            stats.completed;
 
-        rooms[room].total += stats.total;
-
+        rooms[room].total +=
+            stats.total;
 
     });
 
@@ -1936,17 +1826,16 @@ if(riskList){
 
         if(score < 90){
 
-
             riskList.innerHTML += `
 
             <li class="alert-item">
 
-            ${room}
+                <strong>${room}</strong>
 
-            <br>
+                <br>
 
-            Compliance:
-            ${score.toFixed(1)}%
+                Compliance:
+                ${score.toFixed(1)}%
 
             </li>
 
@@ -1957,90 +1846,23 @@ if(riskList){
 
     });
 
-}
-    
-const alerts =
-document.getElementById(
-"supervisorAlerts"
-);
 
+    // Nothing below 90%
+    if(!riskList.innerHTML){
 
+        riskList.innerHTML = `
 
-if(alerts){
+        <li class="insight-item">
 
+            No high-risk rooms identified.
 
-alerts.innerHTML="";
+        </li>
 
+        `;
 
-
-if(compliance<95){
-
-
-alerts.innerHTML +=
-
-`
-<li class="alert-item">
-
-Compliance below target
-
-</li>
-
-`;
+    }
 
 }
-
-
-}
-
-
-
-
-
-
-const insights =
-document.getElementById(
-"aiInsights"
-);
-
-
-
-if(insights){
-
-
-insights.innerHTML =
-
-
-`
-
-<li class="insight-item">
-
-Current compliance:
-${compliance.toFixed(1)}%
-
-</li>
-
-
-<li class="insight-item">
-
-Total surveys:
-${allData.length}
-
-</li>
-
-`;
-
-
-}
-
-
-
-}
-
-
-
-
-
-
 
 // ============================================================
 // ANALYTICS EXCEL EXPORT
@@ -2168,50 +1990,43 @@ wb,
 
 async function refresh(){
 
+    if (isRefreshing)
+        return;
 
-    if(isRefreshing)
-    return;
+    isRefreshing = true;
 
+    try {
 
+        const filtered =
+            applyFilters(allData);
 
-    isRefreshing=true;
+        updateSummary(filtered);
 
+        renderTable(filtered);
 
+        renderCharts(filtered);
 
-    const filtered =
-    applyFilters(allData);
+        renderLeaderboard(filtered);
 
+        renderInsights(filtered);
 
+        generateAdvancedAnalytics();
 
-    updateSummary(filtered);
+        generateCleaningIntelligence();
 
+    } catch(error) {
 
-    renderTable(filtered);
+        console.error(
+            "Dashboard refresh error:",
+            error
+        );
 
+    } finally {
 
-    renderCharts(filtered);
+        isRefreshing = false;
 
+    }
 
-    renderLeaderboard(filtered);
-
-
-    renderInsights(filtered);
-
-
-
-    // PHASE 3B
-
-    generateAdvancedAnalytics();
-
-
-
-    // PHASE 3C
-
-    generateCleaningIntelligence();
-
-
-
-    isRefreshing=false;
 }
 
 // ============================================================
@@ -2313,69 +2128,34 @@ setupFilters();
 
 init();
 
-
-
-
-
-
-
-
 // ============================================================
 // REALTIME SUPABASE SYNC
 // ============================================================
 
 
 client
+    .channel("surveys-live")
+    .on(
+        "postgres_changes",
+        {
+            event: "*",
+            schema: "public",
+            table: "surveys"
+        },
+        async () => {
 
-.channel(
-    "surveys-live"
-)
+            console.log(
+                "Realtime update received"
+            );
 
+            allData =
+                await fetchData();
 
-.on(
+            await refresh();
 
-"postgres_changes",
-
-{
-
-event:"*",
-
-schema:"public",
-
-table:"surveys"
-
-},
-
-
-async()=>{
-
-
-console.log(
-"Realtime update received"
-);
-
-
-
-allData =
-await fetchData();
-
-
-
-await refresh();
-
-
-
-}
-
-)
-
-
-.subscribe();
-
-
-
-
-
+        }
+    )
+    .subscribe();
 
 // ============================================================
 // EXPORT BUTTON HELPERS
