@@ -2164,58 +2164,38 @@ client
 
 
 // ============================================================
-// EXPORT MENU
+// FINAL EXPORT SYSTEM
 // ============================================================
 
 function toggleExportMenu(){
 
-    const consoleBox =
+    const exportConsole =
         document.getElementById("exportConsole");
 
-    if(!consoleBox) return;
+    if(!exportConsole) return;
 
-    consoleBox.classList.toggle("open");
+    exportConsole.classList.toggle("open");
 
 }
 
 
-// Close export menu when clicking outside
-
-document.addEventListener("click", function(event){
-
-    const consoleBox =
-        document.getElementById("exportConsole");
-
-    if(!consoleBox) return;
-
-    if(!consoleBox.contains(event.target)){
-
-        consoleBox.classList.remove("open");
-
-    }
-
-});
-
-
 // ============================================================
-// CSV EXPORT
+// CSV
 // ============================================================
 
 function exportCSV(){
 
     if(!allData || !allData.length){
 
-        alert("There is no survey data to export.");
+        alert("No survey data available.");
 
         return;
 
     }
 
-
     const rows = allData.map(row => {
 
-        const stats =
-            getTaskStats(row);
+        const stats = getTaskStats(row);
 
         return {
 
@@ -2223,39 +2203,34 @@ function exportCSV(){
                 row.work_date ||
                 (row.created_at || "").split("T")[0],
 
-            Room:
-                row.room || "",
+            Room: row.room || "",
 
-            Staff:
-                row.staff || "",
+            Staff: row.staff || "",
 
-            Shift:
-                row.shift || "",
+            Shift: row.shift || "",
 
-            CompletedTasks:
-                stats.completed,
+            CompletedTasks: stats.completed,
 
-            TotalTasks:
-                stats.total,
+            TotalTasks: stats.total,
 
             Compliance:
                 stats.total
-                    ? Math.round(
-                        stats.completed /
-                        stats.total *
-                        100
-                    ) + "%"
-                    : "0%",
+                ? Math.round(
+                    stats.completed /
+                    stats.total * 100
+                ) + "%"
+                : "0%",
 
-            Notes:
-                row.notes || ""
+            Notes: row.notes || ""
 
         };
 
     });
 
 
-    const headers = Object.keys(rows[0]);
+    const headers =
+        Object.keys(rows[0]);
+
 
     const csv = [
 
@@ -2282,7 +2257,8 @@ function exportCSV(){
         new Blob(
             [csv],
             {
-                type: "text/csv;charset=utf-8;"
+                type:
+                    "text/csv;charset=utf-8;"
             }
         );
 
@@ -2313,14 +2289,14 @@ function exportCSV(){
 
 
 // ============================================================
-// EXCEL EXPORT
+// EXCEL
 // ============================================================
 
 function exportExcel(){
 
     if(!allData || !allData.length){
 
-        alert("There is no survey data to export.");
+        alert("No survey data available.");
 
         return;
 
@@ -2330,7 +2306,7 @@ function exportExcel(){
     if(typeof XLSX === "undefined"){
 
         alert(
-            "Excel library has not loaded. Please refresh the page."
+            "Excel library is not loaded."
         );
 
         return;
@@ -2338,68 +2314,66 @@ function exportExcel(){
     }
 
 
-    const report =
-        allData.map(row => {
+    const rows = allData.map(row => {
 
-            const stats =
-                getTaskStats(row);
-
-
-            return {
-
-                Date:
-                    row.work_date ||
-                    (row.created_at || "").split("T")[0],
-
-                Room:
-                    row.room || "",
-
-                Staff:
-                    row.staff || "",
-
-                Shift:
-                    row.shift || "",
-
-                CompletedTasks:
-                    stats.completed,
-
-                TotalTasks:
-                    stats.total,
-
-                Compliance:
-                    stats.total
-                        ? Math.round(
-                            stats.completed /
-                            stats.total *
-                            100
-                        ) + "%"
-                        : "0%",
-
-                Notes:
-                    row.notes || ""
-
-            };
-
-        });
+        const stats =
+            getTaskStats(row);
 
 
-    const worksheet =
-        XLSX.utils.json_to_sheet(report);
+        return {
+
+            Date:
+                row.work_date ||
+                (row.created_at || "").split("T")[0],
+
+            Room:
+                row.room || "",
+
+            Staff:
+                row.staff || "",
+
+            Shift:
+                row.shift || "",
+
+            CompletedTasks:
+                stats.completed,
+
+            TotalTasks:
+                stats.total,
+
+            Compliance:
+                stats.total
+                ? Math.round(
+                    stats.completed /
+                    stats.total * 100
+                ) + "%"
+                : "0%",
+
+            Notes:
+                row.notes || ""
+
+        };
+
+    });
 
 
-    const workbook =
+    const ws =
+        XLSX.utils.json_to_sheet(rows);
+
+
+    const wb =
         XLSX.utils.book_new();
 
 
     XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
+        wb,
+        ws,
         "Cleaning Report"
     );
 
 
     XLSX.writeFile(
-        workbook,
+        wb,
         "Cleaning-Survey-Report.xlsx"
     );
 
@@ -2407,14 +2381,14 @@ function exportExcel(){
 
 
 // ============================================================
-// ANALYTICS EXCEL EXPORT
+// ANALYTICS EXCEL
 // ============================================================
 
 function exportAnalyticsExcel(){
 
     if(!allData || !allData.length){
 
-        alert("There is no survey data to export.");
+        alert("No survey data available.");
 
         return;
 
@@ -2424,7 +2398,7 @@ function exportAnalyticsExcel(){
     if(typeof XLSX === "undefined"){
 
         alert(
-            "Excel library has not loaded. Please refresh the page."
+            "Excel library is not loaded."
         );
 
         return;
@@ -2432,65 +2406,63 @@ function exportAnalyticsExcel(){
     }
 
 
-    const report =
-        allData.map(row => {
+    const rows = allData.map(row => {
 
-            const stats =
-                getTaskStats(row);
-
-
-            return {
-
-                Date:
-                    row.work_date ||
-                    (row.created_at || "").split("T")[0],
-
-                Room:
-                    row.room || "",
-
-                Staff:
-                    row.staff || "",
-
-                Shift:
-                    row.shift || "",
-
-                CompletedTasks:
-                    stats.completed,
-
-                TotalTasks:
-                    stats.total,
-
-                Compliance:
-                    stats.total
-                        ? Math.round(
-                            stats.completed /
-                            stats.total *
-                            100
-                        )
-                        : 0
-
-            };
-
-        });
+        const stats =
+            getTaskStats(row);
 
 
-    const worksheet =
-        XLSX.utils.json_to_sheet(report);
+        return {
+
+            Date:
+                row.work_date ||
+                (row.created_at || "").split("T")[0],
+
+            Room:
+                row.room || "",
+
+            Staff:
+                row.staff || "",
+
+            Shift:
+                row.shift || "",
+
+            CompletedTasks:
+                stats.completed,
+
+            TotalTasks:
+                stats.total,
+
+            Compliance:
+                stats.total
+                ? Math.round(
+                    stats.completed /
+                    stats.total * 100
+                )
+                : 0
+
+        };
+
+    });
 
 
-    const workbook =
+    const ws =
+        XLSX.utils.json_to_sheet(rows);
+
+
+    const wb =
         XLSX.utils.book_new();
 
 
     XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
+        wb,
+        ws,
         "Analytics"
     );
 
 
     XLSX.writeFile(
-        workbook,
+        wb,
         "Cleaning-Analytics.xlsx"
     );
 
@@ -2498,246 +2470,26 @@ function exportAnalyticsExcel(){
 
 
 // ============================================================
-// PDF DASHBOARD EXPORT
-// ============================================================
-
-async function exportPDF(){
-
-    if(!allData || !allData.length){
-
-        alert("There is no survey data to export.");
-
-        return;
-
-    }
-
-
-    if(typeof html2canvas === "undefined"){
-
-        alert(
-            "PDF screenshot library has not loaded. Please refresh the page."
-        );
-
-        return;
-
-    }
-
-
-    if(
-        !window.jspdf ||
-        !window.jspdf.jsPDF
-    ){
-
-        alert(
-            "PDF generator has not loaded. Please refresh the page."
-        );
-
-        return;
-
-    }
-
-
-    try{
-
-        const dashboard =
-            document.querySelector(
-                ".main-layout"
-            );
-
-
-        if(!dashboard){
-
-            alert(
-                "Dashboard area could not be found."
-            );
-
-            return;
-
-        }
-
-
-        const canvas =
-            await html2canvas(
-                dashboard,
-                {
-                    scale: 1.5,
-                    useCORS: true,
-                    backgroundColor: "#ffffff"
-                }
-            );
-
-
-        const image =
-            canvas.toDataURL(
-                "image/png"
-            );
-
-
-        const {
-            jsPDF
-        } = window.jspdf;
-
-
-        const pdf =
-            new jsPDF(
-                "p",
-                "mm",
-                "a4"
-            );
-
-
-        const pageWidth =
-            pdf.internal.pageSize.getWidth();
-
-
-        const pageHeight =
-            pdf.internal.pageSize.getHeight();
-
-
-        const margin = 10;
-
-
-        const usableWidth =
-            pageWidth -
-            margin * 2;
-
-
-        const imageHeight =
-            canvas.height *
-            usableWidth /
-            canvas.width;
-
-
-        let remainingHeight =
-            imageHeight;
-
-
-        let position = margin;
-
-
-        pdf.addImage(
-            image,
-            "PNG",
-            margin,
-            position,
-            usableWidth,
-            imageHeight
-        );
-
-
-        remainingHeight -=
-            pageHeight -
-            margin * 2;
-
-
-        while(remainingHeight > 0){
-
-            position =
-                -(imageHeight -
-                remainingHeight +
-                margin);
-
-
-            pdf.addPage();
-
-
-            pdf.addImage(
-                image,
-                "PNG",
-                margin,
-                position,
-                usableWidth,
-                imageHeight
-            );
-
-
-            remainingHeight -=
-                pageHeight -
-                margin * 2;
-
-        }
-
-
-        pdf.save(
-            "Cleaning-Dashboard.pdf"
-        );
-
-
-    }
-    catch(error){
-
-        console.error(
-            "PDF export error:",
-            error
-        );
-
-
-        alert(
-            "PDF export failed. Check the browser console for details."
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// PROFESSIONAL PDF
-// PROVIDED BY professional-report.js
-// ============================================================
-
-function runProfessionalPDF(){
-
-    if(
-        typeof exportProfessionalPDF !==
-        "function"
-    ){
-
-        alert(
-            "Professional PDF engine has not loaded. Check professional-report.js."
-        );
-
-        return;
-
-    }
-
-
-    exportProfessionalPDF();
-
-}
-
-
-// ============================================================
-// GLOBAL EXPORT FUNCTIONS
-// REQUIRED BY index.html onclick="..."
+// REGISTER EXPORT FUNCTIONS
 // ============================================================
 
 window.toggleExportMenu =
     toggleExportMenu;
 
-
 window.exportCSV =
     exportCSV;
 
-
 window.exportExcel =
     exportExcel;
-
 
 window.exportAnalyticsExcel =
     exportAnalyticsExcel;
 
 
-window.exportPDF =
-    exportPDF;
-
-
-window.runProfessionalPDF =
-    runProfessionalPDF;
-
-
-// Professional report is supplied by
-// professional-report.js
+// ============================================================
+// PROFESSIONAL REPORT
+// professional-report.js supplies this function
+// ============================================================
 
 if(
     typeof exportProfessionalPDF ===
@@ -2750,7 +2502,10 @@ if(
 }
 
 
-// Reporting functions are supplied by reports.js
+// ============================================================
+// REPORTING CENTER
+// reports.js supplies these functions
+// ============================================================
 
 if(
     typeof openReportingCenter ===
@@ -2786,5 +2541,5 @@ if(
 
 
 console.log(
-    "Export system loaded successfully."
+    "✅ Export system initialized"
 );
