@@ -2290,7 +2290,7 @@ function toggleExportMenu(){
 
     if(!exportConsole) return;
 
-    exportConsole.classList.toggle("open");
+    exportConsole.classList.toggle("active");
 
 }
 
