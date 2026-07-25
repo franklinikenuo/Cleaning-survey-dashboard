@@ -61,18 +61,66 @@ async function sendReport(endpoint) {
    BUTTON EVENT LISTENERS
    ============================================================ */
 
-document.getElementById("emailWeeklyReport").addEventListener("click", () => {
-    sendReport("/send-weekly-report");
-});
+document.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("emailMonthlyReport").addEventListener("click", () => {
-    sendReport("/send-monthly-report");
-});
+    const reportType =
+        document.getElementById("reportType");
 
-document.getElementById("emailQuarterlyReport").addEventListener("click", () => {
-    sendReport("/send-quarterly-report");
-});
+    const reportMonth =
+        document.getElementById("reportMonth");
 
-document.getElementById("emailYearlyReport").addEventListener("click", () => {
-    sendReport("/send-yearly-report");
+    const reportYear =
+        document.getElementById("reportYear");
+
+
+    if (reportType) {
+
+        reportType.addEventListener(
+            "change",
+            function() {
+
+                console.log(
+                    "Report type:",
+                    this.value
+                );
+
+            }
+        );
+
+    }
+
+
+    if (reportMonth) {
+
+        reportMonth.addEventListener(
+            "change",
+            function() {
+
+                console.log(
+                    "Report month:",
+                    this.value
+                );
+
+            }
+        );
+
+    }
+
+
+    if (reportYear) {
+
+        reportYear.addEventListener(
+            "change",
+            function() {
+
+                console.log(
+                    "Report year:",
+                    this.value
+                );
+
+            }
+        );
+
+    }
+
 });
