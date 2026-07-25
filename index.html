@@ -89,94 +89,47 @@ Hospital-Grade Cleaning Performance System
 =============================== -->
 
 
-<div class="export-console"
-id="exportConsole">
+<div class="export-console" id="exportConsole">
 
+    <button
+        class="btn export-main-btn"
+        id="exportButton"
+        type="button">
+        Export ▼
+    </button>
 
+</div>
 
-<button
-    class="btn export-main-btn"
-    id="exportButton"
-    type="button">
+<div id="exportDropdown" class="export-dropdown">
 
-    Export ▼
+    <button onclick="openReportingCenter(); closeExportMenu();">
+        📊 Executive Reports
+    </button>
 
-</button>
+    <button onclick="exportAnalyticsExcel(); closeExportMenu();">
+        📥 Export Analytics
+    </button>
 
+    <button onclick="exportCSV(); closeExportMenu();">
+        CSV Report
+    </button>
 
+    <button onclick="exportExcel(); closeExportMenu();">
+        Excel Report
+    </button>
 
+    <button onclick="exportPDF(); closeExportMenu();">
+        PDF Dashboard
+    </button>
 
-
-<div class="export-menu">
-
-
-
-<button onclick="openReportingCenter()">
-
-📊 Executive Reports
-
-</button>
-
-
-
-
-
-<button onclick="exportAnalyticsExcel()">
-
-📥 Export Analytics
-
-</button>
-
-
-
-
-
-<button onclick="exportCSV()">
-
-CSV Report
-
-</button>
-
-
-
-
-
-<button onclick="exportExcel()">
-
-Excel Report
-
-</button>
-
-
-
-
-
-<button onclick="exportPDF()">
-
-PDF Dashboard
-
-</button>
-
-
-
-
-
-<button onclick="exportProfessionalPDF()">
-
-Professional PDF Report
-
-</button>
-
-
+    <button onclick="exportProfessionalPDF(); closeExportMenu();">
+        Professional PDF Report
+    </button>
 
 </div>
 
 
 </div>
-
-
-
-
 
 
 
@@ -188,15 +141,11 @@ class="btn">
 </a>
 
 
-
 </div>
 
 
 
 </header>
-
-
-
 
 
 <!-- ==================================================
