@@ -2668,6 +2668,173 @@ if(
 
 }
 
+/* ============================================================
+   EXECUTIVE REPORTING CENTER CONTROLS
+============================================================ */
+
+function openReportingCenter(){
+
+    const modal =
+        document.getElementById("reportModal");
+
+    if(modal){
+
+        modal.style.display = "flex";
+
+    }else{
+
+        console.error(
+            "reportModal not found"
+        );
+
+    }
+
+}
+
+
+function closeReportingCenter(){
+
+    const modal =
+        document.getElementById("reportModal");
+
+    if(modal){
+
+        modal.style.display = "none";
+
+    }
+
+}
+
+
+async function generateSelectedReport(){
+
+    const type =
+        document.getElementById("reportType").value;
+
+
+    console.log(
+        "Generating report:",
+        type
+    );
+
+
+    if(type === "professional"){
+
+        await exportProfessionalPDF();
+
+        return;
+
+    }
+
+
+    alert(
+        type +
+        " report engine coming next."
+    );
+
+}
+
+
+/* expose globally */
+
+window.openReportingCenter =
+    openReportingCenter;
+
+window.closeReportingCenter =
+    closeReportingCenter;
+
+window.generateSelectedReport =
+    generateSelectedReport;
+
+/* ============================================================
+   BASIC DASHBOARD PDF EXPORT
+============================================================ */
+
+async function exportPDF(){
+
+    console.log(
+        "Generating Dashboard PDF..."
+    );
+
+
+    const dashboard =
+        document.querySelector(".main-layout");
+
+
+    if(!dashboard){
+
+        alert(
+            "Dashboard area not found"
+        );
+
+        return;
+
+    }
+
+
+    const canvas =
+        await html2canvas(
+            dashboard,
+            {
+                scale:2
+            }
+        );
+
+
+    const imgData =
+        canvas.toDataURL(
+            "image/png"
+        );
+
+
+    const pdf =
+        new jspdf.jsPDF(
+            "portrait",
+            "mm",
+            "a4"
+        );
+
+
+    const width =
+        190;
+
+
+    const height =
+        canvas.height *
+        width /
+        canvas.width;
+
+
+    pdf.text(
+        "Cleaning Compliance Dashboard",
+        15,
+        15
+    );
+
+
+    pdf.addImage(
+        imgData,
+        "PNG",
+        10,
+        25,
+        width,
+        height
+    );
+
+
+    pdf.save(
+        "Cleaning_Dashboard_Report.pdf"
+    );
+
+
+    console.log(
+        "Dashboard PDF complete"
+    );
+
+}
+
+window.exportPDF =
+    exportPDF;
 
 console.log(
     "✅ Export system initialized"
