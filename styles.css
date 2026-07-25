@@ -179,75 +179,6 @@ thead {
 }
 
 
-/* ============================================================
-   EXPORT DROPDOWN - FINAL
-============================================================ */
-
-.export-console {
-    position: relative;
-    display: inline-block;
-    z-index: 10000;
-}
-
-.export-main-btn {
-    cursor: pointer;
-}
-
-.export-menu {
-    display: none;
-
-    position: absolute;
-
-    top: calc(100% + 8px);
-    right: 0;
-
-    width: 240px;
-    max-width: 240px;
-
-    background: #ffffff;
-
-    border: 1px solid #d5deea;
-    border-radius: 10px;
-
-    padding: 8px;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-
-    z-index: 10001;
-}
-
-.export-console.active .export-menu {
-    display: block;
-}
-
-.export-menu button {
-    display: block;
-
-    width: 100%;
-
-    padding: 11px 12px;
-
-    border: none;
-
-    background: #ffffff;
-
-    color: #102033;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    border-radius: 7px;
-
-    font-size: 14px;
-
-    white-space: nowrap;
-}
-
-.export-menu button:hover {
-    background: #f1f5f9;
-}
-
 /* ================= MOBILE ================= */
 
 @media (max-width: 768px) {
@@ -461,4 +392,70 @@ background:#eef7ff;
 
 border-radius:10px;
 
+}
+
+/* ============================================================
+   EXPORT MENU - FINAL FIX
+============================================================ */
+
+.export-console {
+    position: relative !important;
+    display: inline-block !important;
+    z-index: 999999 !important;
+}
+
+.export-menu {
+    display: none !important;
+
+    position: absolute !important;
+
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    left: auto !important;
+
+    width: 280px !important;
+    min-width: 280px !important;
+
+    padding: 8px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #d5deea !important;
+    border-radius: 12px !important;
+
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important;
+
+    z-index: 999999 !important;
+}
+
+.export-console.active .export-menu {
+    display: block !important;
+}
+
+.export-menu button {
+    display: block !important;
+
+    width: 100% !important;
+
+    padding: 12px 14px !important;
+
+    margin: 2px 0 !important;
+
+    background: #ffffff !important;
+    color: #102033 !important;
+
+    border: none !important;
+    border-radius: 8px !important;
+
+    text-align: left !important;
+
+    cursor: pointer !important;
+
+    font-size: 14px !important;
+
+    white-space: nowrap !important;
+}
+
+.export-menu button:hover {
+    background: #f1f5f9 !important;
 }
