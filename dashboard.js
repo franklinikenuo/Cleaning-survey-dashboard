@@ -2212,72 +2212,67 @@ async function refresh(){
 
 
     isRefreshing=false;
-
-
-
 }
-
-
-
-
-
-
-
 
 // ============================================================
 // DASHBOARD INITIALIZATION
 // ============================================================
 
-
 async function init(){
 
-    alert("Dashboard started");
+    console.log("Dashboard started");
 
+    try {
 
-    allData = await fetchData();
+        allData = await fetchData();
 
+        console.log(
+            "Rows loaded:",
+            allData.length
+        );
 
-    alert(
-        "Rows loaded: " + allData.length
-    );
-
-
-    populateRoomFilter();
-
-
-    await refresh();
-
-
-    alert("Dashboard finished");
-
-
-}
-    // AUTO REFRESH EVERY 60 SECONDS
-
-
-    setInterval(
-    async()=>{
-
-
-        allData =
-        await fetchData();
-
+        populateRoomFilter();
 
         await refresh();
 
+        console.log("Dashboard finished");
 
+    } catch(error) {
 
-    },
-    60000
-    );
+        console.error(
+            "Dashboard initialization error:",
+            error
+        );
 
-
+    }
 
 }
 
+// ============================================================
+// AUTO REFRESH EVERY 60 SECONDS
+// ============================================================
 
+setInterval(
+    async () => {
 
+        try {
 
+            allData = await fetchData();
+
+            await refresh();
+
+        } catch(error) {
+
+            console.error(
+                "Auto refresh error:",
+                error
+            );
+
+        }
+
+    },
+    60000
+);
 
 // ============================================================
 // LIVE FILTER LISTENERS
