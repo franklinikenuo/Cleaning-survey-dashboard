@@ -1676,126 +1676,95 @@ Object.values(months)
 
 // ============================================================
 // PHASE 3C
-// INTELLIGENCE ENGINE
+// CLEANING INTELLIGENCE ENGINE
 // ============================================================
-
 
 function generateCleaningIntelligence(){
 
+    let total = 0;
+    let completed = 0;
+
+    allData.forEach(row => {
+
+        const stats =
+            getTaskStats(row);
+
+        total += stats.total;
+        completed += stats.completed;
+
+    });
 
 
-let total=0;
-
-let completed=0;
-
-
-
-allData.forEach(row=>{
+    const compliance =
+        total
+        ? (completed / total) * 100
+        : 0;
 
 
-const stats =
-getTaskStats(row);
+    // ========================================================
+    // COMPLIANCE PREDICTION
+    // ========================================================
+
+    const prediction =
+        Math.min(
+            100,
+            compliance + 2
+        );
 
 
-total += stats.total;
+    const score =
+        document.getElementById(
+            "predictionScore"
+        );
 
 
-completed += stats.completed;
+    if(score){
+
+        score.innerHTML = `
+
+            <strong>
+                ${prediction.toFixed(1)}%
+            </strong>
+
+            <br>
+
+            <small>
+                Expected compliance
+            </small>
+
+        `;
+
+    }
 
 
-});
-
-
-
-
-const compliance =
-
-total
-
-?
-
-completed /
-total *
-100
-
-:
-
-0;
-
-
-
-
-
-const prediction =
-Math.min(
-100,
-compliance+2
-);
-
-
-
-
-
-const score =
-document.getElementById(
-"predictionScore"
-);
-
-
-
-if(score){
-
-score.innerHTML =
-`
-
-${prediction.toFixed(1)}%
-
-<br>
-
-<small>
-Expected compliance
-</small>
-
-`;
-
-}
-
-
-
-// ==============================
-// HIGH RISK ROOMS
-// ==============================
-
-const riskList =
-document.getElementById("riskRooms");
-
-
-if(riskList){
-
-    riskList.innerHTML="";
-
+    // ========================================================
+    // BUILD ROOM RISK DATA
+    // ========================================================
 
     const rooms = {};
 
 
-    allData.forEach(row=>{
+    allData.forEach(row => {
 
         const room =
-        row.room || "Unknown";
+            row.room || "Unknown";
 
 
         if(!rooms[room]){
 
-            rooms[room]={
-                completed:0,
-                total:0
+            rooms[room] = {
+
+                completed: 0,
+
+                total: 0
+
             };
 
         }
 
 
         const stats =
-        getTaskStats(row);
+            getTaskStats(row);
 
 
         rooms[room].completed +=
@@ -1807,172 +1776,320 @@ if(riskList){
     });
 
 
+    // ========================================================
+    // HIGH RISK ROOMS
+    // ========================================================
 
-    Object.entries(rooms)
-
-    .forEach(([room,data])=>{
-
-
-        const score =
-        data.total
-        ?
-        data.completed /
-        data.total *
-        100
-        :
-        0;
+    const riskList =
+        document.getElementById(
+            "riskRooms"
+        );
 
 
+    if(riskList){
 
-        if(score < 90){
+        riskList.innerHTML = "";
 
-            riskList.innerHTML += `
 
-            <li class="alert-item">
+        Object.entries(rooms)
 
-                <strong>${room}</strong>
+        .forEach(([room, data]) => {
 
-                <br>
+            const score =
+                data.total
+                ?
+                (
+                    data.completed /
+                    data.total *
+                    100
+                )
+                :
+                0;
 
-                Compliance:
-                ${score.toFixed(1)}%
 
-            </li>
+            if(score < 90){
+
+                riskList.innerHTML += `
+
+                    <li class="alert-item">
+
+                        <strong>
+                            ${room}
+                        </strong>
+
+                        <br>
+
+                        Compliance:
+                        ${score.toFixed(1)}%
+
+                    </li>
+
+                `;
+
+            }
+
+        });
+
+
+        if(!riskList.innerHTML){
+
+            riskList.innerHTML = `
+
+                <li class="insight-item">
+
+                    No high-risk rooms identified.
+
+                </li>
 
             `;
 
         }
 
+    }
 
-    });
+
+    // ========================================================
+    // SUPERVISOR ALERTS
+    // ========================================================
+
+    const alerts =
+        document.getElementById(
+            "supervisorAlerts"
+        );
 
 
-    // Nothing below 90%
-    if(!riskList.innerHTML){
+    if(alerts){
 
-        riskList.innerHTML = `
+        alerts.innerHTML = "";
 
-        <li class="insight-item">
 
-            No high-risk rooms identified.
+        if(!allData.length){
 
-        </li>
+            alerts.innerHTML = `
 
-        `;
+                <li class="insight-item">
+
+                    No survey data available.
+
+                </li>
+
+            `;
+
+        }
+        else {
+
+            if(compliance < 90){
+
+                alerts.innerHTML += `
+
+                    <li class="alert-item">
+
+                        🚨 Critical:
+                        Overall compliance is below 90%.
+
+                    </li>
+
+                `;
+
+            }
+            else if(compliance < 95){
+
+                alerts.innerHTML += `
+
+                    <li class="alert-item">
+
+                        ⚠ Compliance is below the
+                        95% target.
+
+                    </li>
+
+                `;
+
+            }
+            else {
+
+                alerts.innerHTML += `
+
+                    <li class="insight-item">
+
+                        ✅ Overall compliance is
+                        meeting the 95% target.
+
+                    </li>
+
+                `;
+
+            }
+
+
+            const highRiskRooms =
+                Object.entries(rooms)
+                .filter(([room, data]) => {
+
+                    const score =
+                        data.total
+                        ?
+                        data.completed /
+                        data.total *
+                        100
+                        :
+                        0;
+
+                    return score < 90;
+
+                });
+
+
+            if(highRiskRooms.length){
+
+                alerts.innerHTML += `
+
+                    <li class="alert-item">
+
+                        ⚠ ${highRiskRooms.length}
+                        room(s) require attention.
+
+                    </li>
+
+                `;
+
+            }
+
+        }
 
     }
 
-}
 
-// ============================================================
-// ANALYTICS EXCEL EXPORT
-// ============================================================
+    // ========================================================
+    // PERFORMANCE INSIGHTS
+    // ========================================================
 
-
-function exportAnalyticsExcel(){
-
-
-
-const report = [];
+    const insights =
+        document.getElementById(
+            "aiInsights"
+        );
 
 
+    if(insights){
 
-allData.forEach(row=>{
-
-
-const stats =
-getTaskStats(row);
+        insights.innerHTML = "";
 
 
+        insights.innerHTML += `
 
-report.push({
+            <li class="insight-item">
 
+                Current compliance:
+                <strong>
+                    ${compliance.toFixed(1)}%
+                </strong>
 
-Date:
-row.created_at,
+            </li>
 
-
-Room:
-row.room,
-
-
-Staff:
-row.staff,
+        `;
 
 
-Shift:
-row.shift,
+        insights.innerHTML += `
+
+            <li class="insight-item">
+
+                Total surveys:
+                <strong>
+                    ${allData.length}
+                </strong>
+
+            </li>
+
+        `;
 
 
-CompletedTasks:
-stats.completed,
+        const roomEntries =
+            Object.entries(rooms);
 
 
-TotalTasks:
-stats.total,
+        if(roomEntries.length){
+
+            const roomScores =
+                roomEntries.map(
+                    ([room, data]) => {
+
+                        const score =
+                            data.total
+                            ?
+                            data.completed /
+                            data.total *
+                            100
+                            :
+                            0;
+
+                        return {
+                            room,
+                            score
+                        };
+
+                    }
+                );
 
 
-Compliance:
-
-stats.total
-
-?
-
-Math.round(
-stats.completed /
-stats.total *
-100
-)
-
-:
-
-0
+            roomScores.sort(
+                (a,b) =>
+                    b.score - a.score
+            );
 
 
-
-});
-
-
-
-});
+            const bestRoom =
+                roomScores[0];
 
 
+            if(bestRoom){
+
+                insights.innerHTML += `
+
+                    <li class="insight-item">
+
+                        🏆 Highest-performing room:
+                        <strong>
+                            ${bestRoom.room}
+                        </strong>
+                        (${bestRoom.score.toFixed(1)}%)
+
+                    </li>
+
+                `;
+
+            }
 
 
-
-const ws =
-XLSX.utils.json_to_sheet(
-report
-);
-
+            const lowestRoom =
+                roomScores[
+                    roomScores.length - 1
+                ];
 
 
-const wb =
-XLSX.utils.book_new();
+            if(
+                lowestRoom &&
+                lowestRoom.score < 95
+            ){
 
+                insights.innerHTML += `
 
+                    <li class="insight-item">
 
-XLSX.utils.book_append_sheet(
+                        📉 Room requiring attention:
+                        <strong>
+                            ${lowestRoom.room}
+                        </strong>
+                        (${lowestRoom.score.toFixed(1)}%)
 
-wb,
+                    </li>
 
-ws,
+                `;
 
-"Analytics"
+            }
 
-);
+        }
 
-
-
-XLSX.writeFile(
-
-wb,
-
-"Cleaning-Analytics.xlsx"
-
-);
-
-
+    }
 
 }
 
@@ -1980,7 +2097,6 @@ wb,
 // PART 4
 // FINAL PIPELINE + INIT + REALTIME
 // ============================================================
-
 
 
 // ============================================================
