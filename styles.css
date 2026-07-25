@@ -180,12 +180,13 @@ thead {
 
 
 /* ============================================================
-   EXPORT DROPDOWN
+   EXPORT DROPDOWN - FINAL
 ============================================================ */
 
 .export-console {
     position: relative;
     display: inline-block;
+    z-index: 10000;
 }
 
 .export-main-btn {
@@ -197,31 +198,24 @@ thead {
 
     position: absolute;
 
-    /* Open directly underneath the button */
     top: calc(100% + 8px);
-
-    /* Keep the entire menu inside the right edge */
     right: 0;
-    left: auto;
 
     width: 240px;
-    max-width: calc(100vw - 30px);
+    max-width: 240px;
 
     background: #ffffff;
 
-    border: 1px solid var(--border);
-
+    border: 1px solid #d5deea;
     border-radius: 10px;
 
     padding: 8px;
 
-    box-shadow:
-        0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
 
-    z-index: 99999;
+    z-index: 10001;
 }
 
-/* JavaScript adds .active */
 .export-console.active .export-menu {
     display: block;
 }
@@ -235,9 +229,9 @@ thead {
 
     border: none;
 
-    background: transparent;
+    background: #ffffff;
 
-    color: var(--text);
+    color: #102033;
 
     text-align: left;
 
@@ -467,69 +461,4 @@ background:#eef7ff;
 
 border-radius:10px;
 
-}
-
-/* ============================================================
-   EXPORT MENU — FINAL POSITIONING
-============================================================ */
-
-.export-console {
-    position: relative;
-    z-index: 100000;
-}
-
-.export-menu {
-    display: none;
-
-    position: fixed !important;
-
-    width: 250px;
-
-    max-width: calc(100vw - 30px);
-
-    background: #ffffff;
-
-    border: 1px solid #d5deea;
-
-    border-radius: 10px;
-
-    padding: 8px;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.20);
-
-    z-index: 999999 !important;
-
-    overflow: visible;
-}
-
-.export-console.active .export-menu {
-    display: block;
-}
-
-.export-menu button {
-    display: block;
-
-    width: 100%;
-
-    padding: 12px;
-
-    border: none;
-
-    background: transparent;
-
-    color: #102033;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    border-radius: 7px;
-
-    font-size: 14px;
-
-    white-space: nowrap;
-}
-
-.export-menu button:hover {
-    background: #f1f5f9;
 }
