@@ -2282,14 +2282,30 @@ client
 // ============================================================
 // FINAL EXPORT SYSTEM
 // ============================================================
+
 function toggleExportMenu() {
 
-    const exportConsole =
-        document.getElementById("exportConsole");
+    const menu =
+        document.getElementById("exportDropdown");
 
-    if (!exportConsole) return;
+    if (!menu) {
+        console.error("Export dropdown not found");
+        return;
+    }
 
-    exportConsole.classList.toggle("active");
+    menu.classList.toggle("open");
+
+}
+
+
+function closeExportMenu() {
+
+    const menu =
+        document.getElementById("exportDropdown");
+
+    if (!menu) return;
+
+    menu.classList.remove("open");
 
 }
 
@@ -2588,17 +2604,15 @@ function exportAnalyticsExcel(){
 // REGISTER EXPORT FUNCTIONS
 // ============================================================
 
-window.toggleExportMenu =
-    toggleExportMenu;
+window.toggleExportMenu = toggleExportMenu;
 
-window.exportCSV =
-    exportCSV;
+window.closeExportMenu = closeExportMenu;
 
-window.exportExcel =
-    exportExcel;
+window.exportCSV = exportCSV;
 
-window.exportAnalyticsExcel =
-    exportAnalyticsExcel;
+window.exportExcel = exportExcel;
+
+window.exportAnalyticsExcel = exportAnalyticsExcel;
 
 
 // ============================================================
