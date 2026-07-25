@@ -2282,49 +2282,14 @@ client
 // ============================================================
 // FINAL EXPORT SYSTEM
 // ============================================================
-
 function toggleExportMenu() {
 
     const exportConsole =
         document.getElementById("exportConsole");
 
-    const menu =
-        exportConsole?.querySelector(".export-menu");
+    if (!exportConsole) return;
 
-    const button =
-        exportConsole?.querySelector(".export-main-btn");
-
-    if (!menu || !button) return;
-
-    const isOpen =
-        exportConsole.classList.contains("active");
-
-    if (isOpen) {
-
-        menu.style.display = "none";
-
-        exportConsole.classList.remove("active");
-
-        return;
-
-    }
-
-    const rect =
-        button.getBoundingClientRect();
-
-    menu.style.position = "fixed";
-
-    menu.style.top =
-        (rect.bottom + 8) + "px";
-
-    menu.style.left = "auto";
-
-    menu.style.right =
-        (window.innerWidth - rect.right) + "px";
-
-    menu.style.display = "block";
-
-    exportConsole.classList.add("active");
+    exportConsole.classList.toggle("active");
 
 }
 
