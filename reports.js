@@ -1,126 +1,292 @@
 // ============================================================
-// UCDS v2.2 — Reports Page JavaScript
-// Handles all email-based report generation actions
+// UCDS v2.2 — Reports Support Engine
+// Handles email report delivery actions
 // ============================================================
 
-const backend = "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
-/* ============================================================
-   WARM-UP + RETRY WRAPPER
-   Ensures backend wakes from cold start (Render)
-   ============================================================ */
+const backend =
+    "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
-async function getWithRetry(url, retries = 3) {
+
+
+// ============================================================
+// RETRY FETCH WRAPPER
+// ============================================================
+
+async function getWithRetry(
+    url,
+    retries = 3
+){
+
     try {
+
         return await fetch(url);
-    } catch (err) {
-        if (retries > 0) {
-            await new Promise(res => setTimeout(res, 1500));
-            return getWithRetry(url, retries - 1);
+
+    }
+
+    catch(err){
+
+
+        if(retries > 0){
+
+            await new Promise(
+                resolve =>
+                setTimeout(resolve,1500)
+            );
+
+
+            return getWithRetry(
+                url,
+                retries - 1
+            );
+
         }
+
+
         throw err;
+
     }
+
 }
 
-/* ============================================================
-   SEND REPORT HELPER
-   Handles weekly, monthly, quarterly, yearly
-   ============================================================ */
 
-async function sendReport(endpoint) {
+
+
+
+// ============================================================
+// SEND REPORT
+// Weekly / Monthly / Quarterly / Annual
+// ============================================================
+
+
+window.sendReport = async function(endpoint){
+
+
     try {
-        // Warm backend (Render cold start)
+
+
+        console.log(
+            "Sending report:",
+            endpoint
+        );
+
+
+
+        // wake Render server
+
         try {
-            await fetch(backend, { method: "GET" });
-        } catch (_) {
-            console.log("Backend waking up…");
+
+
+            await fetch(
+                backend,
+                {
+                    method:"GET"
+                }
+            );
+
+
         }
 
-        const response = await getWithRetry(`${backend}${endpoint}`);
+        catch(e){
 
-        if (!response.ok) {
-            alert("Failed to send report.");
+            console.log(
+                "Backend waking..."
+            );
+
+        }
+
+
+
+
+        const response =
+            await getWithRetry(
+                `${backend}${endpoint}`
+            );
+
+
+
+
+        if(!response.ok){
+
+
+            alert(
+                "Failed to send report."
+            );
+
+
             return;
+
         }
 
-        const data = await response.json();
 
-        if (data.status === "success") {
-            alert("Report sent successfully!");
-        } else {
-            alert("Failed to send report.");
+
+
+
+        const result =
+            await response.json();
+
+
+
+
+        if(
+            result.status === "success"
+        ){
+
+
+            alert(
+                "Report sent successfully!"
+            );
+
+
         }
 
-    } catch (error) {
-        console.error("Error sending report:", error);
-        alert("An error occurred while sending the report.");
+        else{
+
+
+            alert(
+                "Failed to send report."
+            );
+
+
+        }
+
+
+
     }
-}
-
-/* ============================================================
-   BUTTON EVENT LISTENERS
-   ============================================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const reportType =
-        document.getElementById("reportType");
-
-    const reportMonth =
-        document.getElementById("reportMonth");
-
-    const reportYear =
-        document.getElementById("reportYear");
 
 
-    if (reportType) {
+    catch(error){
 
-        reportType.addEventListener(
-            "change",
-            function() {
 
-                console.log(
-                    "Report type:",
-                    this.value
-                );
-
-            }
+        console.error(
+            "Report error:",
+            error
         );
 
-    }
 
-
-    if (reportMonth) {
-
-        reportMonth.addEventListener(
-            "change",
-            function() {
-
-                console.log(
-                    "Report month:",
-                    this.value
-                );
-
-            }
+        alert(
+            "An error occurred while sending the report."
         );
 
+
     }
 
 
-    if (reportYear) {
+};
 
-        reportYear.addEventListener(
-            "change",
-            function() {
 
-                console.log(
-                    "Report year:",
-                    this.value
-                );
 
-            }
+
+
+
+
+// ============================================================
+// REPORT FILTER MONITORING
+// ============================================================
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    ()=>{
+
+
+        const reportType =
+            document.getElementById(
+                "reportType"
+            );
+
+
+        const reportMonth =
+            document.getElementById(
+                "reportMonth"
+            );
+
+
+        const reportYear =
+            document.getElementById(
+                "reportYear"
+            );
+
+
+
+
+        if(reportType){
+
+
+            reportType.addEventListener(
+                "change",
+                e=>{
+
+
+                    console.log(
+                        "Report type:",
+                        e.target.value
+                    );
+
+
+                }
+            );
+
+
+        }
+
+
+
+
+
+        if(reportMonth){
+
+
+            reportMonth.addEventListener(
+                "change",
+                e=>{
+
+
+                    console.log(
+                        "Report month:",
+                        e.target.value
+                    );
+
+
+                }
+            );
+
+
+        }
+
+
+
+
+
+
+        if(reportYear){
+
+
+            reportYear.addEventListener(
+                "change",
+                e=>{
+
+
+                    console.log(
+                        "Report year:",
+                        e.target.value
+                    );
+
+
+                }
+            );
+
+
+        }
+
+
+
+
+        console.log(
+            "✅ Reports support engine loaded"
         );
 
+
     }
 
-});
+);
