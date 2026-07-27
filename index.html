@@ -997,12 +997,6 @@ December
 </select>
 
 
-
-
-
-
-
-
 <label>
 Year
 </label>
@@ -1012,12 +1006,6 @@ Year
 <select id="reportYear">
 
 </select>
-
-
-
-
-
-
 
 
 <div class="report-buttons">
@@ -1031,9 +1019,6 @@ Generate Report
 </button>
 
 
-
-
-
 <button onclick="closeReportingCenter()">
 
 Close
@@ -1043,9 +1028,6 @@ Close
 
 
 </div>
-
-
-
 
 
 </div>
@@ -1059,13 +1041,41 @@ Close
      LOAD LAST
 ================================================== -->
 
+<!-- Core Configuration -->
+<script src="config.js"></script>
+
+<!-- Data Layer -->
+<script src="data.js"></script>
+
+<!-- Shared Utilities -->
+<script src="analytics-utils.js"></script>
+
+<!-- Filtering -->
+<script src="filters.js"></script>
+
+<!-- Summary Cards -->
+<script src="summary.js"></script>
+
+<!-- Dashboard Components -->
+<script src="table.js"></script>
+<script src="charts.js"></script>
+<script src="staff-analytics.js"></script>
+<script src="insights.js"></script>
+
+<!-- Advanced Analytics -->
+<script src="analytics.js"></script>
+<script src="intelligence.js"></script>
+
+<!-- Export Engine -->
+<script src="exports.js"></script>
+
+<!-- Reporting -->
 <script src="reports.js"></script>
-     
 <script src="professional-report.js"></script>
+<script src="report-center.js"></script>
 
-<script src="dashboard.js"></script>
-
+<!-- Dashboard Controller (must be last) -->
+<script src="dashboard-core.js"></script>
 
 </body>
-
 </html>
