@@ -1,5 +1,6 @@
 // ============================================================
 // EXECUTIVE REPORTING CENTER
+// CONNECTS TO REPORT BACKEND
 // ============================================================
 
 
@@ -7,7 +8,6 @@ window.openReportingCenter = function(){
 
 
     const modal =
-
         document.getElementById(
             "reportModal"
         );
@@ -15,15 +15,11 @@ window.openReportingCenter = function(){
 
     if(modal){
 
-        modal.style.display =
-            "flex";
+        modal.style.display = "flex";
 
     }
 
-
 };
-
-
 
 
 
@@ -31,7 +27,6 @@ window.closeReportingCenter = function(){
 
 
     const modal =
-
         document.getElementById(
             "reportModal"
         );
@@ -39,25 +34,24 @@ window.closeReportingCenter = function(){
 
     if(modal){
 
-        modal.style.display =
-            "none";
+        modal.style.display = "none";
 
     }
-
 
 };
 
 
 
 
+// ============================================================
+// REPORT GENERATOR
+// ============================================================
 
 
 window.generateSelectedReport = async function(){
 
 
-
     const type =
-
         document.getElementById(
             "reportType"
         )?.value;
@@ -65,28 +59,20 @@ window.generateSelectedReport = async function(){
 
 
     console.log(
-
-        "Generating report:",
-
+        "Selected report:",
         type
-
     );
-
-
 
 
 
     switch(type){
 
 
-
         case "professional":
 
 
-
             if(
-                typeof exportProfessionalPDF ===
-                "function"
+                typeof exportProfessionalPDF === "function"
             ){
 
                 await exportProfessionalPDF();
@@ -98,17 +84,14 @@ window.generateSelectedReport = async function(){
 
 
 
-
         case "weekly":
 
 
-            alert(
-                "Weekly report engine ready for connection."
+            await sendReport(
+                "/send-weekly-report"
             );
 
-
             break;
-
 
 
 
@@ -116,13 +99,11 @@ window.generateSelectedReport = async function(){
         case "monthly":
 
 
-            alert(
-                "Monthly report engine ready for connection."
+            await sendReport(
+                "/send-monthly-report"
             );
 
-
             break;
-
 
 
 
@@ -130,13 +111,11 @@ window.generateSelectedReport = async function(){
         case "quarterly":
 
 
-            alert(
-                "Quarterly report engine ready for connection."
+            await sendReport(
+                "/send-quarterly-report"
             );
 
-
             break;
-
 
 
 
@@ -144,12 +123,12 @@ window.generateSelectedReport = async function(){
         case "annual":
 
 
-            alert(
-                "Annual report engine ready for connection."
+            await sendReport(
+                "/send-yearly-report"
             );
 
-
             break;
+
 
 
 
@@ -165,6 +144,7 @@ window.generateSelectedReport = async function(){
 
 
 };
+
 
 
 
