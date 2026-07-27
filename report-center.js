@@ -1,6 +1,15 @@
 // ============================================================
-// EXECUTIVE REPORTING CENTER
-// REPORT CONTROL + FILTER INITIALIZATION
+// UCDS v3.0 — EXECUTIVE REPORTING CENTER
+// Hospital Cleaning Compliance Dashboard
+//
+// Handles:
+// - Report modal
+// - Dynamic year loading
+// - Month loading
+// - Professional PDF
+// - Weekly / Monthly / Quarterly / Annual reports
+//
+// Does NOT modify Supabase
 // ============================================================
 
 
@@ -10,11 +19,84 @@ console.log(
 
 
 
+const REPORT_BACKEND =
+    "https://cleaning-survey-api-v2-x6sf.onrender.com";
+
+
+
 // ============================================================
-// OPEN REPORT MODAL
+// GET DASHBOARD DATA SAFELY
 // ============================================================
 
-window.openReportingCenter = function(){
+function getReportData(){
+
+
+    let data = [];
+
+
+
+    // Primary source
+    if(
+        window.allData &&
+        Array.isArray(window.allData)
+    ){
+
+        data =
+            window.allData;
+
+    }
+
+
+
+    // DataStore fallback
+
+    else if(
+        window.DataStore &&
+        Array.isArray(
+            window.DataStore.data
+        )
+    ){
+
+        data =
+            window.DataStore.data;
+
+    }
+
+
+
+    // Another possible datastore format
+
+    else if(
+        window.DataStore &&
+        Array.isArray(
+            window.DataStore.records
+        )
+    ){
+
+        data =
+            window.DataStore.records;
+
+    }
+
+
+
+    return data;
+
+}
+
+
+
+
+
+
+
+// ============================================================
+// OPEN REPORT CENTER
+// ============================================================
+
+
+window.openReportingCenter = async function(){
+
 
 
     const modal =
@@ -23,16 +105,26 @@ window.openReportingCenter = function(){
         );
 
 
+
     if(modal){
 
-        modal.style.display = "flex";
+        modal.style.display =
+            "flex";
 
     }
 
 
+
+    await waitForReportData();
+
+
+
     populateReportYears();
 
+
+
     populateReportMonths();
+
 
 
 };
@@ -40,9 +132,14 @@ window.openReportingCenter = function(){
 
 
 
+
+
+
+
 // ============================================================
-// CLOSE REPORT MODAL
+// CLOSE REPORT CENTER
 // ============================================================
+
 
 window.closeReportingCenter = function(){
 
@@ -53,22 +150,84 @@ window.closeReportingCenter = function(){
         );
 
 
+
     if(modal){
 
-        modal.style.display = "none";
+        modal.style.display =
+            "none";
 
     }
+
 
 };
 
 
 
 
+
+
+
+
+
 // ============================================================
-// POPULATE YEAR DROPDOWN
+// WAIT FOR DASHBOARD DATA
 // ============================================================
 
+
+async function waitForReportData(){
+
+
+
+    let attempts = 0;
+
+
+
+    while(
+        getReportData().length === 0 &&
+        attempts < 20
+    ){
+
+
+        await new Promise(
+            resolve =>
+            setTimeout(
+                resolve,
+                300
+            )
+        );
+
+
+        attempts++;
+
+    }
+
+
+
+    console.log(
+
+        "Reporting data:",
+        getReportData().length
+
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+// ============================================================
+// POPULATE YEARS
+// ============================================================
+
+
 window.populateReportYears = function(){
+
 
 
     const select =
@@ -77,26 +236,24 @@ window.populateReportYears = function(){
         );
 
 
-    if(!select){
 
-        console.warn(
-            "⚠️ reportYear dropdown missing"
-        );
-
+    if(!select)
         return;
 
-    }
+
+
+    const data =
+        getReportData();
 
 
 
-    if(
-        typeof allData === "undefined" ||
-        !allData.length
-    ){
+    if(!data.length){
+
 
         console.warn(
-            "⚠️ No survey data available"
+            "No survey data available"
         );
+
 
         return;
 
@@ -109,12 +266,13 @@ window.populateReportYears = function(){
 
         ...new Set(
 
-            allData.map(row=>{
+            data.map(row=>{
 
 
                 const date =
                     row.work_date ||
                     row.created_at;
+
 
 
                 if(!date)
@@ -133,7 +291,6 @@ window.populateReportYears = function(){
         )
 
     ]
-
     .sort(
         (a,b)=>b-a
     );
@@ -141,31 +298,30 @@ window.populateReportYears = function(){
 
 
 
-    select.innerHTML = "";
+
+
+    select.innerHTML = `
+
+        <option value="">
+            Select Year
+        </option>
+
+    `;
+
+
 
 
 
     years.forEach(year=>{
 
 
-        const option =
-            document.createElement(
-                "option"
-            );
+        select.innerHTML += `
 
+            <option value="${year}">
+                ${year}
+            </option>
 
-        option.value =
-            year;
-
-
-        option.textContent =
-            year;
-
-
-
-        select.appendChild(
-            option
-        );
+        `;
 
 
     });
@@ -183,11 +339,18 @@ window.populateReportYears = function(){
 
 
 
+
+
+
+
+
 // ============================================================
-// POPULATE MONTH DROPDOWN
+// POPULATE MONTHS
 // ============================================================
 
+
 window.populateReportMonths = function(){
+
 
 
     const select =
@@ -196,20 +359,13 @@ window.populateReportMonths = function(){
         );
 
 
-    if(!select){
 
-        console.warn(
-            "⚠️ reportMonth dropdown missing"
-        );
-
+    if(!select)
         return;
-
-    }
 
 
 
     const months = [
-
 
         "January",
         "February",
@@ -224,12 +380,17 @@ window.populateReportMonths = function(){
         "November",
         "December"
 
-
     ];
 
 
 
-    select.innerHTML = "";
+    select.innerHTML = `
+
+        <option value="">
+            Select Month
+        </option>
+
+    `;
 
 
 
@@ -237,40 +398,18 @@ window.populateReportMonths = function(){
         (month,index)=>{
 
 
-            const option =
-                document.createElement(
-                    "option"
-                );
+            select.innerHTML += `
 
+            <option value="${index+1}">
+                ${month}
+            </option>
 
-            option.value =
-                index + 1;
-
-
-            option.textContent =
-                month;
-
-
-
-            select.appendChild(
-                option
-            );
+            `;
 
 
         }
 
     );
-
-
-
-    const currentMonth =
-        new Date()
-        .getMonth()+1;
-
-
-
-    select.value =
-        currentMonth;
 
 
 
@@ -284,39 +423,7 @@ window.populateReportMonths = function(){
 
 
 
-// ============================================================
-// GET REPORT FILTERS
-// ============================================================
 
-window.getReportFilters = function(){
-
-
-    return {
-
-
-        year:
-            document.getElementById(
-                "reportYear"
-            )?.value,
-
-
-        month:
-            document.getElementById(
-                "reportMonth"
-            )?.value,
-
-
-        type:
-            document.getElementById(
-                "reportType"
-            )?.value
-
-
-
-    };
-
-
-};
 
 
 
@@ -330,34 +437,37 @@ window.generateSelectedReport = async function(){
 
 
 
-    const filters =
-        getReportFilters();
+    const type =
+        document.getElementById(
+            "reportType"
+        )?.value;
+
+
+
+    const year =
+        document.getElementById(
+            "reportYear"
+        )?.value;
+
+
+
+    const month =
+        document.getElementById(
+            "reportMonth"
+        )?.value;
+
+
 
 
 
     console.log(
         "Report Filters:",
-        filters
+        {
+            year,
+            month,
+            type
+        }
     );
-
-
-
-    const type =
-        filters.type;
-
-
-
-    if(!type){
-
-
-        alert(
-            "Please select a report type."
-        );
-
-
-        return;
-
-    }
 
 
 
@@ -370,27 +480,14 @@ window.generateSelectedReport = async function(){
         case "professional":
 
 
-
             if(
-                typeof exportProfessionalPDF === "function"
+                typeof exportProfessionalPDF ===
+                "function"
             ){
-
 
                 await exportProfessionalPDF();
 
-
-
             }
-            else{
-
-
-                console.error(
-                    "exportProfessionalPDF missing"
-                );
-
-
-            }
-
 
             break;
 
@@ -398,8 +495,8 @@ window.generateSelectedReport = async function(){
 
 
 
-        case "weekly":
 
+        case "weekly":
 
 
             await sendReport(
@@ -413,8 +510,8 @@ window.generateSelectedReport = async function(){
 
 
 
-        case "monthly":
 
+        case "monthly":
 
 
             await sendReport(
@@ -428,8 +525,8 @@ window.generateSelectedReport = async function(){
 
 
 
-        case "quarterly":
 
+        case "quarterly":
 
 
             await sendReport(
@@ -443,8 +540,8 @@ window.generateSelectedReport = async function(){
 
 
 
-        case "annual":
 
+        case "annual":
 
 
             await sendReport(
@@ -461,11 +558,9 @@ window.generateSelectedReport = async function(){
         default:
 
 
-
             alert(
-                "Unknown report type."
+                "Please select a report type."
             );
-
 
 
     }
@@ -476,23 +571,182 @@ window.generateSelectedReport = async function(){
 
 
 
+
+
+
+
+
 // ============================================================
-// AUTO INITIALIZATION
+// SEND REPORT
 // ============================================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    ()=>{
+
+async function sendReport(endpoint){
 
 
-        console.log(
-            "✅ Reporting center ready"
+
+    try{
+
+
+        const response =
+            await fetch(
+                REPORT_BACKEND + endpoint
+            );
+
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Report failed"
+            );
+
+        }
+
+
+
+
+        const result =
+            await response.json();
+
+
+
+
+
+        if(
+            result.status ===
+            "success"
+        ){
+
+            alert(
+                "Report sent successfully!"
+            );
+
+        }
+
+        else{
+
+            alert(
+                "Report generation failed."
+            );
+
+        }
+
+
+
+    }
+
+
+    catch(error){
+
+
+        console.error(
+            "Report error:",
+            error
+        );
+
+
+        alert(
+            "Unable to send report."
         );
 
 
     }
 
-);
+
+
+}
+
+
+
+
+
+
+
+
+
+// ============================================================
+// LISTENERS
+// ============================================================
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+    const type =
+        document.getElementById(
+            "reportType"
+        );
+
+
+    const year =
+        document.getElementById(
+            "reportYear"
+        );
+
+
+    const month =
+        document.getElementById(
+            "reportMonth"
+        );
+
+
+
+
+
+    type?.addEventListener(
+        "change",
+        e=>{
+
+            console.log(
+                "Report type:",
+                e.target.value
+            );
+
+        }
+    );
+
+
+
+
+
+    year?.addEventListener(
+        "change",
+        e=>{
+
+            console.log(
+                "Report year:",
+                e.target.value
+            );
+
+        }
+    );
+
+
+
+
+
+    month?.addEventListener(
+        "change",
+        e=>{
+
+            console.log(
+                "Report month:",
+                e.target.value
+            );
+
+        }
+    );
+
+
+
+});
+
+
+
+
 
 
 
