@@ -1,13 +1,24 @@
 // ============================================================
 // EXECUTIVE REPORTING CENTER
 // UCDS v3.0
-// Dynamic Year / Month Reporting Engine
+//
+// Supabase Integrated Reporting Engine
+//
+// Handles:
+// - Report modal
+// - Dynamic year/month selection
+// - Report filters
+// - Professional PDF generation
+//
+// NO EXTERNAL BACKEND REQUIRED
 // ============================================================
 
 
 console.log(
     "Loading Executive Reporting Center..."
 );
+
+
 
 
 
@@ -47,6 +58,9 @@ window.openReportingCenter = async function(){
 
 
 
+
+
+
 // ============================================================
 // CLOSE MODAL
 // ============================================================
@@ -75,10 +89,10 @@ window.closeReportingCenter = function(){
 
 
 
+
 // ============================================================
 // WAIT FOR DATASTORE
 // ============================================================
-
 
 async function waitForDashboardData(){
 
@@ -88,12 +102,16 @@ async function waitForDashboardData(){
 
 
     while(
+
         (
             !window.DataStore ||
             DataStore.getAll().length === 0
         )
+
         &&
+
         attempts < 20
+
     ){
 
 
@@ -114,9 +132,14 @@ async function waitForDashboardData(){
 
 
 
+
+
     if(
-        DataStore &&
+
+        window.DataStore &&
+
         DataStore.getAll().length
+
     ){
 
 
@@ -135,7 +158,9 @@ async function waitForDashboardData(){
 
 
         console.warn(
-            "Dashboard data still unavailable"
+
+            "Dashboard data unavailable"
+
         );
 
 
@@ -150,43 +175,97 @@ async function waitForDashboardData(){
 
 
 
+
+
 // ============================================================
 // POPULATE REPORT YEARS
-// Always show a rolling range of years
 // ============================================================
 
-window.populateReportYears = function () {
+window.populateReportYears = function(){
 
-    const select = document.getElementById("reportYear");
 
-    if (!select) return;
+    const select =
+        document.getElementById(
+            "reportYear"
+        );
+
+
+
+    if(!select)
+        return;
+
+
+
 
     select.innerHTML = "";
 
-    const currentYear = new Date().getFullYear();
 
-    // How many years before and after the current year to display
+
+    const currentYear =
+        new Date().getFullYear();
+
+
+
     const startYear = 2024;
-    const endYear = currentYear + 10;
 
-    for (let year = endYear; year >= startYear; year--) {
+    const endYear =
+        currentYear + 10;
 
-        const option = document.createElement("option");
+
+
+
+    for(
+
+        let year=endYear;
+
+        year>=startYear;
+
+        year--
+
+    ){
+
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
 
         option.value = year;
+
         option.textContent = year;
 
-        // Select current year by default
-        if (year === currentYear) {
+
+
+
+        if(
+
+            year === currentYear
+
+        ){
+
             option.selected = true;
+
         }
 
-        select.appendChild(option);
+
+
+        select.appendChild(
+            option
+        );
+
+
     }
 
+
+
+
     console.log(
+
         `✅ Report years loaded (${startYear}-${endYear})`
+
     );
+
 
 };
 
@@ -195,27 +274,110 @@ window.populateReportYears = function () {
 
 
 
-// ============================================================
-// MONTH DROPDOWN
-// ============================================================
 
+
+
+// ============================================================
+// POPULATE MONTHS
+// ============================================================
 
 window.populateReportMonths = function(){
 
 
-    const month =
+    const select =
         document.getElementById(
             "reportMonth"
         );
 
 
-    if(!month)
+
+    if(!select)
         return;
 
 
 
+
+    select.innerHTML = "";
+
+
+
+    const months = [
+
+
+        "January",
+
+        "February",
+
+        "March",
+
+        "April",
+
+        "May",
+
+        "June",
+
+        "July",
+
+        "August",
+
+        "September",
+
+        "October",
+
+        "November",
+
+        "December"
+
+
+    ];
+
+
+
+
+
+    months.forEach(
+
+        (month,index)=>{
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                index + 1;
+
+
+            option.textContent =
+                month;
+
+
+
+            select.appendChild(
+                option
+            );
+
+
+        }
+
+    );
+
+
+
+
+    // Default current month
+
+    select.value =
+        new Date().getMonth()+1;
+
+
+
     console.log(
-        "Report months loaded"
+
+        "✅ Report months loaded"
+
     );
 
 
@@ -227,10 +389,11 @@ window.populateReportMonths = function(){
 
 
 
-// ============================================================
-// GENERATE REPORT
-// ============================================================
 
+
+// ============================================================
+// GENERATE SELECTED REPORT
+// ============================================================
 
 window.generateSelectedReport = async function(){
 
@@ -258,109 +421,110 @@ window.generateSelectedReport = async function(){
 
 
 
+
+
+    const filters = {
+
+
+        type,
+
+
+        year,
+
+
+        month
+
+
+    };
+
+
+
+
+
+
+
     console.log(
+
         "Report Filters:",
-        {
-            type,
-            year,
-            month
-        }
+
+        filters
+
     );
 
 
 
 
 
-    switch(type){
 
 
 
-        case "professional":
+    // Store filters globally
+
+    if(
+
+        typeof updateReportFilters === "function"
+
+    ){
 
 
-            if(
-                typeof exportProfessionalPDF === "function"
-            ){
-
-                await exportProfessionalPDF(
-                    {
-                        year,
-                        month
-                    }
-                );
-
-            }
-
-
-        break;
-
-
-
-
-
-        case "weekly":
-
-
-            await sendReport(
-                "/send-weekly-report"
-            );
-
-
-        break;
-
-
-
-
-
-        case "monthly":
-
-
-            await sendReport(
-                "/send-monthly-report"
-            );
-
-
-        break;
-
-
-
-
-
-        case "quarterly":
-
-
-            await sendReport(
-                "/send-quarterly-report"
-            );
-
-
-        break;
-
-
-
-
-
-        case "annual":
-
-
-            await sendReport(
-                "/send-yearly-report"
-            );
-
-
-        break;
-
-
-
-        default:
-
-
-            alert(
-                "Please select report type"
-            );
+        updateReportFilters(
+            filters
+        );
 
 
     }
+
+    else{
+
+
+        window.currentReportFilters =
+            filters;
+
+
+    }
+
+
+
+
+
+
+
+
+    // Generate professional report
+
+    if(
+
+        typeof sendReport === "function"
+
+    ){
+
+
+        await sendReport();
+
+
+
+    }
+
+    else{
+
+
+        console.error(
+
+            "Report generation engine missing"
+
+        );
+
+
+        alert(
+
+            "Report engine not loaded."
+
+        );
+
+
+    }
+
+
 
 
 };
@@ -377,21 +541,30 @@ window.generateSelectedReport = async function(){
 // INIT
 // ============================================================
 
-
 document.addEventListener(
+
 "DOMContentLoaded",
+
 ()=>{
 
 
     console.log(
+
         "Reporting center ready"
+
     );
 
 
-});
+}
+
+);
+
+
 
 
 
 console.log(
+
     "✅ Executive Reporting Center loaded"
+
 );
