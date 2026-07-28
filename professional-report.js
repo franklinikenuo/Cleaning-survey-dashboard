@@ -2811,8 +2811,6 @@ window.exportProfessionalPDF = async function(filters={}){
 
 
 
-
-
         addPerformanceDashboard(
 
             pdf,
@@ -2820,8 +2818,6 @@ window.exportProfessionalPDF = async function(filters={}){
             reportData
 
         );
-
-
 
 
 
@@ -2835,8 +2831,6 @@ window.exportProfessionalPDF = async function(filters={}){
 
 
 
-
-
         addRoomPerformance(
 
             pdf,
@@ -2844,8 +2838,6 @@ window.exportProfessionalPDF = async function(filters={}){
             reportData
 
         );
-
-
 
 
 
@@ -2857,8 +2849,10 @@ window.exportProfessionalPDF = async function(filters={}){
 
         );
 
-
-
+        addTaskPerformance(
+    pdf,
+    reportData
+);
 
 
         await addDashboardCharts(
