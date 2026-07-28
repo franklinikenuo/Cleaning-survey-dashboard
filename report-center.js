@@ -1,55 +1,58 @@
 // ============================================================
-// EXECUTIVE REPORTING CENTER
-// UCDS v3.1
-//
-// Supabase Integrated Reporting Engine
+// UCDS v3.1 — EXECUTIVE REPORTING CENTER
 //
 // Handles:
 // - Report modal
-// - Dynamic year/month/week selection
-// - Report filters
-// - Professional PDF generation
+// - Year/month/week selection
+// - Filter collection
+// - PDF launch
 //
-// NO EXTERNAL BACKEND REQUIRED
+// Supabase Integrated
 // ============================================================
 
 
+
 console.log(
-    "Loading Executive Reporting Center..."
+"Loading Executive Reporting Center..."
 );
 
 
 
 
+
 // ============================================================
-// OPEN REPORTING CENTER
+// OPEN MODAL
 // ============================================================
+
 
 window.openReportingCenter = async function(){
 
 
-    const modal =
-        document.getElementById(
-            "reportModal"
-        );
-
-
-    if(modal){
-
-        modal.style.display = "flex";
-
-    }
+const modal =
+document.getElementById(
+"reportModal"
+);
 
 
 
-    await waitForDashboardData();
+if(modal){
+
+modal.style.display="flex";
+
+}
 
 
-    populateReportYears();
 
-    populateReportMonths();
+await waitForDashboardData();
 
-    populateReportWeeks();
+
+
+populateReportYears();
+
+populateReportMonths();
+
+populateReportWeeks();
+
 
 
 };
@@ -59,24 +62,29 @@ window.openReportingCenter = async function(){
 
 
 
+
 // ============================================================
-// CLOSE REPORTING CENTER
+// CLOSE MODAL
 // ============================================================
 
-window.closeReportingCenter = function(){
+
+window.closeReportingCenter=function(){
 
 
-    const modal =
-        document.getElementById(
-            "reportModal"
-        );
+
+const modal =
+document.getElementById(
+"reportModal"
+);
 
 
-    if(modal){
 
-        modal.style.display = "none";
+if(modal){
 
-    }
+modal.style.display="none";
+
+}
+
 
 
 };
@@ -86,81 +94,59 @@ window.closeReportingCenter = function(){
 
 
 
+
+
+
 // ============================================================
-// WAIT FOR SUPABASE DATASTORE
+// WAIT DATA
 // ============================================================
+
 
 async function waitForDashboardData(){
 
 
-    let attempts = 0;
+let attempts=0;
 
 
 
-    while(
+while(
 
-        (
-            !window.DataStore ||
+(!window.DataStore ||
+DataStore.getAll().length===0)
 
-            DataStore.getAll().length === 0
+&&
 
-        )
+attempts < 20
 
-        &&
-
-        attempts < 20
-
-    ){
+){
 
 
-        console.log(
-            "Waiting for dashboard data..."
-        );
+await new Promise(
+
+resolve=>
+
+setTimeout(resolve,500)
+
+);
 
 
-        await new Promise(
-            resolve =>
-            setTimeout(resolve,500)
-        );
+attempts++;
 
 
-        attempts++;
-
-    }
+}
 
 
 
 
 
-    if(
+console.log(
 
-        window.DataStore &&
+"Reporting data:",
 
-        DataStore.getAll().length
+DataStore?.getAll()?.length || 0
 
-    ){
+);
 
-
-        console.log(
-
-            "Reporting data ready:",
-
-            DataStore.getAll().length
-
-        );
-
-
-    }
-
-    else{
-
-
-        console.warn(
-            "Dashboard data unavailable"
-        );
-
-
-    }
 
 
 }
@@ -170,181 +156,69 @@ async function waitForDashboardData(){
 
 
 
-// ============================================================
-// YEAR DROPDOWN
-// ============================================================
-
-window.populateReportYears = function(){
-
-
-    const select =
-        document.getElementById(
-            "reportYear"
-        );
-
-
-
-    if(!select)
-        return;
-
-
-
-    select.innerHTML = "";
-
-
-
-    const currentYear =
-        new Date().getFullYear();
-
-
-
-    const startYear = 2024;
-
-    const endYear =
-        currentYear + 10;
-
-
-
-    for(
-
-        let year=endYear;
-
-        year>=startYear;
-
-        year--
-
-    ){
-
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-
-        option.value = year;
-
-        option.textContent = year;
-
-
-
-        if(
-            year === currentYear
-        ){
-
-            option.selected = true;
-
-        }
-
-
-
-        select.appendChild(
-            option
-        );
-
-
-    }
-
-
-
-
-    console.log(
-
-        `✅ Report years loaded (${startYear}-${endYear})`
-
-    );
-
-
-};
-
-
-
-
 
 
 
 // ============================================================
-// MONTH DROPDOWN
+// YEARS
 // ============================================================
 
-window.populateReportMonths = function(){
 
-
-    const select =
-        document.getElementById(
-            "reportMonth"
-        );
+window.populateReportYears=function(){
 
 
 
-    if(!select)
-        return;
+const select =
+document.getElementById(
+"reportYear"
+);
 
 
 
-    select.innerHTML = "";
+if(!select)return;
 
 
 
-    const months = [
-
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-
-    ];
+select.innerHTML="";
 
 
 
-    months.forEach(
-
-        (month,index)=>{
-
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                index + 1;
-
-
-            option.textContent =
-                month;
+const current =
+new Date().getFullYear();
 
 
 
-            select.appendChild(
-                option
-            );
+for(
+let year=current+5;
+year>=2024;
+year--
+){
 
 
-        }
-
-    );
-
-
-
-    select.value =
-        new Date().getMonth()+1;
+const option =
+document.createElement(
+"option"
+);
 
 
+option.value=year;
 
-    console.log(
-        "✅ Report months loaded"
-    );
+option.textContent=year;
+
+
+
+if(year===current)
+
+option.selected=true;
+
+
+
+select.appendChild(option);
+
+
+
+}
+
 
 
 };
@@ -357,68 +231,148 @@ window.populateReportMonths = function(){
 
 
 // ============================================================
-// WEEK DROPDOWN
+// MONTHS
 // ============================================================
 
-window.populateReportWeeks = function(){
 
-
-    const select =
-        document.getElementById(
-            "reportWeek"
-        );
+window.populateReportMonths=function(){
 
 
 
-    if(!select)
-        return;
+const select =
+document.getElementById(
+"reportMonth"
+);
 
 
 
-    select.innerHTML = "";
+if(!select)return;
 
 
 
-    for(
-        let week = 1;
-        week <= 5;
-        week++
-    ){
-
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value = week;
-
-
-        option.textContent =
-            "Week " + week;
+select.innerHTML="";
 
 
 
-        select.appendChild(
-            option
-        );
+const months=[
+
+"January",
+"February",
+"March",
+"April",
+"May",
+"June",
+"July",
+"August",
+"September",
+"October",
+"November",
+"December"
+
+];
 
 
-    }
+
+months.forEach(
+
+(month,index)=>{
+
+
+const option =
+document.createElement(
+"option"
+);
+
+
+option.value=index+1;
+
+option.textContent=month;
 
 
 
-    select.value = 1;
+select.appendChild(option);
 
 
 
-    console.log(
-        "✅ Report weeks loaded"
-    );
+}
+
+);
+
+
+
+select.value =
+new Date().getMonth()+1;
+
 
 
 };
+
+
+
+
+
+
+
+
+// ============================================================
+// WEEKS
+// ============================================================
+
+
+window.populateReportWeeks=function(){
+
+
+
+const select =
+document.getElementById(
+"reportWeek"
+);
+
+
+
+if(!select)return;
+
+
+
+select.innerHTML="";
+
+
+
+for(
+let i=1;
+i<=5;
+i++
+){
+
+
+const option =
+document.createElement(
+"option"
+);
+
+
+option.value=i;
+
+option.textContent=
+"Week "+i;
+
+
+
+select.appendChild(option);
+
+
+
+}
+
+
+
+select.value=1;
+
+
+
+};
+
+
 
 
 
@@ -430,122 +384,132 @@ window.populateReportWeeks = function(){
 // GENERATE REPORT
 // ============================================================
 
+
 window.generateSelectedReport = async function(){
 
 
 
-    const type =
-        document.getElementById(
-            "reportType"
-        )?.value;
+const filters={
 
 
+type:
+document.getElementById(
+"reportType"
+)?.value || "all",
 
-    const year =
-        document.getElementById(
-            "reportYear"
-        )?.value;
 
 
+year:
+Number(
+document.getElementById(
+"reportYear"
+)?.value
+),
 
-    const month =
-        document.getElementById(
-            "reportMonth"
-        )?.value;
 
 
+month:
+Number(
+document.getElementById(
+"reportMonth"
+)?.value
+),
 
-    const week =
-        document.getElementById(
-            "reportWeek"
-        )?.value || null;
 
 
+week:
+Number(
+document.getElementById(
+"reportWeek"
+)?.value
+)
 
 
 
-    const filters = {
+};
 
 
-        type,
 
 
-        year,
 
+console.log(
 
-        month,
+"Selected report filters:",
 
+filters
 
-        week
+);
 
 
-    };
 
 
 
 
 
-    console.log(
+if(
+typeof updateReportFilters==="function"
+){
 
-        "Report Filters:",
+updateReportFilters(filters);
 
-        filters
+}
 
-    );
 
 
 
 
 
+const status =
+document.getElementById(
+"reportStatus"
+);
 
-    // ========================================================
-    // SEND FILTERS TO REPORT ENGINE
-    // ========================================================
 
 
-    if(
+if(status){
 
-        typeof exportProfessionalPDF === "function"
+status.innerHTML=
+"Generating report...";
 
-    ){
+}
 
 
 
-        await exportProfessionalPDF(
 
-            filters
 
-        );
+try{
 
 
+await sendReport();
 
-        console.log(
 
-            "✅ Report generated successfully"
 
-        );
+if(status){
 
+status.innerHTML=
+"✅ Report complete";
 
-    }
+}
 
-    else{
 
 
-        console.error(
+}
 
-            "Professional PDF engine missing"
+catch(error){
 
-        );
 
+console.error(error);
 
-        alert(
 
-            "Professional report engine not loaded."
+if(status){
 
-        );
+status.innerHTML=
+"❌ Report failed";
 
+}
 
-    }
+
+}
 
 
 
@@ -558,9 +522,6 @@ window.generateSelectedReport = async function(){
 
 
 
-// ============================================================
-// INIT
-// ============================================================
 
 document.addEventListener(
 
@@ -569,23 +530,13 @@ document.addEventListener(
 ()=>{
 
 
-    console.log(
+console.log(
 
-        "Reporting center ready"
-
-    );
-
-
-}
+"✅ Reporting Center Ready"
 
 );
 
 
-
-
-
-console.log(
-
-    "✅ Executive Reporting Center loaded"
+}
 
 );
