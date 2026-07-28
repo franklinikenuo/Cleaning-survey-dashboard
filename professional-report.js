@@ -866,21 +866,121 @@ function addFooter(pdf){
 
 }
 
+// ============================================================
+// PROFESSIONAL REPORT ENGINE v3.2
+//
+// ADDITIONAL PAGES
+// Cover Page + Executive Summary
+// ============================================================
+
+
+// ============================================================
+// COVER PAGE
+// ============================================================
+
 function addCoverPage(pdf,data){
 
-    addHeader(pdf);
+
+    const kpi =
+        calculateKPIs(data);
+
+
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
-    pdf.setFontSize(26);
+
+    pdf.setFontSize(22);
+
+
+    pdf.text(
+        REPORT.company,
+        105,
+        45,
+        {
+            align:"center"
+        }
+    );
+
+
+
+    pdf.setFontSize(16);
+
+
+    pdf.text(
+        REPORT.facility,
+        105,
+        58,
+        {
+            align:"center"
+        }
+    );
+
+
+
+    pdf.setLineWidth(
+        0.8
+    );
+
+
+    pdf.line(
+        35,
+        70,
+        175,
+        70
+    );
+
+
+
+    pdf.setFontSize(20);
+
 
     pdf.text(
         REPORT.title,
         105,
+        100,
+        {
+            align:"center"
+        }
+    );
+
+
+
+    pdf.setFontSize(12);
+
+
+    pdf.text(
+        REPORT.subtitle,
+        105,
+        115,
+        {
+            align:"center"
+        }
+    );
+
+
+
+
+    pdf.roundedRect(
+        40,
+        140,
+        130,
         70,
+        5,
+        5
+    );
+
+
+
+    pdf.setFontSize(12);
+
+
+    pdf.text(
+        "Report Period",
+        105,
+        158,
         {
             align:"center"
         }
@@ -889,84 +989,66 @@ function addCoverPage(pdf,data){
 
     pdf.setFontSize(14);
 
+
     pdf.text(
-        REPORT.subtitle,
+        getReportingPeriod(data),
         105,
-        85,
+        175,
         {
             align:"center"
         }
     );
 
 
-    pdf.setFontSize(11);
 
-
-    const details = [
-
-        [
-            "Facility",
-            REPORT.facility
-        ],
-
-        [
-            "Company",
-            REPORT.company
-        ],
-
-        [
-            "Reporting Period",
-            getReportingPeriod(data)
-        ],
-
-        [
-            "Generated",
-            formatDate()
-        ],
-
-        [
-            "Version",
-            REPORT.version
-        ]
-
-    ];
-
-
-
-    let y = 120;
-
-
-    details.forEach(row=>{
-
-
-        pdf.text(
-            row[0],
-            40,
-            y
-        );
-
-
-        pdf.text(
-            row[1],
-            90,
-            y
-        );
-
-
-        y += 12;
-
-
-    });
-
-
-
-    pdf.setFontSize(16);
+    pdf.setFontSize(12);
 
 
     pdf.text(
-        "CONFIDENTIAL MANAGEMENT REPORT",
+        "Compliance Status",
         105,
-        230,
+        193,
+        {
+            align:"center"
+        }
+    );
+
+
+
+    pdf.setFontSize(15);
+
+
+    pdf.text(
+        kpi.status,
+        105,
+        205,
+        {
+            align:"center"
+        }
+    );
+
+
+
+
+    pdf.setFontSize(10);
+
+
+    pdf.text(
+        "Generated: " +
+        formatDate(),
+        105,
+        245,
+        {
+            align:"center"
+        }
+    );
+
+
+
+    pdf.text(
+        "Confidential Management Document",
+        105,
+        260,
         {
             align:"center"
         }
@@ -975,21 +1057,58 @@ function addCoverPage(pdf,data){
 
     addFooter(pdf);
 
+
 }
+
+
+
+
+
+
+
+// ============================================================
+// EXECUTIVE SUMMARY PAGE
+// ============================================================
 
 
 function addExecutiveSummary(pdf,data){
 
+
+
     pdf.addPage();
 
+
+
     addHeader(pdf);
+
 
 
     const kpi =
         calculateKPIs(data);
 
 
+
+    const rooms =
+        getRoomPerformance(data);
+
+
+
+    const staff =
+        getStaffPerformance(data);
+
+
+
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
     pdf.setFontSize(18);
+
+
 
     pdf.text(
         "Executive Summary",
@@ -998,82 +1117,229 @@ function addExecutiveSummary(pdf,data){
     );
 
 
-    pdf.setFontSize(12);
 
-
-    const lines=[
-
-        `Total Surveys: ${kpi.totalSurveys}`,
-
-        `Rooms Covered: ${kpi.totalRooms}`,
-
-        `Staff Recorded: ${kpi.totalStaff}`,
-
-        `Tasks Checked: ${kpi.totalTasks}`,
-
-        `Tasks Completed: ${kpi.completedTasks}`,
-
-        `Overall Compliance: ${kpi.compliance}%`,
-
-        `Performance Status: ${kpi.status}`
-
-    ];
-
-
-    let y=70;
-
-
-    lines.forEach(line=>{
-
-        pdf.text(
-            line,
-            20,
-            y
-        );
-
-        y+=10;
-
-    });
-
-
-    y+=15;
-
-
-    pdf.text(
-        "Management Overview",
-        20,
-        y
-    );
-
-
-    y+=12;
 
 
     pdf.setFontSize(11);
 
 
+
+    let y = 65;
+
+
+
+
+    const summary = [
+
+
+
+        "Overall cleaning compliance: "
+        + kpi.compliance
+        + "%",
+
+
+
+
+        "Performance classification: "
+        + kpi.status,
+
+
+
+
+        "Total surveys completed: "
+        + kpi.totalSurveys,
+
+
+
+
+        "Rooms audited: "
+        + kpi.totalRooms,
+
+
+
+
+        "Staff members recorded: "
+        + kpi.totalStaff
+
+
+
+    ];
+
+
+
+
+
+    summary.forEach(item=>{
+
+
+        pdf.text(
+            "• " + item,
+            20,
+            y
+        );
+
+
+        y += 10;
+
+
+    });
+
+
+
+
+
+
+
+    y += 10;
+
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+
     pdf.text(
-        "This report evaluates cleaning compliance,",
-        20,
+        "Key Performance Highlights",
+        15,
         y
     );
 
 
-    pdf.text(
-        "room performance, staff participation and",
-        20,
-        y+7
+
+    y += 12;
+
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
     );
 
 
-    pdf.text(
-        "operational improvement opportunities.",
-        20,
-        y+14
+
+    if(rooms.length){
+
+
+        pdf.text(
+            "Top performing room: "
+            +
+            rooms[0].room
+            +
+            " ("
+            +
+            rooms[0].compliance
+            +
+            "%)",
+            20,
+            y
+        );
+
+
+        y+=10;
+
+    }
+
+
+
+
+    if(staff.length){
+
+
+        pdf.text(
+            "Highest performing staff: "
+            +
+            staff[0].name
+            +
+            " ("
+            +
+            staff[0].compliance
+            +
+            "%)",
+            20,
+            y
+        );
+
+
+        y+=10;
+
+    }
+
+
+
+
+
+
+    y+=10;
+
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
     );
+
+
+
+    pdf.text(
+        "Management Recommendations",
+        15,
+        y
+    );
+
+
+
+    y+=12;
+
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+
+
+    const recommendations=[
+
+
+        "Continue daily compliance monitoring.",
+
+
+        "Review rooms below expected performance targets.",
+
+
+        "Provide coaching where gaps are identified.",
+
+
+        "Maintain documentation for audit readiness."
+
+    ];
+
+
+
+
+    recommendations.forEach(item=>{
+
+
+        pdf.text(
+            "• "+item,
+            20,
+            y
+        );
+
+
+        y+=10;
+
+
+    });
+
 
 
     addFooter(pdf);
+
 
 }
 
