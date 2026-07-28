@@ -2219,6 +2219,99 @@ function addTaskPerformance(pdf,data){
 
 }
 
+// ============================================================
+// SHIFT PERFORMANCE ANALYSIS PAGE
+// ============================================================
+
+function addShiftPerformance(pdf,data){
+
+
+    pdf.addPage();
+
+
+    addHeader(pdf);
+
+
+
+    pdf.setFontSize(18);
+
+
+    pdf.text(
+        "Shift Activity Analysis",
+        15,
+        45
+    );
+
+
+
+    const shifts =
+
+        getShiftPerformance(data);
+
+
+
+    const rows = [
+
+        [
+            "Morning",
+            shifts.Morning
+        ],
+
+        [
+            "Afternoon",
+            shifts.Afternoon
+        ],
+
+        [
+            "Evening",
+            shifts.Evening
+        ],
+
+        [
+            "Night",
+            shifts.Night
+        ]
+
+    ];
+
+
+
+    pdf.autoTable({
+
+        startY:60,
+
+
+        head:[
+
+            [
+                "Shift",
+                "Completed Surveys"
+            ]
+
+        ],
+
+
+        body:rows,
+
+
+        theme:"striped",
+
+
+        styles:{
+
+            fontSize:9
+
+        }
+
+
+    });
+
+
+
+    addFooter(pdf);
+
+
+}
 
 // ============================================================
 // PROFESSIONAL REPORT ENGINE v3.0
@@ -2854,6 +2947,10 @@ window.exportProfessionalPDF = async function(filters={}){
     reportData
 );
 
+        addShiftPerformance(
+    pdf,
+    reportData
+);
 
         await addDashboardCharts(
 
