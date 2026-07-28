@@ -20,6 +20,7 @@ Cleaning Compliance Dashboard
 <link rel="stylesheet" href="styles.css">
 
 
+
 <!-- ==================================================
      CORE LIBRARIES
 ================================================== -->
@@ -41,7 +42,9 @@ Cleaning Compliance Dashboard
 </head>
 
 
+
 <body>
+
 
 
 <!-- ==================================================
@@ -50,6 +53,7 @@ Cleaning Compliance Dashboard
 
 
 <header class="top-bar">
+
 
 
 <div class="header-title">
@@ -75,12 +79,8 @@ Hospital-Grade Cleaning Performance System
 
 
 
-<!-- ==================================================
-     EXPORT CENTER
-================================================== -->
-
-
 <div class="export-container">
+
 
 
 <button
@@ -91,6 +91,7 @@ onclick="toggleExportMenu()">
 Export ▼
 
 </button>
+
 
 
 
@@ -160,6 +161,9 @@ onclick="openReportingCenter();closeExportMenu();">
 </div>
 
 
+
+
+
 <button
 class="btn"
 onclick="refreshDashboard()">
@@ -167,6 +171,9 @@ onclick="refreshDashboard()">
 🔄 Refresh
 
 </button>
+
+
+
 
 
 <a
@@ -188,6 +195,7 @@ onclick="logout()">
 🚪 Logout
 
 </button>
+
 
 
 
@@ -246,6 +254,7 @@ id="total-submissions">
 
 
 
+
 <div class="card">
 
 
@@ -269,6 +278,7 @@ id="overall-compliance">
 
 
 
+
 <div class="card">
 
 
@@ -286,6 +296,7 @@ id="rooms-covered">
 
 
 </div>
+
 
 
 
@@ -434,8 +445,12 @@ Staff
 
 
 <input
+
 id="filter-staff"
-placeholder="Search staff">
+
+placeholder="Search staff"
+
+>
 
 
 </div>
@@ -500,8 +515,12 @@ Date
 
 
 <input
+
 type="date"
-id="filter-date">
+
+id="filter-date"
+
+>
 
 
 </div>
@@ -539,13 +558,18 @@ Room Activity
 </h3>
 
 
+<div class="chart-container">
+
 <canvas
 id="roomChart">
 
 </canvas>
 
+</div>
+
 
 </div>
+
 
 
 
@@ -561,10 +585,14 @@ Shift Distribution
 </h3>
 
 
+<div class="chart-container">
+
 <canvas
 id="shiftChart">
 
 </canvas>
+
+</div>
 
 
 </div>
@@ -665,15 +693,40 @@ Date
 
      <!-- ==================================================
      ADVANCED ANALYTICS
+     COLLAPSED BY DEFAULT
 ================================================== -->
 
 
-<section class="analytics-panel">
+<section class="card collapsible-panel">
 
 
-<h2>
+
+<button
+class="panel-toggle"
+onclick="togglePanel('advancedAnalytics')">
+
 📊 Advanced Performance Analytics
-</h2>
+
+<span>
+▼
+</span>
+
+</button>
+
+
+
+
+
+<div
+id="advancedAnalytics"
+class="panel-content"
+style="display:none;">
+
+
+
+
+
+<section class="analytics-panel">
 
 
 
@@ -681,6 +734,10 @@ Date
 
 
 
+
+
+
+<!-- STAFF RANKING -->
 
 
 <div class="analytics-card">
@@ -700,17 +757,21 @@ Date
 
 <tr>
 
+
 <th>
 Rank
 </th>
+
 
 <th>
 Staff
 </th>
 
+
 <th>
 Surveys
 </th>
+
 
 <th>
 Score
@@ -734,13 +795,18 @@ Score
 </table>
 
 
-
 </div>
 
 
 
 
 
+
+
+
+
+
+<!-- ROOM HEATMAP -->
 
 
 <div class="analytics-card">
@@ -752,18 +818,25 @@ Score
 
 
 
-<div id="roomHeatmap">
+<div
+id="roomHeatmap">
 
 
 </div>
 
 
+
 </div>
 
 
 
 
 
+
+
+
+
+<!-- MISSED TASKS -->
 
 
 <div class="analytics-card">
@@ -775,7 +848,8 @@ Score
 
 
 
-<ul id="missedTaskList">
+<ul
+id="missedTaskList">
 
 
 </ul>
@@ -790,6 +864,11 @@ Score
 
 
 
+
+
+<!-- MONTHLY TREND -->
+
+
 <div class="analytics-card">
 
 
@@ -799,7 +878,8 @@ Score
 
 
 
-<canvas id="monthlyComparisonChart">
+<canvas
+id="monthlyComparisonChart">
 
 
 </canvas>
@@ -816,7 +896,20 @@ Score
 </div>
 
 
+
 </section>
+
+
+
+
+</div>
+
+
+</section>
+
+
+
+
 
 
 
@@ -828,15 +921,43 @@ Score
 
 <!-- ==================================================
      CLEANING INTELLIGENCE CENTER
+     COLLAPSED BY DEFAULT
 ================================================== -->
+
+
+<section class="card collapsible-panel">
+
+
+
+<button
+class="panel-toggle"
+onclick="togglePanel('intelligenceCenter')">
+
+🧠 Cleaning Intelligence Center
+
+<span>
+▼
+</span>
+
+</button>
+
+
+
+
+
+
+<div
+id="intelligenceCenter"
+class="panel-content"
+style="display:none;">
+
+
+
+
 
 
 <section class="intelligence-panel">
 
-
-<h2>
-🧠 Cleaning Intelligence Center
-</h2>
 
 
 
@@ -845,6 +966,10 @@ Score
 
 
 
+
+
+
+<!-- PREDICTION -->
 
 
 <div class="analytics-card">
@@ -856,7 +981,8 @@ Score
 
 
 
-<div id="predictionScore">
+<div
+id="predictionScore">
 
 Calculating...
 
@@ -872,6 +998,11 @@ Calculating...
 
 
 
+
+
+<!-- ALERTS -->
+
+
 <div class="analytics-card">
 
 
@@ -881,7 +1012,8 @@ Calculating...
 
 
 
-<ul id="supervisorAlerts">
+<ul
+id="supervisorAlerts">
 
 
 </ul>
@@ -894,6 +1026,11 @@ Calculating...
 
 
 
+
+
+
+
+<!-- INSIGHTS -->
 
 
 <div class="analytics-card">
@@ -905,7 +1042,8 @@ Calculating...
 
 
 
-<ul id="aiInsights">
+<ul
+id="aiInsights">
 
 
 </ul>
@@ -918,6 +1056,11 @@ Calculating...
 
 
 
+
+
+
+
+<!-- RISK ROOMS -->
 
 
 <div class="analytics-card">
@@ -929,7 +1072,8 @@ Calculating...
 
 
 
-<ul id="riskRooms">
+<ul
+id="riskRooms">
 
 
 </ul>
@@ -941,10 +1085,25 @@ Calculating...
 
 
 
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
 </div>
 
 
 </section>
+
+
+
 
 
 
@@ -965,7 +1124,13 @@ class="report-modal">
 
 
 
-<div class="report-card">
+
+
+<div
+class="report-card">
+
+
+
 
 
 
@@ -979,13 +1144,16 @@ Executive Reporting Center
 
 
 
+
 <label>
 Report Type
 </label>
 
 
 
-<select id="reportType">
+<select
+id="reportType">
+
 
 
 <option value="professional">
@@ -1017,7 +1185,10 @@ Annual Report
 </option>
 
 
+
 </select>
+
+
 
 
 
@@ -1030,10 +1201,13 @@ Year
 </label>
 
 
-<select id="reportYear">
+
+<select
+id="reportYear">
 
 
 </select>
+
 
 
 
@@ -1047,7 +1221,9 @@ Month
 </label>
 
 
-<select id="reportMonth">
+
+<select
+id="reportMonth">
 
 
 </select>
@@ -1059,45 +1235,79 @@ Month
 
 
 
-<div id="weekSelector">
+
+<div
+id="weekSelector">
+
+
 
 <label>
 Week
 </label>
 
-<select id="reportWeek">
+
+
+<select
+id="reportWeek">
+
 
 <option value="1">
 Week 1
 </option>
 
+
 <option value="2">
 Week 2
 </option>
+
 
 <option value="3">
 Week 3
 </option>
 
+
 <option value="4">
 Week 4
 </option>
+
 
 <option value="5">
 Week 5
 </option>
 
+
+
 </select>
 
+
+
 </div>
 
 
-<div id="reportStatus">
-Ready to generate report.
+
+
+
+
+
+
+
+<div
+id="reportStatus">
+
 </div>
+
+
+
+
+
+
+
 
 
 <div class="report-buttons">
+
+
+
 
 
 <button
@@ -1109,6 +1319,9 @@ Generate Report
 
 
 
+
+
+
 <button
 onclick="closeReportingCenter()">
 
@@ -1117,19 +1330,77 @@ Close
 </button>
 
 
-</div>
 
 
 
 </div>
 
 
+
+
+
+
+
 </div>
+
+
+</div>
+
+
+
+
+
 
 
 
 
 <!-- ==================================================
+     PANEL CONTROLLER
+================================================== -->
+
+
+<script>
+
+
+function togglePanel(id){
+
+
+    const panel =
+        document.getElementById(id);
+
+
+
+    if(!panel)
+        return;
+
+
+
+
+    if(panel.style.display === "none"){
+
+
+        panel.style.display = "block";
+
+
+    }
+
+    else{
+
+
+        panel.style.display = "none";
+
+
+    }
+
+
+
+}
+
+
+
+</script>
+
+     <!-- ==================================================
      JAVASCRIPT MODULE LOADING
 ================================================== -->
 
@@ -1146,8 +1417,11 @@ Close
 
 
 
+
+
 <!-- ==================================================
      DATA ENGINE
+     SINGLE SOURCE OF TRUTH
 ================================================== -->
 
 
@@ -1157,8 +1431,10 @@ Close
 
 
 
+
+
 <!-- ==================================================
-     SHARED UTILITIES
+     SHARED ANALYTICS UTILITIES
 ================================================== -->
 
 
@@ -1168,12 +1444,16 @@ Close
 
 
 
+
+
 <!-- ==================================================
-     FILTER SYSTEM
+     FILTER ENGINE
 ================================================== -->
 
 
 <script src="filters.js"></script>
+
+
 
 
 
@@ -1198,6 +1478,8 @@ Close
 
 
 
+
+
 <!-- ==================================================
      ADVANCED ANALYTICS
 ================================================== -->
@@ -1211,8 +1493,10 @@ Close
 
 
 
+
+
 <!-- ==================================================
-     EXPORT SYSTEM
+     EXPORT ENGINE
 ================================================== -->
 
 
@@ -1222,14 +1506,29 @@ Close
 
 
 
+
+
 <!-- ==================================================
-     REPORT ENGINE
+     PROFESSIONAL REPORT ENGINE
 ================================================== -->
 
 
 <script src="professional-report.js"></script>
 
+
+
+
+
+
+
+<!-- ==================================================
+     REPORT SUPPORT ENGINE
+================================================== -->
+
+
 <script src="reports.js"></script>
+
+
 
 
 
@@ -1246,13 +1545,17 @@ Close
 
 
 
+
+
 <!-- ==================================================
-     REPORT CENTER
-     LOAD LAST
+     EXECUTIVE REPORT CENTER
+     MUST LOAD LAST
 ================================================== -->
 
 
 <script src="report-center.js"></script>
+
+
 
 
 
