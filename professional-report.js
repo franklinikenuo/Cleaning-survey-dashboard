@@ -56,7 +56,190 @@ const REPORT = {
 };
 
 
+// ============================================================
+// REPORT FILTER ENGINE
+// Weekly / Monthly / Annual
+// ============================================================
 
+
+function applyReportFilters(data, filters = {}) {
+
+
+    if(
+        !filters.type ||
+        filters.type === "all" ||
+        filters.type === "professional"
+    ){
+
+        return data;
+
+    }
+
+
+
+    return data.filter(record=>{
+
+
+        const dateValue =
+
+            record.work_date ||
+
+            record.created_at;
+
+
+
+        if(!dateValue){
+
+            return false;
+
+        }
+
+
+
+        const date =
+            new Date(dateValue);
+
+
+
+        const year =
+            Number(filters.year);
+
+
+
+        const month =
+            Number(filters.month);
+
+
+
+        const recordDay =
+            new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            );
+
+
+
+
+
+        // =========================
+        // ANNUAL
+        // =========================
+
+        if(
+            filters.type === "annual" ||
+            filters.type === "yearly"
+        ){
+
+            return (
+
+                recordDay.getFullYear()
+                ===
+                year
+
+            );
+
+        }
+
+
+
+
+
+        // =========================
+        // MONTHLY
+        // =========================
+
+        if(
+            filters.type === "monthly"
+        ){
+
+            return (
+
+                recordDay.getFullYear()
+                ===
+                year
+
+                &&
+
+                recordDay.getMonth()+1
+                ===
+                month
+
+            );
+
+        }
+
+
+
+
+
+
+        // =========================
+        // WEEKLY
+        // =========================
+
+        if(
+            filters.type === "weekly"
+        ){
+
+
+            const week =
+                Number(filters.week || 1);
+
+
+
+            const start =
+                new Date(
+                    year,
+                    month-1,
+                    1
+                );
+
+
+
+            start.setDate(
+                start.getDate()
+                +
+                ((week-1)*7)
+            );
+
+
+
+            const end =
+                new Date(start);
+
+
+
+            end.setDate(
+                start.getDate()+6
+            );
+
+
+
+            return (
+
+                recordDay >= start
+
+                &&
+
+                recordDay <= end
+
+            );
+
+
+        }
+
+
+
+
+
+        return true;
+
+
+    });
+
+
+}
 
 
 // ============================================================
