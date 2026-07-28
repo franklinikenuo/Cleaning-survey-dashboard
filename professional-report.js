@@ -1616,11 +1616,106 @@ function getStaffPerformance(data){
 }
 
 
+// ============================================================
+// TASK PERFORMANCE
+// ============================================================
+
+
+function getTaskPerformance(data){
+
+
+
+    const tasks={};
+
+
+
+    data.forEach(record=>{
+
+
+        Object.entries(
+
+            record.tasks_completed || {}
+
+        )
+
+        .forEach(
+        ([task,result])=>{
+
+
+            if(!tasks[task]){
+
+
+                tasks[task]={
+
+                    task,
+
+                    completed:0,
+
+                    total:0
+
+                };
+
+
+            }
+
+
+
+            tasks[task].total++;
+
+
+
+            if(result==="Y"){
+
+                tasks[task].completed++;
+
+            }
+
+
+
+        });
+
+
+
+    });
 
 
 
 
 
+    return Object.values(tasks)
+
+    .map(task=>({
+
+
+        ...task,
+
+
+        compliance:
+
+            task.total
+
+            ?
+
+            Math.round(
+
+                (
+                    task.completed /
+                    task.total
+
+                )*100
+
+            )
+
+            :
+
+            0
+
+
+
+    }));
+
+
+}
 
 
 // ============================================================
@@ -1751,116 +1846,6 @@ function getShiftPerformance(data){
 
 
 }
-
-
-
-
-
-// ============================================================
-// TASK PERFORMANCE
-// ============================================================
-
-
-function getTaskPerformance(data){
-
-
-
-    const tasks={};
-
-
-
-    data.forEach(record=>{
-
-
-        Object.entries(
-
-            record.tasks_completed || {}
-
-        )
-
-        .forEach(
-        ([task,result])=>{
-
-
-            if(!tasks[task]){
-
-
-                tasks[task]={
-
-                    task,
-
-                    completed:0,
-
-                    total:0
-
-                };
-
-
-            }
-
-
-
-            tasks[task].total++;
-
-
-
-            if(result==="Y"){
-
-                tasks[task].completed++;
-
-            }
-
-
-
-        });
-
-
-
-    });
-
-
-
-
-
-    return Object.values(tasks)
-
-    .map(task=>({
-
-
-        ...task,
-
-
-        compliance:
-
-            task.total
-
-            ?
-
-            Math.round(
-
-                (
-                    task.completed /
-                    task.total
-
-                )*100
-
-            )
-
-            :
-
-            0
-
-
-
-    }));
-
-
-}
-
-
-
-
-
 
 
 
