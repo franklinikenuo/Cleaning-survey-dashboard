@@ -1,21 +1,18 @@
 // ============================================================
-// UCDS v3.1 — DASHBOARD CORE CONTROLLER
+// UCDS v3.0 — DASHBOARD CORE CONTROLLER
 //
 // Controls:
 // - Startup
-// - Manual Refresh
-// - Auto Refresh
-// - Supabase Realtime Sync
-// - Dashboard Rendering Pipeline
+// - Refresh pipeline
+// - Filters
+// - Auto refresh
+// - Supabase realtime
 //
-// Single source of truth:
-// DataStore
+// Optimized:
+// - Heavy analytics lazy loaded
+// - Reduced DOM updates
+// - Faster dashboard refresh
 // ============================================================
-
-
-console.log(
-    "Loading Dashboard Core..."
-);
 
 
 
@@ -23,6 +20,10 @@ window.DashboardCore = {
 
 
     isRefreshing:false,
+
+    analyticsLoaded:false,
+
+    intelligenceLoaded:false,
 
 
 
@@ -36,15 +37,8 @@ window.DashboardCore = {
     async refresh(){
 
 
-        if(this.isRefreshing){
-
-            console.log(
-                "Refresh already running..."
-            );
-
+        if(this.isRefreshing)
             return;
-
-        }
 
 
 
@@ -52,44 +46,43 @@ window.DashboardCore = {
 
 
 
-        try{
+        try {
+
 
 
             const data =
-                DataStore?.getAll() || [];
+                DataStore.getAll();
+
+
+
+            const filtered =
+                FilterEngine.apply(data);
+
+
 
 
 
             console.log(
+
                 "Refreshing dashboard...",
-                data.length,
+
+                filtered.length,
+
                 "records"
+
             );
 
 
 
 
-            let filtered = data;
-
-
-
-            if(
-                window.FilterEngine &&
-                typeof FilterEngine.apply === "function"
-            ){
-
-                filtered =
-                    FilterEngine.apply(data);
-
-            }
 
 
 
 
+            // ============================
+            // KPI SUMMARY
+            // ============================
 
-            // ================================
-            // SUMMARY CARDS
-            // ================================
 
             if(
                 typeof renderSummary === "function"
@@ -103,9 +96,13 @@ window.DashboardCore = {
 
 
 
-            // ================================
+
+
+
+            // ============================
             // TABLE
-            // ================================
+            // ============================
+
 
             if(
                 typeof renderTable === "function"
@@ -120,9 +117,12 @@ window.DashboardCore = {
 
 
 
-            // ================================
+
+
+            // ============================
             // CHARTS
-            // ================================
+            // ============================
+
 
             if(
                 typeof renderCharts === "function"
@@ -138,9 +138,11 @@ window.DashboardCore = {
 
 
 
-            // ================================
-            // STAFF ANALYTICS
-            // ================================
+
+            // ============================
+            // STAFF LEADERBOARD
+            // ============================
+
 
             if(
                 typeof renderLeaderboard === "function"
@@ -157,9 +159,10 @@ window.DashboardCore = {
 
 
 
-            // ================================
+            // ============================
             // INSIGHTS
-            // ================================
+            // ============================
+
 
             if(
                 typeof renderInsights === "function"
@@ -176,53 +179,18 @@ window.DashboardCore = {
 
 
 
-            // ================================
-            // ADVANCED ANALYTICS
-            // ================================
 
-            if(
-                typeof generateAdvancedAnalytics === "function"
-            ){
-
-                generateAdvancedAnalytics(
-                    filtered
-                );
-
-            }
+            // Heavy analytics removed from
+            // automatic refresh
+            //
+            // They load only when opened.
 
 
-
-
-
-
-
-
-            // ================================
-            // INTELLIGENCE ENGINE
-            // ================================
-
-            if(
-                typeof generateCleaningIntelligence === "function"
-            ){
-
-                generateCleaningIntelligence(
-                    filtered
-                );
-
-            }
-
-
-
-
-
-
-            console.log(
-                "✅ Dashboard refresh complete"
-            );
 
 
 
         }
+
 
         catch(error){
 
@@ -230,12 +198,14 @@ window.DashboardCore = {
             console.error(
 
                 "Dashboard refresh error:",
+
                 error
 
             );
 
 
         }
+
 
         finally{
 
@@ -255,37 +225,51 @@ window.DashboardCore = {
 
 
 
+
     // ========================================================
-    // GLOBAL REFRESH BUTTON FUNCTION
+    // LOAD ADVANCED ANALYTICS ON DEMAND
     // ========================================================
 
 
-    async manualRefresh(){
+    loadAdvancedAnalytics(){
 
 
-        console.log(
-            "Manual refresh requested"
-        );
+
+        if(this.analyticsLoaded)
+            return;
 
 
 
         try{
 
 
-            await DataStore.load();
+            if(
+                typeof generateAdvancedAnalytics === "function"
+            ){
 
 
-            await this.refresh();
+                generateAdvancedAnalytics();
 
+
+                console.log(
+                    "✅ Advanced analytics loaded"
+                );
+
+
+            }
+
+
+            this.analyticsLoaded=true;
 
 
         }
+
 
         catch(error){
 
 
             console.error(
-                "Manual refresh failed:",
+                "Advanced analytics failed:",
                 error
             );
 
@@ -293,8 +277,73 @@ window.DashboardCore = {
         }
 
 
+
     },
 
+
+
+
+
+
+
+
+
+    // ========================================================
+    // LOAD INTELLIGENCE CENTER ON DEMAND
+    // ========================================================
+
+
+    loadIntelligence(){
+
+
+
+        if(this.intelligenceLoaded)
+            return;
+
+
+
+
+        try{
+
+
+            if(
+                typeof generateCleaningIntelligence === "function"
+            ){
+
+
+                generateCleaningIntelligence();
+
+
+                console.log(
+                    "✅ Intelligence center loaded"
+                );
+
+
+            }
+
+
+
+            this.intelligenceLoaded=true;
+
+
+
+        }
+
+
+        catch(error){
+
+
+            console.error(
+                "Intelligence load failed:",
+                error
+            );
+
+
+        }
+
+
+
+    },
 
 
 
@@ -312,9 +361,11 @@ window.DashboardCore = {
     async init(){
 
 
+
         console.log(
             "Dashboard starting..."
         );
+
 
 
 
@@ -326,12 +377,10 @@ window.DashboardCore = {
 
 
 
+
             if(
-
                 window.FilterEngine &&
-
                 typeof FilterEngine.populateRoomFilter === "function"
-
             ){
 
 
@@ -339,7 +388,6 @@ window.DashboardCore = {
 
 
             }
-
 
 
 
@@ -361,18 +409,21 @@ window.DashboardCore = {
 
         }
 
+
         catch(error){
 
 
             console.error(
 
                 "Dashboard startup failed:",
+
                 error
 
             );
 
 
         }
+
 
 
     },
@@ -401,6 +452,7 @@ window.DashboardCore = {
             "#filter-room,#filter-staff,#filter-shift,#filter-date"
 
         )
+
 
         .forEach(filter=>{
 
@@ -440,7 +492,7 @@ window.DashboardCore = {
 
 
     // ========================================================
-    // AUTO REFRESH EVERY 60 SECONDS
+    // AUTO REFRESH
     // ========================================================
 
 
@@ -448,42 +500,53 @@ window.DashboardCore = {
 
 
 
-        setInterval(async()=>{
+        setInterval(
+
+            async()=>{
 
 
-            try{
+                try{
 
 
-                await DataStore.load();
+                    await DataStore.load();
 
 
-                await this.refresh();
-
-
-
-                console.log(
-                    "Auto refresh complete"
-                );
+                    await this.refresh();
 
 
 
-            }
+                    console.log(
 
-            catch(error){
+                        "Auto refresh complete"
 
-
-                console.error(
-
-                    "Auto refresh failed:",
-                    error
-
-                );
+                    );
 
 
-            }
+                }
 
 
-        },60000);
+                catch(error){
+
+
+                    console.error(
+
+                        "Auto refresh failed",
+
+                        error
+
+                    );
+
+
+                }
+
+
+
+            },
+
+
+            60000
+
+        );
 
 
 
@@ -506,18 +569,8 @@ window.DashboardCore = {
 
 
 
-        if(
-            !window.client
-        ){
-
-            console.warn(
-                "Supabase client unavailable"
-            );
-
+        if(!window.client)
             return;
-
-        }
-
 
 
 
@@ -527,6 +580,7 @@ window.DashboardCore = {
         .channel(
             "surveys-live"
         )
+
 
         .on(
 
@@ -547,7 +601,9 @@ window.DashboardCore = {
 
 
                 console.log(
+
                     "Realtime update received"
+
                 );
 
 
@@ -564,18 +620,25 @@ window.DashboardCore = {
 
         )
 
-        .subscribe(status=>{
+
+        .subscribe(
+
+            status=>{
 
 
-            console.log(
+                console.log(
 
-                "Realtime status:",
-                status
+                    "Realtime status:",
 
-            );
+                    status
+
+                );
 
 
-        });
+            }
+
+
+        );
 
 
 
@@ -594,14 +657,25 @@ window.DashboardCore = {
 
 
 // ============================================================
-// BUTTON CONNECTION
+// GLOBAL REFRESH BUTTON
 // ============================================================
 
 
-window.refreshDashboard = function(){
+window.refreshDashboard = async function(){
 
 
-    DashboardCore.manualRefresh();
+
+    console.log(
+        "Manual dashboard refresh"
+    );
+
+
+
+    await DataStore.load();
+
+
+    await DashboardCore.refresh();
+
 
 
 };
@@ -614,8 +688,10 @@ window.refreshDashboard = function(){
 
 
 
+
+
 // ============================================================
-// START SYSTEM
+// START DASHBOARD
 // ============================================================
 
 
@@ -646,6 +722,76 @@ async()=>{
 
 
 
+
+// ============================================================
+// LAZY LOAD LISTENERS
+// ============================================================
+
+
+document.addEventListener(
+
+"click",
+
+event=>{
+
+
+
+    const target =
+        event.target;
+
+
+
+    if(
+        target.closest(
+            ".panel-toggle"
+        )
+    ){
+
+
+        const text =
+            target.innerText;
+
+
+
+        if(
+            text.includes(
+                "Advanced"
+            )
+        ){
+
+
+            DashboardCore.loadAdvancedAnalytics();
+
+
+        }
+
+
+
+        if(
+            text.includes(
+                "Intelligence"
+            )
+        ){
+
+
+            DashboardCore.loadIntelligence();
+
+
+        }
+
+
+
+    }
+
+
+
+});
+
+
+
+
+
+
 console.log(
-    "✅ Dashboard Core loaded"
+    "✅ Optimized Dashboard Core loaded"
 );
