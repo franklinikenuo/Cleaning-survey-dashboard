@@ -512,3 +512,17 @@ border-radius:10px;
     max-height:300px;
 
 }
+.table-toggle{
+
+    margin-top:15px;
+
+    width:100%;
+
+}
+
+
+.table-wrapper{
+
+    overflow-x:auto;
+
+}
