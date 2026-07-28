@@ -151,135 +151,44 @@ async function waitForDashboardData(){
 
 
 // ============================================================
-// POPULATE YEARS
+// POPULATE REPORT YEARS
+// Always show a rolling range of years
 // ============================================================
 
+window.populateReportYears = function () {
 
-window.populateReportYears = function(){
+    const select = document.getElementById("reportYear");
 
+    if (!select) return;
 
-    const select =
-        document.getElementById(
-            "reportYear"
-        );
+    select.innerHTML = "";
 
+    const currentYear = new Date().getFullYear();
 
-    if(!select)
-        return;
+    // How many years before and after the current year to display
+    const startYear = 2024;
+    const endYear = currentYear + 10;
 
+    for (let year = endYear; year >= startYear; year--) {
 
+        const option = document.createElement("option");
 
-    select.innerHTML="";
+        option.value = year;
+        option.textContent = year;
 
-
-
-    const data =
-        DataStore?.getAll() || [];
-
-
-
-    if(!data.length){
-
-
-        select.innerHTML = `
-
-            <option value="">
-                No data available
-            </option>
-
-        `;
-
-
-        return;
-
-
-    }
-
-
-
-    const years = new Set();
-
-
-
-    data.forEach(row=>{
-
-
-        const date =
-
-            row.work_date ||
-
-            row.created_at;
-
-
-
-        if(date){
-
-
-            const year =
-                new Date(date)
-                .getFullYear();
-
-
-
-            years.add(year);
-
-
+        // Select current year by default
+        if (year === currentYear) {
+            option.selected = true;
         }
 
-
-    });
-
-
-
-
-
-    [...years]
-
-    .sort(
-        (a,b)=>b-a
-    )
-
-    .forEach(year=>{
-
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value =
-            year;
-
-
-        option.textContent =
-            year;
-
-
-
-        select.appendChild(
-            option
-        );
-
-
-    });
-
-
-
-
+        select.appendChild(option);
+    }
 
     console.log(
-
-        "Report years loaded:",
-
-        [...years]
-
+        `✅ Report years loaded (${startYear}-${endYear})`
     );
 
-
-
 };
-
 
 
 
