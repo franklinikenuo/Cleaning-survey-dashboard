@@ -3106,13 +3106,6 @@ window.exportProfessionalPDF = async function(filters={}){
 };
 
 
-
-
-
-
-
-console.log(
-
     console.log(
     "✅ Professional Report Engine v3.2 Complete"
 );
