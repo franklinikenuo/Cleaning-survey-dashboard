@@ -3562,11 +3562,13 @@ function addRecommendations(pdf,data){
 async function exportProfessionalPDF(filters = {}){
 
 
-    const sourceData =
+    // Get complete Supabase dataset
+    const rawData =
         window.DataStore?.getAll() || [];
 
 
-    if(sourceData.length === 0){
+
+    if(rawData.length === 0){
 
         alert(
             "No survey data available."
@@ -3578,17 +3580,26 @@ async function exportProfessionalPDF(filters = {}){
 
 
 
-    const allData =
+    console.log(
+        "Raw report data:",
+        rawData.length
+    );
+
+
+
+    // Apply selected report filters
+    const reportData =
         applyReportFilters(
-            sourceData,
+            rawData,
             filters
         );
 
 
-    if(allData.length === 0){
+
+    if(reportData.length === 0){
 
         alert(
-            "No data found for selected reporting period."
+            "No records found for selected period."
         );
 
         return;
@@ -3596,39 +3607,85 @@ async function exportProfessionalPDF(filters = {}){
     }
 
 
+
+    console.log(
+        "Filtered report data:",
+        reportData.length,
+        filters
+    );
+
+
+
     console.log(
         "Generating Professional PDF...",
-        allData.length,
+        reportData.length,
         "records",
         filters
     );
 
-    const pdf = createPDF();
 
-    addCoverPage(pdf, allData);
+    const pdf =
+        createPDF();
 
-    addExecutiveKPIs(pdf, allData);
 
-    addExecutiveSummary(pdf, allData);
+    addCoverPage(
+        pdf,
+        reportData
+    );
 
-    addOperationalAnalytics(pdf, allData);
 
-    addTaskPerformance(pdf, allData);
+    addExecutiveKPIs(
+        pdf,
+        reportData
+    );
+
+
+    addExecutiveSummary(
+        pdf,
+        reportData
+    );
+
+
+    addOperationalAnalytics(
+        pdf,
+        reportData
+    );
+
+
+    addTaskPerformance(
+        pdf,
+        reportData
+    );
+
 
     await addDashboardCharts(pdf);
 
-    addSurveyTable(pdf, allData);
 
-    addPerformanceTables(pdf, allData);
+    addSurveyTable(
+        pdf,
+        reportData
+    );
 
-    addRecommendations(pdf, allData);
+
+    addPerformanceTables(
+        pdf,
+        reportData
+    );
+
+
+    addRecommendations(
+        pdf,
+        reportData
+    );
+
 
     pdf.save(
         `Executive_Cleaning_Report_${
             new Date()
-                .toISOString()
-                .split("T")[0]
+            .toISOString()
+            .split("T")[0]
         }.pdf`
     );
+
 
 }
