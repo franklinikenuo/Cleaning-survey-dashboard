@@ -1,11 +1,33 @@
 // ============================================================
-// UCDS v3.0
-// TABLE RENDER ENGINE
-// Hospital Grade Submission Records
+// UCDS v3.0 — TABLE RENDER ENGINE
+//
+// Optimized Submission Records Table
+//
+// Features:
+// - Initial load: latest 25 records
+// - Expand / collapse full dataset
+// - Mobile friendly
+// - Keeps existing dashboard structure
+// ============================================================
+
+
+let tableExpanded = false;
+
+let currentTableData = [];
+
+const TABLE_LIMIT = 25;
+
+
+
+
+
+// ============================================================
+// RENDER TABLE
 // ============================================================
 
 
 window.renderTable = function(data){
+
 
 
     const tbody =
@@ -14,8 +36,15 @@ window.renderTable = function(data){
         );
 
 
+
     if(!tbody)
         return;
+
+
+
+
+    currentTableData = data || [];
+
 
 
 
@@ -24,7 +53,10 @@ window.renderTable = function(data){
 
 
 
-    if(!data || !data.length){
+    if(
+        !data ||
+        !data.length
+    ){
 
 
         tbody.innerHTML = `
@@ -42,6 +74,8 @@ window.renderTable = function(data){
         `;
 
 
+        removeTableButton();
+
         return;
 
     }
@@ -50,15 +84,55 @@ window.renderTable = function(data){
 
 
 
-    data.forEach(row=>{
+
+    let displayData;
+
+
+
+    if(tableExpanded){
+
+
+        displayData = data;
+
+
+    }
+
+    else{
+
+
+        displayData =
+            data.slice(
+                0,
+                TABLE_LIMIT
+            );
+
+
+    }
+
+
+
+
+
+
+    displayData.forEach(row=>{
+
 
 
         const tasks =
-            formatTasks(
-                row.tasks_completed ||
-                row.Tasks_completed ||
-                {}
-            );
+
+            Object.entries(
+                row.tasks_completed || {}
+            )
+
+            .map(
+                ([name,value]) =>
+                `${name}:${value}`
+            )
+
+            .join(" | ");
+
+
+
 
 
 
@@ -67,9 +141,12 @@ window.renderTable = function(data){
 
             row.work_date ||
 
-            row.created_at ||
+            (
+                row.created_at || ""
+            )
+            .split("T")[0];
 
-            "";
+
 
 
 
@@ -83,40 +160,42 @@ window.renderTable = function(data){
 
 
 
+
         tr.innerHTML = `
 
 
         <td>
-            ${safe(row.room || row.Room)}
+            ${row.room || ""}
         </td>
 
 
         <td>
-            ${safe(row.shift || row.Shift)}
+            ${row.shift || ""}
         </td>
 
 
         <td>
-            ${safe(row.staff || row.Staff)}
+            ${row.staff || ""}
         </td>
 
 
-        <td class="task-cell">
+        <td>
             ${tasks}
         </td>
 
 
         <td>
-            ${safe(row.notes || row.Notes)}
+            ${row.notes || ""}
         </td>
 
 
         <td>
-            ${date.split("T")[0]}
+            ${date}
         </td>
 
 
         `;
+
 
 
 
@@ -129,6 +208,12 @@ window.renderTable = function(data){
 
 
 
+
+
+    updateTableButton();
+
+
+
 };
 
 
@@ -137,102 +222,160 @@ window.renderTable = function(data){
 
 
 
-// ============================================================
-// FORMAT TASKS
-// ============================================================
-
-
-function formatTasks(tasks){
-
-
-    if(!tasks)
-        return "-";
-
-
-
-    return Object.entries(tasks)
-
-        .map(([name,value])=>{
-
-
-            if(
-                value === true ||
-                value === "Yes" ||
-                value === "YES"
-            ){
-
-                return `
-                <span class="task-complete">
-                ✅ ${name}
-                </span>
-                `;
-
-            }
-
-
-            if(
-                value === false ||
-                value === "No" ||
-                value === "NO"
-            ){
-
-                return `
-                <span class="task-failed">
-                ❌ ${name}
-                </span>
-                `;
-
-            }
-
-
-            return `
-            <span>
-            ⚪ ${name}: ${value}
-            </span>
-            `;
-
-
-        })
-
-        .join("<br>");
-
-
-
-}
-
-
-
-
-
-
 
 
 // ============================================================
-// SAFE TEXT OUTPUT
+// VIEW ALL BUTTON
 // ============================================================
 
 
-function safe(value){
+function updateTableButton(){
 
 
-    if(!value)
-        return "";
 
-
-    return String(value)
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
+    let button =
+        document.getElementById(
+            "tableToggleButton"
         );
 
 
+
+    if(
+        currentTableData.length <= TABLE_LIMIT
+    ){
+
+
+        removeTableButton();
+
+        return;
+
+
+    }
+
+
+
+
+
+
+    if(!button){
+
+
+        button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.id =
+            "tableToggleButton";
+
+
+
+        button.className =
+            "btn table-toggle";
+
+
+
+        const table =
+            document.querySelector(
+                "#submissions-table"
+            );
+
+
+
+        if(table){
+
+
+            table.parentElement.appendChild(
+                button
+            );
+
+
+        }
+
+
+    }
+
+
+
+
+
+    if(tableExpanded){
+
+
+        button.innerHTML =
+            "▲ Show Latest 25 Records";
+
+
+
+    }
+
+    else{
+
+
+        button.innerHTML =
+            `▼ View All ${currentTableData.length} Records`;
+
+
+
+    }
+
+
+
+
+
+
+
+    button.onclick = ()=>{
+
+
+        tableExpanded =
+            !tableExpanded;
+
+
+
+        renderTable(
+            currentTableData
+        );
+
+
+    };
+
+
+
 }
+
+
+
+
+
+
+
+
+
+function removeTableButton(){
+
+
+    const button =
+        document.getElementById(
+            "tableToggleButton"
+        );
+
+
+
+    if(button){
+
+
+        button.remove();
+
+
+    }
+
+
+}
+
+
+
 
 
 
@@ -240,5 +383,7 @@ function safe(value){
 
 
 console.log(
-    "✅ Hospital Grade Table Renderer loaded"
+
+    "✅ Optimized Table Renderer loaded"
+
 );
