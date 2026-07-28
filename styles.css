@@ -451,3 +451,25 @@ border-radius:10px;
 .export-dropdown button:hover {
     background: #f1f5f9;
 }
+
+
+.task-cell {
+
+    font-size:13px;
+    line-height:1.6;
+
+}
+
+
+.task-complete {
+
+    color:green;
+
+}
+
+
+.task-failed {
+
+    color:red;
+
+}
