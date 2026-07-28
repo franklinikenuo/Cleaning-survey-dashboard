@@ -28,17 +28,29 @@ const REPORT = {
 
 // ============================================================
 // REPORT FILTER ENGINE
-// Monthly / Weekly / Yearly
+// Monthly / Weekly / Yearly / Annual
 // ============================================================
+
 
 function applyReportFilters(data, filters = {}) {
 
 
-    if(!filters.type || filters.type === "all"){
+    console.log(
+        "Applying report filters:",
+        filters
+    );
+
+
+    if(
+        !filters.type ||
+        filters.type === "all"
+    ){
 
         return data;
 
     }
+
+
 
 
 
@@ -64,29 +76,60 @@ function applyReportFilters(data, filters = {}) {
 
 
 
+        const recordDate =
+            new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            );
+
+
+
+
+
+        const selectedYear =
+            Number(filters.year);
+
+
+
+        const selectedMonth =
+            Number(filters.month);
+
+
+
+
+
+
+
+
         // =========================
         // MONTHLY REPORT
         // =========================
 
-        if(filters.type === "monthly"){
+        if(
+            filters.type === "monthly"
+        ){
 
 
             return (
 
-                date.getFullYear()
+                recordDate.getFullYear()
                 ===
-                Number(filters.year)
+                selectedYear
 
                 &&
 
-                date.getMonth()+1
+                recordDate.getMonth()+1
                 ===
-                Number(filters.month)
+                selectedMonth
 
             );
 
 
         }
+
+
+
 
 
 
@@ -96,20 +139,25 @@ function applyReportFilters(data, filters = {}) {
         // YEARLY REPORT
         // =========================
 
-        if(filters.type === "yearly" ||
-           filters.type === "annual"){
+        if(
+            filters.type === "yearly" ||
+            filters.type === "annual"
+        ){
 
 
             return (
 
-                date.getFullYear()
+                recordDate.getFullYear()
                 ===
-                Number(filters.year)
+                selectedYear
 
             );
 
 
         }
+
+
+
 
 
 
@@ -120,21 +168,18 @@ function applyReportFilters(data, filters = {}) {
         // WEEKLY REPORT
         // =========================
 
-        if(filters.type === "weekly"){
+
+        if(
+            filters.type === "weekly"
+        ){
 
 
 
-            const selectedYear =
-                Number(filters.year);
+            const week =
+                Number(filters.week || 1);
 
 
 
-            const selectedMonth =
-                Number(filters.month);
-
-
-
-            // first day of selected month
 
             const monthStart =
                 new Date(
@@ -145,63 +190,59 @@ function applyReportFilters(data, filters = {}) {
 
 
 
-            const monthEnd =
+            const weekStart =
                 new Date(
-                    selectedYear,
-                    selectedMonth,
-                    0
+                    monthStart
                 );
 
 
 
-            // calculate week number
-
-            const weekNumber =
-                Number(filters.week || 1);
-
-
-
-            const startDay =
-                new Date(monthStart);
-
-
-
-            startDay.setDate(
+            weekStart.setDate(
                 monthStart.getDate()
                 +
-                ((weekNumber - 1) * 7)
+                ((week - 1) * 7)
             );
 
 
 
-            const endDay =
-                new Date(startDay);
+
+
+            const weekEnd =
+                new Date(
+                    weekStart
+                );
 
 
 
-            endDay.setDate(
-                startDay.getDate() + 6
+            weekEnd.setDate(
+                weekStart.getDate()
+                +
+                6
             );
+
+
+
+
+            console.log(
+                "Weekly range:",
+                weekStart,
+                weekEnd
+            );
+
+
 
 
 
             return (
 
-                date >= startDay
+                recordDate >= weekStart
 
                 &&
 
-                date <= endDay
-
-                &&
-
-                date >= monthStart
-
-                &&
-
-                date <= monthEnd
+                recordDate <= weekEnd
 
             );
+
 
 
         }
@@ -210,14 +251,16 @@ function applyReportFilters(data, filters = {}) {
 
 
 
+
+
         return true;
+
 
 
     });
 
 
 }
-
 
 
 /* ============================================================
