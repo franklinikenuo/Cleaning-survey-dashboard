@@ -1,25 +1,24 @@
 // ============================================================
-// UCDS v3.0 — REPORT SUPPORT ENGINE
-// Supabase Reporting Integration
+// UCDS v3.1 — REPORT SUPPORT ENGINE
 //
 // Handles:
-// - Report filters
+// - Report filter state
+// - PDF generation bridge
 // - Weekly / Monthly / Annual reports
-// - Professional PDF generation
 //
-// NO EXTERNAL BACKEND REQUIRED
+// Supabase Compatible
 // ============================================================
 
 
 console.log(
-    "Loading Supabase Report Support Engine..."
+    "Loading Report Support Engine..."
 );
 
 
 
 
 // ============================================================
-// CURRENT REPORT STATE
+// REPORT STATE
 // ============================================================
 
 
@@ -42,6 +41,68 @@ window.currentReportFilters = {
 
 
 
+// ============================================================
+// UPDATE FILTER STATE
+// ============================================================
+
+
+window.updateReportFilters = function(filters){
+
+
+
+    window.currentReportFilters = {
+
+
+        type:
+            filters.type || "all",
+
+
+        year:
+            filters.year
+            ?
+            Number(filters.year)
+            :
+            null,
+
+
+        month:
+            filters.month
+            ?
+            Number(filters.month)
+            :
+            null,
+
+
+        week:
+            filters.week
+            ?
+            Number(filters.week)
+            :
+            null
+
+
+    };
+
+
+
+    console.log(
+
+        "Report filters updated:",
+
+        window.currentReportFilters
+
+    );
+
+
+};
+
+
+
+
+
+
+
+
 
 // ============================================================
 // GENERATE REPORT
@@ -51,20 +112,17 @@ window.currentReportFilters = {
 window.sendReport = async function(){
 
 
-
-    try {
-
+    try{
 
 
         const filters =
-            window.currentReportFilters || {};
-
+            window.currentReportFilters;
 
 
 
         console.log(
 
-            "Generating report with filters:",
+            "Starting report generation:",
 
             filters
 
@@ -79,15 +137,8 @@ window.sendReport = async function(){
         ){
 
 
-            console.error(
-
-                "Professional PDF engine missing"
-
-            );
-
-
             alert(
-                "PDF reporting engine not loaded."
+                "Professional PDF engine missing."
             );
 
 
@@ -110,11 +161,9 @@ window.sendReport = async function(){
 
 
 
-
-
         console.log(
 
-            "✅ Report generated successfully"
+            "✅ Report completed"
 
         );
 
@@ -127,9 +176,10 @@ window.sendReport = async function(){
     catch(error){
 
 
+
         console.error(
 
-            "Report generation failed:",
+            "Report generation error:",
 
             error
 
@@ -147,7 +197,6 @@ window.sendReport = async function(){
     }
 
 
-
 };
 
 
@@ -159,73 +208,7 @@ window.sendReport = async function(){
 
 
 // ============================================================
-// UPDATE REPORT FILTERS
-// ============================================================
-
-
-window.updateReportFilters = function(filters){
-
-
-
-    window.currentReportFilters = {
-
-
-
-        type:
-
-            filters.type || "all",
-
-
-
-        year:
-
-            filters.year || null,
-
-
-
-        month:
-
-            filters.month || null,
-
-
-
-        week:
-
-            filters.week || null
-
-
-
-    };
-
-
-
-
-
-    console.log(
-
-        "Report Filters Updated:",
-
-        window.currentReportFilters
-
-    );
-
-
-
-};
-
-
-
-
-
-
-
-
-
-
-
-
-// ============================================================
-// LISTEN TO REPORT CENTER CHANGES
+// REPORT CENTER LISTENERS
 // ============================================================
 
 
@@ -237,30 +220,30 @@ document.addEventListener(
 
 
 
-const reportType =
+const type =
 document.getElementById(
-    "reportType"
+"reportType"
 );
 
 
 
-const reportMonth =
+const year =
 document.getElementById(
-    "reportMonth"
+"reportYear"
 );
 
 
 
-const reportYear =
+const month =
 document.getElementById(
-    "reportYear"
+"reportMonth"
 );
 
 
 
-const reportWeek =
+const week =
 document.getElementById(
-    "reportWeek"
+"reportWeek"
 );
 
 
@@ -269,26 +252,19 @@ document.getElementById(
 
 
 
+if(type){
 
-if(reportType){
 
-
-reportType.addEventListener(
+type.addEventListener(
 
 "change",
 
-e=>{
+()=>{
 
 
 window.currentReportFilters.type =
-e.target.value;
+type.value;
 
-
-
-console.log(
-"Report Type:",
-e.target.value
-);
 
 
 }
@@ -303,64 +279,19 @@ e.target.value
 
 
 
+if(year){
 
 
-
-if(reportMonth){
-
-
-reportMonth.addEventListener(
+year.addEventListener(
 
 "change",
 
-e=>{
-
-
-window.currentReportFilters.month =
-e.target.value;
-
-
-
-console.log(
-"Report Month:",
-e.target.value
-);
-
-
-}
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-if(reportYear){
-
-
-reportYear.addEventListener(
-
-"change",
-
-e=>{
+()=>{
 
 
 window.currentReportFilters.year =
-e.target.value;
+Number(year.value);
 
-
-
-console.log(
-"Report Year:",
-e.target.value
-);
 
 
 }
@@ -375,28 +306,47 @@ e.target.value
 
 
 
+if(month){
 
 
-
-if(reportWeek){
-
-
-reportWeek.addEventListener(
+month.addEventListener(
 
 "change",
 
-e=>{
+()=>{
+
+
+window.currentReportFilters.month =
+Number(month.value);
+
+
+
+}
+
+);
+
+
+}
+
+
+
+
+
+
+
+if(week){
+
+
+week.addEventListener(
+
+"change",
+
+()=>{
 
 
 window.currentReportFilters.week =
-e.target.value;
+Number(week.value);
 
-
-
-console.log(
-"Report Week:",
-e.target.value
-);
 
 
 }
@@ -410,12 +360,9 @@ e.target.value
 
 
 
-
-
-
 console.log(
 
-"✅ Supabase Report Support Engine Loaded"
+"✅ Report Support Engine Ready"
 
 );
 
