@@ -866,7 +866,216 @@ function addFooter(pdf){
 
 }
 
+function addCoverPage(pdf,data){
 
+    addHeader(pdf);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.setFontSize(26);
+
+    pdf.text(
+        REPORT.title,
+        105,
+        70,
+        {
+            align:"center"
+        }
+    );
+
+
+    pdf.setFontSize(14);
+
+    pdf.text(
+        REPORT.subtitle,
+        105,
+        85,
+        {
+            align:"center"
+        }
+    );
+
+
+    pdf.setFontSize(11);
+
+
+    const details = [
+
+        [
+            "Facility",
+            REPORT.facility
+        ],
+
+        [
+            "Company",
+            REPORT.company
+        ],
+
+        [
+            "Reporting Period",
+            getReportingPeriod(data)
+        ],
+
+        [
+            "Generated",
+            formatDate()
+        ],
+
+        [
+            "Version",
+            REPORT.version
+        ]
+
+    ];
+
+
+
+    let y = 120;
+
+
+    details.forEach(row=>{
+
+
+        pdf.text(
+            row[0],
+            40,
+            y
+        );
+
+
+        pdf.text(
+            row[1],
+            90,
+            y
+        );
+
+
+        y += 12;
+
+
+    });
+
+
+
+    pdf.setFontSize(16);
+
+
+    pdf.text(
+        "CONFIDENTIAL MANAGEMENT REPORT",
+        105,
+        230,
+        {
+            align:"center"
+        }
+    );
+
+
+    addFooter(pdf);
+
+}
+
+
+function addExecutiveSummary(pdf,data){
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+
+    const kpi =
+        calculateKPIs(data);
+
+
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Executive Summary",
+        15,
+        45
+    );
+
+
+    pdf.setFontSize(12);
+
+
+    const lines=[
+
+        `Total Surveys: ${kpi.totalSurveys}`,
+
+        `Rooms Covered: ${kpi.totalRooms}`,
+
+        `Staff Recorded: ${kpi.totalStaff}`,
+
+        `Tasks Checked: ${kpi.totalTasks}`,
+
+        `Tasks Completed: ${kpi.completedTasks}`,
+
+        `Overall Compliance: ${kpi.compliance}%`,
+
+        `Performance Status: ${kpi.status}`
+
+    ];
+
+
+    let y=70;
+
+
+    lines.forEach(line=>{
+
+        pdf.text(
+            line,
+            20,
+            y
+        );
+
+        y+=10;
+
+    });
+
+
+    y+=15;
+
+
+    pdf.text(
+        "Management Overview",
+        20,
+        y
+    );
+
+
+    y+=12;
+
+
+    pdf.setFontSize(11);
+
+
+    pdf.text(
+        "This report evaluates cleaning compliance,",
+        20,
+        y
+    );
+
+
+    pdf.text(
+        "room performance, staff participation and",
+        20,
+        y+7
+    );
+
+
+    pdf.text(
+        "operational improvement opportunities.",
+        20,
+        y+14
+    );
+
+
+    addFooter(pdf);
+
+}
 
 
 
