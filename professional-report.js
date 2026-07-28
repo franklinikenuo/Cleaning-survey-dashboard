@@ -28,13 +28,13 @@ const REPORT = {
 
 // ============================================================
 // REPORT FILTER ENGINE
-// Applies monthly/yearly report filters
+// Monthly / Weekly / Yearly
 // ============================================================
 
-function applyReportFilters(data, filters = {}){
+function applyReportFilters(data, filters = {}) {
 
 
-    if(!filters.type || filters.type==="all"){
+    if(!filters.type || filters.type === "all"){
 
         return data;
 
@@ -64,7 +64,11 @@ function applyReportFilters(data, filters = {}){
 
 
 
-        if(filters.type==="monthly"){
+        // =========================
+        // MONTHLY REPORT
+        // =========================
+
+        if(filters.type === "monthly"){
 
 
             return (
@@ -86,7 +90,14 @@ function applyReportFilters(data, filters = {}){
 
 
 
-        if(filters.type==="yearly"){
+
+
+        // =========================
+        // YEARLY REPORT
+        // =========================
+
+        if(filters.type === "yearly" ||
+           filters.type === "annual"){
 
 
             return (
@@ -99,6 +110,103 @@ function applyReportFilters(data, filters = {}){
 
 
         }
+
+
+
+
+
+
+        // =========================
+        // WEEKLY REPORT
+        // =========================
+
+        if(filters.type === "weekly"){
+
+
+
+            const selectedYear =
+                Number(filters.year);
+
+
+
+            const selectedMonth =
+                Number(filters.month);
+
+
+
+            // first day of selected month
+
+            const monthStart =
+                new Date(
+                    selectedYear,
+                    selectedMonth - 1,
+                    1
+                );
+
+
+
+            const monthEnd =
+                new Date(
+                    selectedYear,
+                    selectedMonth,
+                    0
+                );
+
+
+
+            // calculate week number
+
+            const weekNumber =
+                Number(filters.week || 1);
+
+
+
+            const startDay =
+                new Date(monthStart);
+
+
+
+            startDay.setDate(
+                monthStart.getDate()
+                +
+                ((weekNumber - 1) * 7)
+            );
+
+
+
+            const endDay =
+                new Date(startDay);
+
+
+
+            endDay.setDate(
+                startDay.getDate() + 6
+            );
+
+
+
+            return (
+
+                date >= startDay
+
+                &&
+
+                date <= endDay
+
+                &&
+
+                date >= monthStart
+
+                &&
+
+                date <= monthEnd
+
+            );
+
+
+        }
+
+
 
 
 
