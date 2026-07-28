@@ -13,13 +13,11 @@ Cleaning Compliance Dashboard
 </title>
 
 
-
 <!-- ==================================================
-     DASHBOARD STYLE
+     STYLES
 ================================================== -->
 
 <link rel="stylesheet" href="styles.css">
-
 
 
 <!-- ==================================================
@@ -27,48 +25,23 @@ Cleaning Compliance Dashboard
 ================================================== -->
 
 
-<!-- Chart Engine -->
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
-
-<!-- Excel Export -->
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-
-
-<!-- HTML Screenshot Engine -->
-
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-
-
-<!-- PDF Engine -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-
-
-<!-- PDF Tables -->
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
-
-
-<!-- Supabase Client -->
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 
 
 </head>
 
 
-
 <body>
-
 
 
 <!-- ==================================================
@@ -77,7 +50,6 @@ Cleaning Compliance Dashboard
 
 
 <header class="top-bar">
-
 
 
 <div class="header-title">
@@ -103,26 +75,18 @@ Hospital-Grade Cleaning Performance System
 
 
 
-<!-- ===============================================
+<!-- ==================================================
      EXPORT CENTER
-================================================ -->
+================================================== -->
 
 
 <div class="export-container">
 
 
-
 <button
-
 class="btn export-main-btn"
-
 id="exportButton"
-
-type="button"
-
-onclick="toggleExportMenu()"
-
->
+onclick="toggleExportMenu()">
 
 Export ▼
 
@@ -130,23 +94,14 @@ Export ▼
 
 
 
-
-
 <div
-
 id="exportDropdown"
-
-class="export-dropdown"
-
->
+class="export-dropdown">
 
 
 
 <button
-
-onclick="openReportingCenter();closeExportMenu();"
-
->
+onclick="openReportingCenter();closeExportMenu();">
 
 📊 Executive Reports
 
@@ -154,12 +109,8 @@ onclick="openReportingCenter();closeExportMenu();"
 
 
 
-
 <button
-
-onclick="exportAnalyticsExcel();closeExportMenu();"
-
->
+onclick="exportAnalyticsExcel();closeExportMenu();">
 
 📥 Export Analytics
 
@@ -167,13 +118,8 @@ onclick="exportAnalyticsExcel();closeExportMenu();"
 
 
 
-
-
 <button
-
-onclick="exportCSV();closeExportMenu();"
-
->
+onclick="exportCSV();closeExportMenu();">
 
 CSV Report
 
@@ -181,13 +127,8 @@ CSV Report
 
 
 
-
-
 <button
-
-onclick="exportExcel();closeExportMenu();"
-
->
+onclick="exportExcel();closeExportMenu();">
 
 Excel Report
 
@@ -195,13 +136,8 @@ Excel Report
 
 
 
-
-
 <button
-
-onclick="exportPDF();closeExportMenu();"
-
->
+onclick="exportPDF();closeExportMenu();">
 
 PDF Dashboard
 
@@ -209,12 +145,8 @@ PDF Dashboard
 
 
 
-
 <button
-
-onclick="openReportingCenter();closeExportMenu();"
-
->
+onclick="exportProfessionalPDF();closeExportMenu();">
 
 📑 Professional PDF Report
 
@@ -222,31 +154,18 @@ onclick="openReportingCenter();closeExportMenu();"
 
 
 
+</div>
+
 
 </div>
 
 
 
-</div>
-
-
-
-
-
-
-
-<!-- ===============================================
-     NAVIGATION
-================================================ -->
 
 
 <a
-
 href="survey.html"
-
-class="btn"
-
->
+class="btn">
 
 + New Survey
 
@@ -257,12 +176,8 @@ class="btn"
 
 
 <button
-
 class="btn"
-
-onclick="logout()"
-
->
+onclick="logout()">
 
 🚪 Logout
 
@@ -270,9 +185,7 @@ onclick="logout()"
 
 
 
-
 </div>
-
 
 
 </header>
@@ -281,15 +194,390 @@ onclick="logout()"
 
 
 
+
+
 <!-- ==================================================
-     MAIN DASHBOARD CONTAINER
+     MAIN DASHBOARD
 ================================================== -->
 
 
 <main class="main-layout">
 
-     <!-- ==================================================
-     SURVEY RECORD TABLE
+
+
+
+
+
+<!-- ==================================================
+     KPI SUMMARY
+================================================== -->
+
+
+<section class="summary-grid">
+
+
+
+<div class="card">
+
+
+<h3>
+Total Submissions
+</h3>
+
+
+<p
+id="total-submissions">
+
+--
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+Overall Compliance
+</h3>
+
+
+<p
+id="overall-compliance">
+
+--%
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+Rooms Covered
+</h3>
+
+
+<p
+id="rooms-covered">
+
+--
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+Staff Recorded
+</h3>
+
+
+<p
+id="staff-recorded">
+
+--
+
+</p>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ==================================================
+     QUICK INSIGHTS
+================================================== -->
+
+
+<section class="card">
+
+
+<h3>
+Quick Insights
+</h3>
+
+
+
+<div
+id="insightsPanel">
+
+Loading insights...
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ==================================================
+     STAFF LEADERBOARD
+================================================== -->
+
+
+<section class="card">
+
+
+<h3>
+Staff Leaderboard
+</h3>
+
+
+
+<div
+id="staff-leaderboard">
+
+Loading...
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ==================================================
+     FILTER PANEL
+================================================== -->
+
+
+<section class="card filters-card">
+
+
+<div class="filters-grid">
+
+
+
+<div>
+
+<label>
+Room
+</label>
+
+
+<select id="filter-room">
+
+
+<option value="all">
+All Rooms
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+<label>
+Staff
+</label>
+
+
+<input
+id="filter-staff"
+placeholder="Search staff">
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+<label>
+Shift
+</label>
+
+
+<select id="filter-shift">
+
+
+<option value="all">
+All Shifts
+</option>
+
+
+<option>
+Morning
+</option>
+
+
+<option>
+Afternoon
+</option>
+
+
+<option>
+Evening
+</option>
+
+
+<option>
+Night
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+<label>
+Date
+</label>
+
+
+<input
+type="date"
+id="filter-date">
+
+
+</div>
+
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ==================================================
+     DASHBOARD CHARTS
+================================================== -->
+
+
+<section class="charts-grid">
+
+
+
+<div class="card">
+
+
+<h3>
+Room Activity
+</h3>
+
+
+<canvas
+id="roomChart">
+
+</canvas>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+Shift Distribution
+</h3>
+
+
+<canvas
+id="shiftChart">
+
+</canvas>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ==================================================
+     SUBMISSION RECORDS
 ================================================== -->
 
 
@@ -302,15 +590,19 @@ Submission Records
 
 
 
+
 <div class="table-wrapper">
 
 
-<table id="submissions-table">
+<table
+id="submissions-table">
 
 
 <thead>
 
+
 <tr>
+
 
 <th>
 Room
@@ -351,6 +643,7 @@ Date
 
 <tbody>
 
+
 </tbody>
 
 
@@ -361,14 +654,10 @@ Date
 </div>
 
 
+
 </section>
 
-
-
-
-
-
-<!-- ==================================================
+     <!-- ==================================================
      ADVANCED ANALYTICS
 ================================================== -->
 
@@ -382,8 +671,9 @@ Date
 
 
 
-
 <div class="analytics-grid">
+
+
 
 
 
@@ -404,21 +694,17 @@ Date
 
 <tr>
 
-
 <th>
 Rank
 </th>
-
 
 <th>
 Staff
 </th>
 
-
 <th>
 Surveys
 </th>
-
 
 <th>
 Score
@@ -442,7 +728,9 @@ Score
 </table>
 
 
+
 </div>
+
 
 
 
@@ -462,7 +750,6 @@ Score
 
 
 </div>
-
 
 
 </div>
@@ -496,11 +783,12 @@ Score
 
 
 
+
 <div class="analytics-card">
 
 
 <h3>
-📈 Monthly Trends
+📈 Monthly Comparison
 </h3>
 
 
@@ -513,6 +801,8 @@ Score
 
 
 </div>
+
+
 
 
 
@@ -546,6 +836,8 @@ Score
 
 
 <div class="analytics-grid">
+
+
 
 
 
@@ -643,7 +935,6 @@ Calculating...
 
 
 
-
 </div>
 
 
@@ -662,7 +953,8 @@ Calculating...
 ================================================== -->
 
 
-<div id="reportModal"
+<div
+id="reportModal"
 class="report-modal">
 
 
@@ -674,6 +966,8 @@ class="report-modal">
 <h2>
 Executive Reporting Center
 </h2>
+
+
 
 
 
@@ -717,8 +1011,8 @@ Annual Report
 </option>
 
 
-
 </select>
+
 
 
 
@@ -740,6 +1034,8 @@ Year
 
 
 
+
+
 <label>
 Month
 </label>
@@ -749,6 +1045,7 @@ Month
 
 
 </select>
+
 
 
 
@@ -797,6 +1094,8 @@ Week 5
 
 
 
+
+
 <div class="report-buttons">
 
 
@@ -811,6 +1110,7 @@ Generate Report
 
 
 
+
 <button
 onclick="closeReportingCenter()">
 
@@ -820,43 +1120,36 @@ Close
 
 
 
-</div>
-
-
 
 </div>
 
 
+
+
+
 </div>
 
-     <!-- ==================================================
-     JAVASCRIPT MODULE LOADING
-     LOAD ORDER IS CRITICAL
-================================================== -->
+
+</div>
+
+
+
+
+
+
+
 
 
 <!-- ==================================================
-     EXTERNAL CORE LIBRARIES
+     JAVASCRIPT MODULE LOADING
 ================================================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 
 
 
 <!-- ==================================================
      SUPABASE CONFIGURATION
 ================================================== -->
+
 
 <script src="config.js"></script>
 
@@ -866,8 +1159,8 @@ Close
 
 <!-- ==================================================
      DATA ENGINE
-     SINGLE SOURCE OF TRUTH
 ================================================== -->
+
 
 <script src="data.js"></script>
 
@@ -876,8 +1169,9 @@ Close
 
 
 <!-- ==================================================
-     CORE UTILITIES
+     SHARED UTILITIES
 ================================================== -->
+
 
 <script src="analytics-utils.js"></script>
 
@@ -886,8 +1180,9 @@ Close
 
 
 <!-- ==================================================
-     FILTER ENGINE
+     FILTER SYSTEM
 ================================================== -->
+
 
 <script src="filters.js"></script>
 
@@ -896,8 +1191,9 @@ Close
 
 
 <!-- ==================================================
-     DASHBOARD DISPLAY MODULES
+     DASHBOARD COMPONENTS
 ================================================== -->
+
 
 <script src="summary.js"></script>
 
@@ -917,6 +1213,7 @@ Close
      ADVANCED ANALYTICS
 ================================================== -->
 
+
 <script src="analytics.js"></script>
 
 <script src="intelligence.js"></script>
@@ -926,8 +1223,9 @@ Close
 
 
 <!-- ==================================================
-     EXPORT ENGINE
+     EXPORT SYSTEM
 ================================================== -->
+
 
 <script src="exports.js"></script>
 
@@ -936,20 +1234,11 @@ Close
 
 
 <!-- ==================================================
-     PROFESSIONAL REPORT ENGINE
-     MUST LOAD BEFORE REPORT CENTER
+     REPORT ENGINE
 ================================================== -->
+
 
 <script src="professional-report.js"></script>
-
-
-
-
-
-<!-- ==================================================
-     REPORT SUPPORT ENGINE
-     SUPABASE ONLY
-================================================== -->
 
 <script src="reports.js"></script>
 
@@ -961,6 +1250,7 @@ Close
      DASHBOARD CONTROLLER
 ================================================== -->
 
+
 <script src="dashboard-core.js"></script>
 
 
@@ -968,15 +1258,18 @@ Close
 
 
 <!-- ==================================================
-     EXECUTIVE REPORTING CENTER
+     REPORT CENTER
      LOAD LAST
 ================================================== -->
+
 
 <script src="report-center.js"></script>
 
 
 
 
+
 </body>
+
 
 </html>
