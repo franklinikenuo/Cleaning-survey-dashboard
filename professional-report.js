@@ -2294,12 +2294,11 @@ function addShiftPerformance(pdf,data){
     addHeader(pdf);
 
 
-
     pdf.setFontSize(18);
 
 
     pdf.text(
-        "Shift Activity Analysis",
+        "Shift Performance Analysis",
         15,
         45
     );
@@ -2307,38 +2306,26 @@ function addShiftPerformance(pdf,data){
 
 
     const shifts =
-
         getShiftPerformance(data);
 
 
 
-    const rows = [
+    const rows = Object.entries(shifts)
 
-        [
-            "Morning",
-            shifts.Morning.surveys,
-            shifts.Morning.compliance + "%"
-        ],
+    .map(([shift,item])=>[
 
-        [
-            "Afternoon",
-            shifts.Afternoon.surveys,
-            shifts.Afternoon.compliance + "%"
-        ],
+        shift,
 
-        [
-            "Evening",
-            shifts.Evening.surveys,
-            shifts.Evening.compliance + "%"
-        ],
+        item.surveys,
 
-        [
-            "Night",
-            shifts.Night.surveys,
-            shifts.Night.compliance + "%"
-        ]
+        item.total,
 
-    ];
+        item.completed,
+
+        item.compliance + "%"
+
+    ]);
+
 
 
 
@@ -2351,7 +2338,9 @@ function addShiftPerformance(pdf,data){
 
             [
                 "Shift",
-                "Surveys Completed",
+                "Surveys",
+                "Tasks Audited",
+                "Completed",
                 "Compliance"
             ]
 
