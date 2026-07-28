@@ -526,3 +526,17 @@ border-radius:10px;
     overflow-x:auto;
 
 }
+
+.chart-container{
+
+    height:320px;
+    position:relative;
+
+}
+
+
+canvas{
+
+    max-height:300px;
+
+}
