@@ -1,11 +1,11 @@
 // ============================================================
+// UCDS v3.0
 // TABLE RENDER ENGINE
-// Submission Records Table
+// Hospital Grade Submission Records
 // ============================================================
 
 
 window.renderTable = function(data){
-
 
 
     const tbody =
@@ -14,14 +14,13 @@ window.renderTable = function(data){
         );
 
 
-
     if(!tbody)
         return;
 
 
 
-
     tbody.innerHTML = "";
+
 
 
 
@@ -30,15 +29,15 @@ window.renderTable = function(data){
 
         tbody.innerHTML = `
 
-            <tr>
+        <tr>
 
-                <td colspan="6">
+            <td colspan="6">
 
-                    No survey records found
+                No survey records found
 
-                </td>
+            </td>
 
-            </tr>
+        </tr>
 
         `;
 
@@ -54,25 +53,12 @@ window.renderTable = function(data){
     data.forEach(row=>{
 
 
-
         const tasks =
-
-            Object.entries(
-
-                row.tasks_completed || {}
-
-            )
-
-            .map(
-
-                ([name,value]) =>
-
-                `${name}:${value}`
-
-            )
-
-            .join(" | ");
-
+            formatTasks(
+                row.tasks_completed ||
+                row.Tasks_completed ||
+                {}
+            );
 
 
 
@@ -81,20 +67,15 @@ window.renderTable = function(data){
 
             row.work_date ||
 
-            (
+            row.created_at ||
 
-                row.created_at || ""
-
-            )
-
-            .split("T")[0];
+            "";
 
 
 
 
 
         const tr =
-
             document.createElement(
                 "tr"
             );
@@ -102,54 +83,40 @@ window.renderTable = function(data){
 
 
 
-
         tr.innerHTML = `
 
 
-            <td>
-
-                ${row.room || ""}
-
-            </td>
+        <td>
+            ${safe(row.room || row.Room)}
+        </td>
 
 
-            <td>
-
-                ${row.shift || ""}
-
-            </td>
+        <td>
+            ${safe(row.shift || row.Shift)}
+        </td>
 
 
-            <td>
-
-                ${row.staff || ""}
-
-            </td>
+        <td>
+            ${safe(row.staff || row.Staff)}
+        </td>
 
 
-            <td>
-
-                ${tasks}
-
-            </td>
+        <td class="task-cell">
+            ${tasks}
+        </td>
 
 
-            <td>
-
-                ${row.notes || ""}
-
-            </td>
+        <td>
+            ${safe(row.notes || row.Notes)}
+        </td>
 
 
-            <td>
-
-                ${date}
-
-            </td>
+        <td>
+            ${date.split("T")[0]}
+        </td>
 
 
         `;
-
 
 
 
@@ -166,6 +133,112 @@ window.renderTable = function(data){
 
 
 
+
+
+
+
+// ============================================================
+// FORMAT TASKS
+// ============================================================
+
+
+function formatTasks(tasks){
+
+
+    if(!tasks)
+        return "-";
+
+
+
+    return Object.entries(tasks)
+
+        .map(([name,value])=>{
+
+
+            if(
+                value === true ||
+                value === "Yes" ||
+                value === "YES"
+            ){
+
+                return `
+                <span class="task-complete">
+                ✅ ${name}
+                </span>
+                `;
+
+            }
+
+
+            if(
+                value === false ||
+                value === "No" ||
+                value === "NO"
+            ){
+
+                return `
+                <span class="task-failed">
+                ❌ ${name}
+                </span>
+                `;
+
+            }
+
+
+            return `
+            <span>
+            ⚪ ${name}: ${value}
+            </span>
+            `;
+
+
+        })
+
+        .join("<br>");
+
+
+
+}
+
+
+
+
+
+
+
+
+// ============================================================
+// SAFE TEXT OUTPUT
+// ============================================================
+
+
+function safe(value){
+
+
+    if(!value)
+        return "";
+
+
+    return String(value)
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        );
+
+
+}
+
+
+
+
+
+
 console.log(
-    "✅ Table renderer loaded"
+    "✅ Hospital Grade Table Renderer loaded"
 );
