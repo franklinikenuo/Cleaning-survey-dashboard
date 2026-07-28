@@ -1,117 +1,101 @@
 // ============================================================
-// UCDS v2.2 — Reports Support Engine
-// Handles email report delivery actions
+// UCDS v3.0 — REPORT SUPPORT ENGINE
+// Supabase Reporting Integration
+//
+// Handles:
+// - Report filter collection
+// - Professional PDF generation
+// - Reporting Center actions
+//
+// NO EXTERNAL BACKEND REQUIRED
 // ============================================================
 
 
-const backend =
-    "https://cleaning-survey-api-v2-x6sf.onrender.com";
 
-
-
-// ============================================================
-// RETRY FETCH WRAPPER
-// ============================================================
-
-async function getWithRetry(
-    url,
-    retries = 3
-){
-
-    try {
-
-        return await fetch(url);
-
-    }
-
-    catch(err){
-
-
-        if(retries > 0){
-
-            await new Promise(
-                resolve =>
-                setTimeout(resolve,1500)
-            );
-
-
-            return getWithRetry(
-                url,
-                retries - 1
-            );
-
-        }
-
-
-        throw err;
-
-    }
-
-}
+console.log(
+    "Loading Supabase Report Support Engine..."
+);
 
 
 
 
 
 // ============================================================
-// SEND REPORT
+// CURRENT REPORT STATE
+// ============================================================
+
+
+window.currentReportFilters = {
+
+    type:"all",
+
+    year:null,
+
+    month:null
+
+};
+
+
+
+
+
+
+
+// ============================================================
+// SEND / GENERATE REPORT
 // Weekly / Monthly / Quarterly / Annual
 // ============================================================
 
 
-window.sendReport = async function(endpoint){
+window.sendReport = async function(){
+
 
 
     try {
 
 
+
+        const filters =
+
+            window.currentReportFilters || {};
+
+
+
+
         console.log(
-            "Sending report:",
-            endpoint
+
+            "Generating report with filters:",
+
+            filters
+
         );
 
 
 
-        // wake Render server
-
-        try {
 
 
-            await fetch(
-                backend,
-                {
-                    method:"GET"
-                }
+        if(
+
+            typeof exportProfessionalPDF !== "function"
+
+        ){
+
+
+
+            console.error(
+
+                "Professional PDF engine missing"
+
             );
 
-
-        }
-
-        catch(e){
-
-            console.log(
-                "Backend waking..."
-            );
-
-        }
-
-
-
-
-        const response =
-            await getWithRetry(
-                `${backend}${endpoint}`
-            );
-
-
-
-
-        if(!response.ok){
 
 
             alert(
-                "Failed to send report."
+
+                "PDF reporting engine is not loaded."
+
             );
+
 
 
             return;
@@ -122,57 +106,115 @@ window.sendReport = async function(endpoint){
 
 
 
-        const result =
-            await response.json();
+
+        await exportProfessionalPDF(
+
+            filters
+
+        );
 
 
 
 
-        if(
-            result.status === "success"
-        ){
 
+        console.log(
 
-            alert(
-                "Report sent successfully!"
-            );
+            "✅ Report generated successfully"
 
-
-        }
-
-        else{
-
-
-            alert(
-                "Failed to send report."
-            );
-
-
-        }
+        );
 
 
 
     }
+
 
 
     catch(error){
 
 
+
         console.error(
-            "Report error:",
+
+            "Report generation failed:",
+
             error
+
         );
+
 
 
         alert(
-            "An error occurred while sending the report."
+
+            "Unable to generate report."
+
         );
+
 
 
     }
 
 
+
 };
+
+
+
+
+
+
+
+
+
+// ============================================================
+// UPDATE REPORT FILTERS
+// Called by Reporting Center
+// ============================================================
+
+
+window.updateReportFilters = function(filters){
+
+
+
+    window.currentReportFilters = {
+
+
+
+        type:
+
+            filters.type || "all",
+
+
+
+        year:
+
+            filters.year || null,
+
+
+
+        month:
+
+            filters.month || null
+
+
+
+    };
+
+
+
+
+    console.log(
+
+        "Report Filters Updated:",
+
+        window.currentReportFilters
+
+    );
+
+
+
+};
+
+
 
 
 
@@ -186,107 +228,167 @@ window.sendReport = async function(endpoint){
 
 
 document.addEventListener(
-    "DOMContentLoaded",
-    ()=>{
 
+"DOMContentLoaded",
 
-        const reportType =
-            document.getElementById(
-                "reportType"
-            );
-
-
-        const reportMonth =
-            document.getElementById(
-                "reportMonth"
-            );
-
-
-        const reportYear =
-            document.getElementById(
-                "reportYear"
-            );
+()=>{
 
 
 
+    const reportType =
 
-        if(reportType){
+        document.getElementById(
 
+            "reportType"
 
-            reportType.addEventListener(
-                "change",
-                e=>{
-
-
-                    console.log(
-                        "Report type:",
-                        e.target.value
-                    );
-
-
-                }
-            );
-
-
-        }
+        );
 
 
 
+    const reportMonth =
+
+        document.getElementById(
+
+            "reportMonth"
+
+        );
 
 
-        if(reportMonth){
 
+    const reportYear =
 
-            reportMonth.addEventListener(
-                "change",
-                e=>{
+        document.getElementById(
 
+            "reportYear"
 
-                    console.log(
-                        "Report month:",
-                        e.target.value
-                    );
-
-
-                }
-            );
-
-
-        }
+        );
 
 
 
 
 
 
-        if(reportYear){
+    if(reportType){
 
 
-            reportYear.addEventListener(
-                "change",
-                e=>{
+        reportType.addEventListener(
+
+            "change",
+
+            e=>{
 
 
-                    console.log(
-                        "Report year:",
-                        e.target.value
-                    );
+                window.currentReportFilters.type =
 
-
-                }
-            );
-
-
-        }
+                    e.target.value;
 
 
 
+                console.log(
 
-        console.log(
-            "✅ Reports support engine loaded"
+                    "Report Type:",
+
+                    e.target.value
+
+                );
+
+
+            }
+
         );
 
 
     }
 
-);
+
+
+
+
+
+
+
+    if(reportMonth){
+
+
+        reportMonth.addEventListener(
+
+            "change",
+
+            e=>{
+
+
+                window.currentReportFilters.month =
+
+                    e.target.value;
+
+
+
+                console.log(
+
+                    "Report Month:",
+
+                    e.target.value
+
+                );
+
+
+            }
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+
+    if(reportYear){
+
+
+        reportYear.addEventListener(
+
+            "change",
+
+            e=>{
+
+
+                window.currentReportFilters.year =
+
+                    e.target.value;
+
+
+
+                console.log(
+
+                    "Report Year:",
+
+                    e.target.value
+
+                );
+
+
+            }
+
+        );
+
+
+    }
+
+
+
+
+
+
+    console.log(
+
+        "✅ Supabase Report Support Engine Loaded"
+
+    );
+
+
+
+});
