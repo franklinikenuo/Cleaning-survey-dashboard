@@ -1,237 +1,651 @@
 // ============================================================
-// DASHBOARD CORE CONTROLLER
-// Controls startup, refresh pipeline, auto-refresh & realtime
+// UCDS v3.1 — DASHBOARD CORE CONTROLLER
+//
+// Controls:
+// - Startup
+// - Manual Refresh
+// - Auto Refresh
+// - Supabase Realtime Sync
+// - Dashboard Rendering Pipeline
+//
+// Single source of truth:
+// DataStore
 // ============================================================
+
+
+console.log(
+    "Loading Dashboard Core..."
+);
+
+
 
 window.DashboardCore = {
 
-    isRefreshing: false,
+
+    isRefreshing:false,
+
+
+
+
 
     // ========================================================
-    // REFRESH DASHBOARD
+    // MAIN REFRESH PIPELINE
     // ========================================================
 
-    async refresh() {
 
-        if (this.isRefreshing) return;
+    async refresh(){
 
-        this.isRefreshing = true;
 
-        try {
+        if(this.isRefreshing){
 
-            const data = DataStore.getAll();
-            const filtered = FilterEngine.apply(data);
-
-            // Summary Cards
-            if (typeof window.renderSummary === "function") {
-                window.renderSummary(filtered);
-            }
-
-            // Table
-            if (typeof window.renderTable === "function") {
-                window.renderTable(filtered);
-            }
-
-            // Charts
-            if (typeof window.renderCharts === "function") {
-                window.renderCharts(filtered);
-            }
-
-            // Staff Leaderboard
-            if (typeof window.renderLeaderboard === "function") {
-                window.renderLeaderboard(filtered);
-            }
-
-            // Quick Insights
-            if (typeof window.renderInsights === "function") {
-                window.renderInsights(filtered);
-            }
-
-            // Advanced Analytics
-            if (typeof window.generateAdvancedAnalytics === "function") {
-                window.generateAdvancedAnalytics();
-            }
-
-            // Intelligence Center
-            if (typeof window.generateCleaningIntelligence === "function") {
-                window.generateCleaningIntelligence();
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Dashboard refresh error:",
-                error
+            console.log(
+                "Refresh already running..."
             );
 
-        } finally {
-
-            this.isRefreshing = false;
+            return;
 
         }
 
+
+
+        this.isRefreshing = true;
+
+
+
+        try{
+
+
+            const data =
+                DataStore?.getAll() || [];
+
+
+
+            console.log(
+                "Refreshing dashboard...",
+                data.length,
+                "records"
+            );
+
+
+
+
+            let filtered = data;
+
+
+
+            if(
+                window.FilterEngine &&
+                typeof FilterEngine.apply === "function"
+            ){
+
+                filtered =
+                    FilterEngine.apply(data);
+
+            }
+
+
+
+
+
+            // ================================
+            // SUMMARY CARDS
+            // ================================
+
+            if(
+                typeof renderSummary === "function"
+            ){
+
+                renderSummary(filtered);
+
+            }
+
+
+
+
+
+            // ================================
+            // TABLE
+            // ================================
+
+            if(
+                typeof renderTable === "function"
+            ){
+
+                renderTable(filtered);
+
+            }
+
+
+
+
+
+
+            // ================================
+            // CHARTS
+            // ================================
+
+            if(
+                typeof renderCharts === "function"
+            ){
+
+                renderCharts(filtered);
+
+            }
+
+
+
+
+
+
+
+            // ================================
+            // STAFF ANALYTICS
+            // ================================
+
+            if(
+                typeof renderLeaderboard === "function"
+            ){
+
+                renderLeaderboard(filtered);
+
+            }
+
+
+
+
+
+
+
+
+            // ================================
+            // INSIGHTS
+            // ================================
+
+            if(
+                typeof renderInsights === "function"
+            ){
+
+                renderInsights(filtered);
+
+            }
+
+
+
+
+
+
+
+
+            // ================================
+            // ADVANCED ANALYTICS
+            // ================================
+
+            if(
+                typeof generateAdvancedAnalytics === "function"
+            ){
+
+                generateAdvancedAnalytics(
+                    filtered
+                );
+
+            }
+
+
+
+
+
+
+
+
+            // ================================
+            // INTELLIGENCE ENGINE
+            // ================================
+
+            if(
+                typeof generateCleaningIntelligence === "function"
+            ){
+
+                generateCleaningIntelligence(
+                    filtered
+                );
+
+            }
+
+
+
+
+
+
+            console.log(
+                "✅ Dashboard refresh complete"
+            );
+
+
+
+        }
+
+        catch(error){
+
+
+            console.error(
+
+                "Dashboard refresh error:",
+                error
+
+            );
+
+
+        }
+
+        finally{
+
+
+            this.isRefreshing=false;
+
+
+        }
+
+
     },
+
+
+
+
+
+
+
+
+    // ========================================================
+    // GLOBAL REFRESH BUTTON FUNCTION
+    // ========================================================
+
+
+    async manualRefresh(){
+
+
+        console.log(
+            "Manual refresh requested"
+        );
+
+
+
+        try{
+
+
+            await DataStore.load();
+
+
+            await this.refresh();
+
+
+
+        }
+
+        catch(error){
+
+
+            console.error(
+                "Manual refresh failed:",
+                error
+            );
+
+
+        }
+
+
+    },
+
+
+
+
+
+
+
+
+
 
     // ========================================================
     // INITIALIZE DASHBOARD
     // ========================================================
 
-    async init() {
 
-        console.log("Dashboard starting...");
+    async init(){
 
-        try {
+
+        console.log(
+            "Dashboard starting..."
+        );
+
+
+
+        try{
+
 
             await DataStore.load();
 
-            if (
+
+
+
+            if(
+
                 window.FilterEngine &&
+
                 typeof FilterEngine.populateRoomFilter === "function"
-            ) {
+
+            ){
+
+
                 FilterEngine.populateRoomFilter();
+
+
             }
+
+
+
+
+
 
             await this.refresh();
 
+
+
+
+
             console.log(
+
                 `Dashboard ready (${DataStore.getAll().length} surveys loaded)`
+
             );
 
-        } catch (error) {
 
-            console.error(
-                "Dashboard startup failed:",
-                error
-            );
 
         }
 
+        catch(error){
+
+
+            console.error(
+
+                "Dashboard startup failed:",
+                error
+
+            );
+
+
+        }
+
+
     },
 
+
+
+
+
+
+
+
+
     // ========================================================
-    // FILTER EVENTS
+    // FILTER LISTENERS
     // ========================================================
 
-    setupFilters() {
+
+    setupFilters(){
+
+
 
         document
-            .querySelectorAll(
-                "#filter-room,#filter-staff,#filter-shift,#filter-date"
-            )
-            .forEach(filter => {
 
-                filter.addEventListener(
-                    "change",
-                    () => this.refresh()
-                );
+        .querySelectorAll(
 
-                filter.addEventListener(
-                    "keyup",
-                    () => this.refresh()
-                );
+            "#filter-room,#filter-staff,#filter-shift,#filter-date"
 
-            });
+        )
+
+        .forEach(filter=>{
+
+
+            filter.addEventListener(
+
+                "change",
+
+                ()=>this.refresh()
+
+            );
+
+
+
+            filter.addEventListener(
+
+                "keyup",
+
+                ()=>this.refresh()
+
+            );
+
+
+
+        });
+
+
 
     },
 
+
+
+
+
+
+
+
+
     // ========================================================
-    // AUTO REFRESH
+    // AUTO REFRESH EVERY 60 SECONDS
     // ========================================================
 
-    startAutoRefresh() {
 
-        setInterval(async () => {
+    startAutoRefresh(){
 
-            try {
+
+
+        setInterval(async()=>{
+
+
+            try{
+
 
                 await DataStore.load();
 
+
                 await this.refresh();
 
-                console.log("Auto refresh complete");
 
-            } catch (error) {
 
-                console.error(
-                    "Auto refresh failed:",
-                    error
+                console.log(
+                    "Auto refresh complete"
                 );
+
+
 
             }
 
-        }, 60000);
+            catch(error){
+
+
+                console.error(
+
+                    "Auto refresh failed:",
+                    error
+
+                );
+
+
+            }
+
+
+        },60000);
+
+
 
     },
 
+
+
+
+
+
+
+
+
     // ========================================================
-    // REALTIME SUPABASE
+    // SUPABASE REALTIME
     // ========================================================
 
-    startRealtime() {
+
+    startRealtime(){
+
+
+
+        if(
+            !window.client
+        ){
+
+            console.warn(
+                "Supabase client unavailable"
+            );
+
+            return;
+
+        }
+
+
+
+
 
         client
-            .channel("surveys-live")
-            .on(
-                "postgres_changes",
-                {
-                    event: "*",
-                    schema: "public",
-                    table: "surveys"
-                },
-                async () => {
 
-                    console.log(
-                        "Realtime update received"
-                    );
+        .channel(
+            "surveys-live"
+        )
 
-                    try {
+        .on(
 
-                        await DataStore.load();
+            "postgres_changes",
 
-                        await this.refresh();
+            {
 
-                    } catch (error) {
+                event:"*",
 
-                        console.error(
-                            "Realtime refresh failed:",
-                            error
-                        );
+                schema:"public",
 
-                    }
+                table:"surveys"
 
-                }
-            )
-            .subscribe(status => {
+            },
+
+
+            async()=>{
+
 
                 console.log(
-                    "Realtime status:",
-                    status
+                    "Realtime update received"
                 );
 
-            });
+
+
+                await DataStore.load();
+
+
+                await this.refresh();
+
+
+
+            }
+
+
+        )
+
+        .subscribe(status=>{
+
+
+            console.log(
+
+                "Realtime status:",
+                status
+
+            );
+
+
+        });
+
+
 
     }
+
+
 
 };
 
 
+
+
+
+
+
+
+
 // ============================================================
-// START DASHBOARD
+// BUTTON CONNECTION
 // ============================================================
+
+
+window.refreshDashboard = function(){
+
+
+    DashboardCore.manualRefresh();
+
+
+};
+
+
+
+
+
+
+
+
+
+// ============================================================
+// START SYSTEM
+// ============================================================
+
 
 document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
 
-        DashboardCore.setupFilters();
+"DOMContentLoaded",
 
-        await DashboardCore.init();
+async()=>{
 
-        DashboardCore.startAutoRefresh();
 
-        DashboardCore.startRealtime();
+    DashboardCore.setupFilters();
 
-    }
+
+    await DashboardCore.init();
+
+
+    DashboardCore.startAutoRefresh();
+
+
+    DashboardCore.startRealtime();
+
+
+
+}
+
 );
 
-console.log("✅ Dashboard Core loaded");
+
+
+
+console.log(
+    "✅ Dashboard Core loaded"
+);
