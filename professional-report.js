@@ -3481,178 +3481,51 @@ function addRecommendations(pdf,data){
    MAIN PROFESSIONAL PDF EXPORT
 ============================================================ */
 
-async function exportProfessionalPDF(){
+async function exportProfessionalPDF(filters = {}){
 
+    // Get data from the new DataStore
+    const allData = window.DataStore?.getAll() || [];
 
+    if(allData.length === 0){
 
-    if(
-
-        typeof allData === "undefined"
-
-    ){
-
-
-        alert(
-
-            "Dashboard data has not loaded yet."
-
-        );
-
+        alert("No survey data available.");
 
         return;
 
-
     }
 
-
-
-
-
-
-    const pdf =
-
-        createPDF();
-
-
-
-
-
-
-
-    addCoverPage(
-
-        pdf,
-
-        allData
-
+    console.log(
+        "Generating Professional PDF...",
+        allData.length,
+        "records"
     );
 
+    const pdf = createPDF();
 
+    addCoverPage(pdf, allData);
 
+    addExecutiveKPIs(pdf, allData);
 
+    addExecutiveSummary(pdf, allData);
 
+    addOperationalAnalytics(pdf, allData);
 
-    addExecutiveKPIs(
+    addTaskPerformance(pdf, allData);
 
-        pdf,
+    await addDashboardCharts(pdf);
 
-        allData
+    addSurveyTable(pdf, allData);
 
-    );
+    addPerformanceTables(pdf, allData);
 
-
-
-
-
-
-
-    addExecutiveSummary(
-
-        pdf,
-
-        allData
-
-    );
-
-
-
-
-
-
-
-    addOperationalAnalytics(
-
-        pdf,
-
-        allData
-
-    );
-
-
-
-
-
-
-
-    addTaskPerformance(
-
-        pdf,
-
-        allData
-
-    );
-
-
-
-
-
-
-
-    await addDashboardCharts(
-
-        pdf
-
-    );
-
-
-
-
-
-
-
-    addSurveyTable(
-
-        pdf,
-
-        allData
-
-    );
-
-
-
-
-
-
-
-    addPerformanceTables(
-
-        pdf,
-
-        allData
-
-    );
-
-
-
-
-
-
-
-    addRecommendations(
-
-        pdf,
-
-        allData
-
-    );
-
-
-
-
-
-
+    addRecommendations(pdf, allData);
 
     pdf.save(
-
-
         `Executive_Cleaning_Report_${
             new Date()
-            .toISOString()
-            .split("T")[0]
+                .toISOString()
+                .split("T")[0]
         }.pdf`
-
-
     );
-
 
 }
