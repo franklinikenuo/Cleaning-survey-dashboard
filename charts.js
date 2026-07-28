@@ -1,62 +1,72 @@
 // ============================================================
-// CHART ENGINE
+// UCDS v3.0
+// ADVANCED CHART ENGINE
+//
 // Room Activity + Shift Distribution
 // ============================================================
 
 
 let roomChart = null;
-
 let shiftChart = null;
 
 
 
+// ============================================================
+// MAIN CHART RENDER
+// ============================================================
+
 window.renderCharts = function(data){
 
 
+    if(
+        !data ||
+        data.length === 0
+    ){
 
-    const roomCanvas =
+        return;
+
+    }
+
+
+
+    renderRoomActivity(data);
+
+
+    renderShiftDistribution(data);
+
+
+
+};
+
+
+
+
+
+
+
+
+// ============================================================
+// ROOM ACTIVITY
+// Horizontal Bar Chart
+// ============================================================
+
+
+function renderRoomActivity(data){
+
+
+
+    const canvas =
         document.getElementById(
             "roomChart"
         );
 
 
 
-    const shiftCanvas =
-        document.getElementById(
-            "shiftChart"
-        );
-
-
-
-    if(
-        !roomCanvas ||
-        !shiftCanvas
-    ){
-
+    if(!canvas)
         return;
 
-    }
 
 
-
-
-
-    if(
-        !data ||
-        !data.length
-    ){
-
-        return;
-
-    }
-
-
-
-
-
-    // ========================================================
-    // ROOM ACTIVITY BAR CHART
-    // ========================================================
 
 
     const rooms = {};
@@ -67,16 +77,30 @@ window.renderCharts = function(data){
 
 
         const room =
-            row.room || "Unknown";
+            row.room ||
+            row.Room ||
+            "Unknown";
+
 
 
         rooms[room] =
-            (
-                rooms[room] || 0
-            ) + 1;
+            (rooms[room] || 0) + 1;
+
 
 
     });
+
+
+
+
+
+
+
+    const sorted =
+        Object.entries(rooms)
+        .sort(
+            (a,b)=>b[1]-a[1]
+        );
 
 
 
@@ -92,49 +116,95 @@ window.renderCharts = function(data){
 
 
 
-    roomChart = new Chart(
 
-        roomCanvas,
+    roomChart =
+    new Chart(
+
+        canvas,
 
         {
 
-            type:"bar",
 
-
-            data:{
-
-
-                labels:
-                    Object.keys(rooms),
+        type:"bar",
 
 
 
-                datasets:[{
+        data:{
 
 
-                    label:
-                    "Room Activity",
-
-
-
-                    data:
-                    Object.values(rooms)
+            labels:
+                sorted.map(
+                    item=>item[0]
+                ),
 
 
 
-                }]
+            datasets:[{
+
+
+                label:
+                "Cleaning Activities",
+
+
+
+                data:
+                sorted.map(
+                    item=>item[1]
+                ),
+
+
+
+                borderWidth:1
+
+
+            }]
+
+
+        },
+
+
+
+        options:{
+
+
+            indexAxis:"y",
+
+
+
+            responsive:true,
+
+
+
+            maintainAspectRatio:false,
+
+
+
+            plugins:{
+
+
+                legend:{
+
+
+                    display:false
+
+
+                }
 
 
             },
 
 
-            options:{
+
+            scales:{
 
 
-                responsive:true,
+                x:{
 
 
-                maintainAspectRatio:false
+                    beginAtZero:true
+
+
+                }
 
 
             }
@@ -143,7 +213,10 @@ window.renderCharts = function(data){
         }
 
 
-    );
+    });
+
+
+}
 
 
 
@@ -151,22 +224,73 @@ window.renderCharts = function(data){
 
 
 
-    // ========================================================
-    // SHIFT DISTRIBUTION PIE CHART
-    // ========================================================
 
 
-    const shifts = [
+// ============================================================
+// SHIFT DISTRIBUTION
+// Doughnut Chart
+// ============================================================
 
-        "Morning",
 
-        "Afternoon",
+function renderShiftDistribution(data){
 
-        "Evening",
 
-        "Night"
 
-    ];
+    const canvas =
+        document.getElementById(
+            "shiftChart"
+        );
+
+
+
+    if(!canvas)
+        return;
+
+
+
+
+
+    const shifts = {
+
+        Morning:0,
+
+        Afternoon:0,
+
+        Evening:0,
+
+        Night:0
+
+    };
+
+
+
+
+
+
+
+    data.forEach(row=>{
+
+
+        const shift =
+
+            row.shift ||
+            row.Shift ||
+            "Unknown";
+
+
+
+        if(shifts[shift] !== undefined){
+
+
+            shifts[shift]++;
+
+
+        }
+
+
+    });
+
+
 
 
 
@@ -182,66 +306,141 @@ window.renderCharts = function(data){
 
 
 
-    shiftChart = new Chart(
 
-        shiftCanvas,
+    shiftChart =
+
+    new Chart(
+
+        canvas,
 
         {
 
 
-            type:"pie",
+        type:"doughnut",
 
 
 
-            data:{
+        data:{
+
+
+            labels:
+            Object.keys(shifts),
 
 
 
-                labels:shifts,
+            datasets:[{
+
+
+                label:
+                "Shift Distribution",
 
 
 
-                datasets:[{
-
-
-                    label:
-                    "Shift Distribution",
+                data:
+                Object.values(shifts),
 
 
 
-                    data:
-
-                    shifts.map(
-
-                        shift =>
-
-                        data.filter(
-
-                            row =>
-
-                            row.shift === shift
-
-                        )
-
-                        .length
-
-                    )
+                borderWidth:2
 
 
-                }]
+            }]
+
+
+        },
 
 
 
-            },
+
+        options:{
 
 
-            options:{
+            responsive:true,
 
 
-                responsive:true,
+            maintainAspectRatio:false,
 
 
-                maintainAspectRatio:false
+
+            plugins:{
+
+
+
+                legend:{
+
+
+                    position:"bottom"
+
+
+                },
+
+
+
+                tooltip:{
+
+
+                    callbacks:{
+
+
+                        label:function(context){
+
+
+                            const total =
+
+                            context.dataset.data
+                            .reduce(
+                                (a,b)=>a+b,
+                                0
+                            );
+
+
+
+                            const value =
+                            context.raw;
+
+
+
+                            const percentage =
+
+                            total ?
+
+                            (
+                                value /
+                                total *
+                                100
+
+                            ).toFixed(1)
+
+                            :
+
+                            0;
+
+
+
+                            return (
+
+                                context.label +
+
+                                ": " +
+
+                                value +
+
+                                " (" +
+
+                                percentage +
+
+                                "%)"
+
+                            );
+
+
+                        }
+
+
+                    }
+
+
+                }
 
 
             }
@@ -250,15 +449,18 @@ window.renderCharts = function(data){
         }
 
 
-    );
+    });
 
 
 
-};
+}
+
+
+
 
 
 
 
 console.log(
-    "✅ Chart engine loaded"
+    "✅ Advanced Chart Engine loaded"
 );
