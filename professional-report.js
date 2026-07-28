@@ -1624,23 +1624,41 @@ function getStaffPerformance(data){
 
 
 // ============================================================
-// SHIFT ANALYSIS
+// SHIFT PERFORMANCE ANALYTICS
 // ============================================================
-
 
 function getShiftPerformance(data){
 
 
-    const shifts={
+    const shifts = {
 
 
-        Morning:0,
+        Morning:{
+            surveys:0,
+            completed:0,
+            total:0
+        },
 
-        Afternoon:0,
 
-        Evening:0,
+        Afternoon:{
+            surveys:0,
+            completed:0,
+            total:0
+        },
 
-        Night:0
+
+        Evening:{
+            surveys:0,
+            completed:0,
+            total:0
+        },
+
+
+        Night:{
+            surveys:0,
+            completed:0,
+            total:0
+        }
 
 
     };
@@ -1651,18 +1669,81 @@ function getShiftPerformance(data){
     data.forEach(record=>{
 
 
+        const shift = record.shift;
+
+
         if(
-            shifts.hasOwnProperty(
-                record.shift
-            )
+            !shifts[shift]
         ){
-
-            shifts[record.shift]++;
-
+            return;
         }
 
 
+
+        shifts[shift].surveys++;
+
+
+
+
+        Object.values(
+            record.tasks_completed || {}
+        )
+
+        .forEach(task=>{
+
+
+            shifts[shift].total++;
+
+
+            if(task==="Y"){
+
+                shifts[shift].completed++;
+
+            }
+
+
+        });
+
+
+
     });
+
+
+
+
+
+    Object.keys(shifts).forEach(shift=>{
+
+
+        const item = shifts[shift];
+
+
+        item.compliance =
+
+            item.total
+
+            ?
+
+            Math.round(
+
+                (
+                    item.completed /
+
+                    item.total
+
+                ) * 100
+
+            )
+
+            :
+
+            0;
+
+
+
+    });
+
+
 
 
 
@@ -1670,10 +1751,6 @@ function getShiftPerformance(data){
 
 
 }
-
-
-
-
 
 
 
@@ -2254,22 +2331,26 @@ function addShiftPerformance(pdf,data){
 
         [
             "Morning",
-            shifts.Morning
+            shifts.Morning.surveys,
+            shifts.Morning.compliance + "%"
         ],
 
         [
             "Afternoon",
-            shifts.Afternoon
+            shifts.Afternoon.surveys,
+            shifts.Afternoon.compliance + "%"
         ],
 
         [
             "Evening",
-            shifts.Evening
+            shifts.Evening.surveys,
+            shifts.Evening.compliance + "%"
         ],
 
         [
             "Night",
-            shifts.Night
+            shifts.Night.surveys,
+            shifts.Night.compliance + "%"
         ]
 
     ];
@@ -2285,7 +2366,8 @@ function addShiftPerformance(pdf,data){
 
             [
                 "Shift",
-                "Completed Surveys"
+                "Surveys Completed",
+                "Compliance"
             ]
 
         ],
