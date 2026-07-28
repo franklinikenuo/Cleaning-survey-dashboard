@@ -418,7 +418,10 @@ window.generateSelectedReport = async function(){
             "reportMonth"
         )?.value;
 
-
+    const week =
+       document.getElementById(
+            "reportWeek"
+        )?.value;
 
 
 
@@ -432,7 +435,9 @@ window.generateSelectedReport = async function(){
         year,
 
 
-        month
+        month,
+
+        week
 
 
     };
