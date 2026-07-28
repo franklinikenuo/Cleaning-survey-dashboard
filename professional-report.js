@@ -2040,12 +2040,6 @@ function addRoomPerformance(pdf,data){
 
 
 
-
-
-
-
-
-
 // ============================================================
 // STAFF PERFORMANCE TABLE
 // ============================================================
@@ -2140,6 +2134,91 @@ function addStaffPerformance(pdf,data){
 
 
 }
+
+
+// ============================================================
+// TASK PERFORMANCE ANALYSIS PAGE
+// ============================================================
+
+function addTaskPerformance(pdf,data){
+
+
+    pdf.addPage();
+
+
+    addHeader(pdf);
+
+
+
+    pdf.setFontSize(18);
+
+
+    pdf.text(
+        "Task Compliance Analysis",
+        15,
+        45
+    );
+
+
+
+    const rows =
+
+        getTaskPerformance(data)
+
+        .map(task=>[
+
+            task.task,
+
+            task.completed,
+
+            task.total,
+
+            task.compliance + "%"
+
+        ]);
+
+
+
+
+    pdf.autoTable({
+
+        startY:60,
+
+
+        head:[
+
+            [
+                "Task",
+                "Completed",
+                "Audited",
+                "Compliance"
+            ]
+
+        ],
+
+
+        body:rows,
+
+
+        theme:"striped",
+
+
+        styles:{
+
+            fontSize:9
+
+        }
+
+
+    });
+
+
+
+    addFooter(pdf);
+
+
+}
+
 
 // ============================================================
 // PROFESSIONAL REPORT ENGINE v3.0
