@@ -26,7 +26,89 @@ const REPORT = {
 
 };
 
+// ============================================================
+// REPORT FILTER ENGINE
+// Applies monthly/yearly report filters
+// ============================================================
 
+function applyReportFilters(data, filters = {}){
+
+
+    if(!filters.type || filters.type==="all"){
+
+        return data;
+
+    }
+
+
+
+    return data.filter(record=>{
+
+
+        const dateValue =
+            record.work_date ||
+            record.created_at;
+
+
+
+        if(!dateValue){
+
+            return false;
+
+        }
+
+
+
+        const date =
+            new Date(dateValue);
+
+
+
+        if(filters.type==="monthly"){
+
+
+            return (
+
+                date.getFullYear()
+                ===
+                Number(filters.year)
+
+                &&
+
+                date.getMonth()+1
+                ===
+                Number(filters.month)
+
+            );
+
+
+        }
+
+
+
+        if(filters.type==="yearly"){
+
+
+            return (
+
+                date.getFullYear()
+                ===
+                Number(filters.year)
+
+            );
+
+
+        }
+
+
+
+        return true;
+
+
+    });
+
+
+}
 
 
 
@@ -3473,31 +3555,52 @@ function addRecommendations(pdf,data){
 
 
 
-
-
-
-
 /* ============================================================
    MAIN PROFESSIONAL PDF EXPORT
 ============================================================ */
 
 async function exportProfessionalPDF(filters = {}){
 
-    // Get data from the new DataStore
-    const allData = window.DataStore?.getAll() || [];
 
-    if(allData.length === 0){
+    const sourceData =
+        window.DataStore?.getAll() || [];
 
-        alert("No survey data available.");
+
+    if(sourceData.length === 0){
+
+        alert(
+            "No survey data available."
+        );
 
         return;
 
     }
 
+
+
+    const allData =
+        applyReportFilters(
+            sourceData,
+            filters
+        );
+
+
+    if(allData.length === 0){
+
+        alert(
+            "No data found for selected reporting period."
+        );
+
+        return;
+
+    }
+
+
     console.log(
         "Generating Professional PDF...",
         allData.length,
-        "records"
+        "records",
+        filters
     );
 
     const pdf = createPDF();
