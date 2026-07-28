@@ -3,19 +3,17 @@
 // Supabase Reporting Integration
 //
 // Handles:
-// - Report filter collection
+// - Report filters
+// - Weekly / Monthly / Annual reports
 // - Professional PDF generation
-// - Reporting Center actions
 //
 // NO EXTERNAL BACKEND REQUIRED
 // ============================================================
 
 
-
 console.log(
     "Loading Supabase Report Support Engine..."
 );
-
 
 
 
@@ -27,11 +25,15 @@ console.log(
 
 window.currentReportFilters = {
 
+
     type:"all",
 
     year:null,
 
-    month:null
+    month:null,
+
+    week:null
+
 
 };
 
@@ -42,8 +44,7 @@ window.currentReportFilters = {
 
 
 // ============================================================
-// SEND / GENERATE REPORT
-// Weekly / Monthly / Quarterly / Annual
+// GENERATE REPORT
 // ============================================================
 
 
@@ -56,7 +57,6 @@ window.sendReport = async function(){
 
 
         const filters =
-
             window.currentReportFilters || {};
 
 
@@ -75,11 +75,8 @@ window.sendReport = async function(){
 
 
         if(
-
             typeof exportProfessionalPDF !== "function"
-
         ){
-
 
 
             console.error(
@@ -89,13 +86,9 @@ window.sendReport = async function(){
             );
 
 
-
             alert(
-
-                "PDF reporting engine is not loaded."
-
+                "PDF reporting engine not loaded."
             );
-
 
 
             return;
@@ -107,11 +100,13 @@ window.sendReport = async function(){
 
 
 
+
         await exportProfessionalPDF(
 
             filters
 
         );
+
 
 
 
@@ -132,7 +127,6 @@ window.sendReport = async function(){
     catch(error){
 
 
-
         console.error(
 
             "Report generation failed:",
@@ -148,7 +142,6 @@ window.sendReport = async function(){
             "Unable to generate report."
 
         );
-
 
 
     }
@@ -167,7 +160,6 @@ window.sendReport = async function(){
 
 // ============================================================
 // UPDATE REPORT FILTERS
-// Called by Reporting Center
 // ============================================================
 
 
@@ -193,11 +185,18 @@ window.updateReportFilters = function(filters){
 
         month:
 
-            filters.month || null
+            filters.month || null,
+
+
+
+        week:
+
+            filters.week || null
 
 
 
     };
+
 
 
 
@@ -222,8 +221,11 @@ window.updateReportFilters = function(filters){
 
 
 
+
+
+
 // ============================================================
-// REPORT FILTER MONITORING
+// LISTEN TO REPORT CENTER CHANGES
 // ============================================================
 
 
@@ -235,159 +237,187 @@ document.addEventListener(
 
 
 
-    const reportType =
+const reportType =
+document.getElementById(
+    "reportType"
+);
 
-        document.getElementById(
 
-            "reportType"
 
-        );
+const reportMonth =
+document.getElementById(
+    "reportMonth"
+);
 
 
 
-    const reportMonth =
+const reportYear =
+document.getElementById(
+    "reportYear"
+);
 
-        document.getElementById(
 
-            "reportMonth"
 
-        );
+const reportWeek =
+document.getElementById(
+    "reportWeek"
+);
 
 
 
-    const reportYear =
 
-        document.getElementById(
 
-            "reportYear"
 
-        );
 
 
+if(reportType){
 
 
+reportType.addEventListener(
 
+"change",
 
-    if(reportType){
+e=>{
 
 
-        reportType.addEventListener(
+window.currentReportFilters.type =
+e.target.value;
 
-            "change",
 
-            e=>{
 
+console.log(
+"Report Type:",
+e.target.value
+);
 
-                window.currentReportFilters.type =
 
-                    e.target.value;
+}
 
+);
 
 
-                console.log(
+}
 
-                    "Report Type:",
 
-                    e.target.value
 
-                );
 
 
-            }
 
-        );
 
 
-    }
 
+if(reportMonth){
 
 
+reportMonth.addEventListener(
 
+"change",
 
+e=>{
 
 
+window.currentReportFilters.month =
+e.target.value;
 
-    if(reportMonth){
 
 
-        reportMonth.addEventListener(
+console.log(
+"Report Month:",
+e.target.value
+);
 
-            "change",
 
-            e=>{
+}
 
+);
 
-                window.currentReportFilters.month =
 
-                    e.target.value;
+}
 
 
 
-                console.log(
 
-                    "Report Month:",
 
-                    e.target.value
 
-                );
 
 
-            }
 
-        );
+if(reportYear){
 
 
-    }
+reportYear.addEventListener(
 
+"change",
 
+e=>{
 
 
+window.currentReportFilters.year =
+e.target.value;
 
 
 
+console.log(
+"Report Year:",
+e.target.value
+);
 
-    if(reportYear){
 
+}
 
-        reportYear.addEventListener(
+);
 
-            "change",
 
-            e=>{
+}
 
 
-                window.currentReportFilters.year =
 
-                    e.target.value;
 
 
 
-                console.log(
 
-                    "Report Year:",
 
-                    e.target.value
 
-                );
+if(reportWeek){
 
 
-            }
+reportWeek.addEventListener(
 
-        );
+"change",
 
+e=>{
 
-    }
 
+window.currentReportFilters.week =
+e.target.value;
 
 
 
+console.log(
+"Report Week:",
+e.target.value
+);
 
 
-    console.log(
+}
 
-        "✅ Supabase Report Support Engine Loaded"
+);
 
-    );
+
+}
+
+
+
+
+
+
+
+
+console.log(
+
+"✅ Supabase Report Support Engine Loaded"
+
+);
 
 
 
