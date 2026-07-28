@@ -13,36 +13,54 @@ Cleaning Compliance Dashboard
 </title>
 
 
+
+<!-- ==================================================
+     DASHBOARD STYLE
+================================================== -->
+
 <link rel="stylesheet" href="styles.css">
 
 
 
 <!-- ==================================================
      CORE LIBRARIES
-     LOAD BEFORE dashboard.js
 ================================================== -->
+
 
 <!-- Chart Engine -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+
 <!-- Excel Export -->
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<!-- Dashboard Screenshot PDF -->
+
+
+<!-- HTML Screenshot Engine -->
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-<!-- PDF Generator -->
+
+
+<!-- PDF Engine -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+
+
 <!-- PDF Tables -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
-<!-- Supabase -->
+
+
+<!-- Supabase Client -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 
 </head>
@@ -59,6 +77,7 @@ Cleaning Compliance Dashboard
 
 
 <header class="top-bar">
+
 
 
 <div class="header-title">
@@ -80,69 +99,176 @@ Hospital-Grade Cleaning Performance System
 
 
 
-<div class="action-bar">
+<div class="header-actions">
 
 
 
-<!-- ============================
+<!-- ===============================================
      EXPORT CENTER
-=============================== -->
+================================================ -->
 
-     <button
-    class="btn export-main-btn"
-    id="exportButton"
-    type="button"
-    onclick="toggleExportMenu()">
 
-    Export ▼
+<div class="export-container">
+
+
+
+<button
+
+class="btn export-main-btn"
+
+id="exportButton"
+
+type="button"
+
+onclick="toggleExportMenu()"
+
+>
+
+Export ▼
 
 </button>
 
+
+
+
+
+<div
+
+id="exportDropdown"
+
+class="export-dropdown"
+
+>
+
+
+
+<button
+
+onclick="openReportingCenter();closeExportMenu();"
+
+>
+
+📊 Executive Reports
+
+</button>
+
+
+
+
+<button
+
+onclick="exportAnalyticsExcel();closeExportMenu();"
+
+>
+
+📥 Export Analytics
+
+</button>
+
+
+
+
+
+<button
+
+onclick="exportCSV();closeExportMenu();"
+
+>
+
+CSV Report
+
+</button>
+
+
+
+
+
+<button
+
+onclick="exportExcel();closeExportMenu();"
+
+>
+
+Excel Report
+
+</button>
+
+
+
+
+
+<button
+
+onclick="exportPDF();closeExportMenu();"
+
+>
+
+PDF Dashboard
+
+</button>
+
+
+
+
+<button
+
+onclick="openReportingCenter();closeExportMenu();"
+
+>
+
+📑 Professional PDF Report
+
+</button>
+
+
+
+
 </div>
 
-<div id="exportDropdown" class="export-dropdown">
-
-    <button onclick="openReportingCenter(); closeExportMenu();">
-        📊 Executive Reports
-    </button>
-
-    <button onclick="exportAnalyticsExcel(); closeExportMenu();">
-        📥 Export Analytics
-    </button>
-
-    <button onclick="exportCSV(); closeExportMenu();">
-        CSV Report
-    </button>
-
-    <button onclick="exportExcel(); closeExportMenu();">
-        Excel Report
-    </button>
-
-    <button onclick="exportPDF(); closeExportMenu();">
-        PDF Dashboard
-    </button>
-
-    <button onclick="exportProfessionalPDF(); closeExportMenu();">
-        Professional PDF Report
-    </button>
-
-</div>
 
 
 </div>
 
 
 
-<a href="survey.html"
-class="btn">
+
+
+
+
+<!-- ===============================================
+     NAVIGATION
+================================================ -->
+
+
+<a
+
+href="survey.html"
+
+class="btn"
+
+>
 
 + New Survey
 
 </a>
 
-<button class="btn" onclick="logout()">
-    🚪 Logout
+
+
+
+
+<button
+
+class="btn"
+
+onclick="logout()"
+
+>
+
+🚪 Logout
+
 </button>
+
+
 
 
 </div>
@@ -152,318 +278,22 @@ class="btn">
 </header>
 
 
+
+
+
 <!-- ==================================================
-     MAIN DASHBOARD
+     MAIN DASHBOARD CONTAINER
 ================================================== -->
 
 
 <main class="main-layout">
 
-  
-
-<!-- ==================================================
-     SUMMARY KPI CARDS
-================================================== -->
-
-
-<section class="summary-grid">
-
-
-<div class="card">
-
-<h3>
-Total Submissions
-</h3>
-
-<p id="total-submissions">
---
-</p>
-
-</div>
-
-
-
-
-<div class="card">
-
-<h3>
-Overall Compliance
-</h3>
-
-<p id="overall-compliance">
---%
-</p>
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-<!-- ==================================================
-     QUICK INSIGHTS
-================================================== -->
-
-
-<section class="card">
-
-
-<h3>
-Quick Insights
-</h3>
-
-
-
-<div id="insightsPanel">
-
-Loading insights...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-<!-- ==================================================
-     STAFF LEADERBOARD
-================================================== -->
-
-
-<section class="card">
-
-
-<h3>
-Staff Leaderboard
-</h3>
-
-
-
-<div id="staff-leaderboard">
-
-Loading...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<!-- ==================================================
-     FILTER PANEL
-================================================== -->
-
-
-<section class="card filters-card">
-
-
-<div class="filters-grid">
-
-
-
-<div>
-
-<label>
-Room
-</label>
-
-
-<select id="filter-room">
-
-<option value="all">
-All Rooms
-</option>
-
-
-</select>
-
-
-</div>
-
-
-
-
-
-<div>
-
-<label>
-Staff
-</label>
-
-
-<input
-
-id="filter-staff"
-
-placeholder="Search staff"
-
->
-
-
-</div>
-
-
-
-
-
-
-<div>
-
-<label>
-Shift
-</label>
-
-
-<select id="filter-shift">
-
-
-<option value="all">
-All Shifts
-</option>
-
-
-<option>
-Morning
-</option>
-
-
-<option>
-Afternoon
-</option>
-
-
-<option>
-Evening
-</option>
-
-
-<option>
-Night
-</option>
-
-
-
-</select>
-
-
-</div>
-
-
-
-
-
-
-<div>
-
-<label>
-Date
-</label>
-
-
-<input
-
-type="date"
-
-id="filter-date"
-
->
-
-
-</div>
-
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<!-- ==================================================
-     PERFORMANCE CHARTS
-================================================== -->
-
-
-<section class="charts-grid">
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-Room Activity
-</h3>
-
-
-
-<canvas id="roomChart"></canvas>
-
-
-
-</div>
-
-
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-Shift Distribution
-</h3>
-
-
-
-<canvas id="shiftChart"></canvas>
-
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<!-- ==================================================
+     <!-- ==================================================
      SURVEY RECORD TABLE
 ================================================== -->
 
 
 <section class="card">
-
 
 
 <h3>
@@ -472,12 +302,13 @@ Submission Records
 
 
 
+<div class="table-wrapper">
+
 
 <table id="submissions-table">
 
 
 <thead>
-
 
 <tr>
 
@@ -520,13 +351,14 @@ Date
 
 <tbody>
 
-
 </tbody>
 
 
 
 </table>
 
+
+</div>
 
 
 </section>
@@ -536,18 +368,12 @@ Date
 
 
 
-
-
-
 <!-- ==================================================
-     PHASE 3B
      ADVANCED ANALYTICS
 ================================================== -->
 
 
-
 <section class="analytics-panel">
-
 
 
 <h2>
@@ -557,14 +383,8 @@ Date
 
 
 
-
 <div class="analytics-grid">
 
-
-
-
-
-<!-- STAFF RANKING -->
 
 
 <div class="analytics-card">
@@ -618,6 +438,7 @@ Score
 </tbody>
 
 
+
 </table>
 
 
@@ -626,12 +447,6 @@ Score
 
 
 
-
-
-
-
-
-<!-- ROOM HEATMAP -->
 
 
 <div class="analytics-card">
@@ -645,20 +460,17 @@ Score
 
 <div id="roomHeatmap">
 
-</div>
-
 
 </div>
 
 
 
+</div>
 
 
 
 
 
-
-<!-- MISSED TASKS -->
 
 
 <div class="analytics-card">
@@ -684,29 +496,23 @@ Score
 
 
 
-
-
-<!-- MONTHLY TREND -->
-
-
 <div class="analytics-card">
 
 
 <h3>
-📈 Monthly Comparison
+📈 Monthly Trends
 </h3>
 
 
 
 <canvas id="monthlyComparisonChart">
 
+
 </canvas>
 
 
 
 </div>
-
-
 
 
 
@@ -724,16 +530,12 @@ Score
 
 
 
-
 <!-- ==================================================
-     PHASE 3C
      CLEANING INTELLIGENCE CENTER
 ================================================== -->
 
 
-
 <section class="intelligence-panel">
-
 
 
 <h2>
@@ -743,10 +545,7 @@ Score
 
 
 
-
 <div class="analytics-grid">
-
-
 
 
 
@@ -764,6 +563,7 @@ Score
 Calculating...
 
 </div>
+
 
 
 </div>
@@ -787,6 +587,7 @@ Calculating...
 
 
 </ul>
+
 
 
 </div>
@@ -843,19 +644,21 @@ Calculating...
 
 
 
-
-
 </div>
 
 
 </section>
 
-  
+
+
+
+
+
 
 
 
 <!-- ==================================================
-     EXECUTIVE REPORTING CENTER MODAL
+     EXECUTIVE REPORTING CENTER
 ================================================== -->
 
 
@@ -886,7 +689,7 @@ Report Type
 
 
 <option value="professional">
-Professional Report
+Professional PDF Report
 </option>
 
 
@@ -922,104 +725,94 @@ Annual Report
 
 
 
+<label>
+Year
+</label>
+
+
+<select id="reportYear">
+
+
+</select>
+
+
+
+
+
 
 <label>
 Month
 </label>
 
 
-
-
 <select id="reportMonth">
 
 
-<option value="0">
-January
-</option>
+</select>
+
+
+
+
+
+
+
+<label>
+Week
+</label>
+
+
+<select id="reportWeek">
 
 
 <option value="1">
-February
+Week 1
 </option>
 
 
 <option value="2">
-March
+Week 2
 </option>
 
 
 <option value="3">
-April
+Week 3
 </option>
 
 
 <option value="4">
-May
+Week 4
 </option>
 
 
 <option value="5">
-June
+Week 5
 </option>
-
-
-<option value="6">
-July
-</option>
-
-
-<option value="7">
-August
-</option>
-
-
-<option value="8">
-September
-</option>
-
-
-<option value="9">
-October
-</option>
-
-
-<option value="10">
-November
-</option>
-
-
-<option value="11">
-December
-</option>
-
 
 
 </select>
 
 
-<label>
-Year
-</label>
 
 
 
-<select id="reportYear">
-
-</select>
 
 
 <div class="report-buttons">
 
 
 
-<button onclick="generateSelectedReport()">
+<button
+onclick="generateSelectedReport()">
 
 Generate Report
 
 </button>
 
 
-<button onclick="closeReportingCenter()">
+
+
+<button
+onclick="closeReportingCenter()">
 
 Close
 
@@ -1030,72 +823,160 @@ Close
 </div>
 
 
-</div>
-
 
 </div>
 
 
-<!-- ==================================================
-     JAVASCRIPT
-     LOAD LAST
+</div>
+
+     <!-- ==================================================
+     JAVASCRIPT MODULE LOADING
+     LOAD ORDER IS CRITICAL
 ================================================== -->
 
+
 <!-- ==================================================
-     CORE CONFIGURATION
+     EXTERNAL CORE LIBRARIES
 ================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+
+<!-- ==================================================
+     SUPABASE CONFIGURATION
+================================================== -->
+
 <script src="config.js"></script>
 
+
+
+
+
 <!-- ==================================================
-     DATA LAYER
+     DATA ENGINE
+     SINGLE SOURCE OF TRUTH
 ================================================== -->
+
 <script src="data.js"></script>
 
-<!-- ==================================================
-     SHARED UTILITIES
-================================================== -->
-<script src="analytics-utils.js"></script>
+
+
+
 
 <!-- ==================================================
-     DASHBOARD MODULES
+     CORE UTILITIES
 ================================================== -->
+
+<script src="analytics-utils.js"></script>
+
+
+
+
+
+<!-- ==================================================
+     FILTER ENGINE
+================================================== -->
+
 <script src="filters.js"></script>
+
+
+
+
+
+<!-- ==================================================
+     DASHBOARD DISPLAY MODULES
+================================================== -->
+
 <script src="summary.js"></script>
+
 <script src="table.js"></script>
+
 <script src="charts.js"></script>
+
 <script src="staff-analytics.js"></script>
+
 <script src="insights.js"></script>
+
+
+
+
 
 <!-- ==================================================
      ADVANCED ANALYTICS
 ================================================== -->
+
 <script src="analytics.js"></script>
+
 <script src="intelligence.js"></script>
 
-<!-- ==================================================
-     EXPORT SYSTEM
-================================================== -->
-<script src="exports.js"></script>
+
+
+
 
 <!-- ==================================================
-     REPORTING SUPPORT
+     EXPORT ENGINE
 ================================================== -->
+
+<script src="exports.js"></script>
+
+
+
+
+
+<!-- ==================================================
+     PROFESSIONAL REPORT ENGINE
+     MUST LOAD BEFORE REPORT CENTER
+================================================== -->
+
 <script src="professional-report.js"></script>
+
+
+
+
+
+<!-- ==================================================
+     REPORT SUPPORT ENGINE
+     SUPABASE ONLY
+================================================== -->
+
 <script src="reports.js"></script>
+
+
+
 
 
 <!-- ==================================================
      DASHBOARD CONTROLLER
-     LOAD FIRST
 ================================================== -->
+
 <script src="dashboard-core.js"></script>
+
+
+
 
 
 <!-- ==================================================
      EXECUTIVE REPORTING CENTER
-     LOAD LAST (depends on dashboard data)
+     LOAD LAST
 ================================================== -->
+
 <script src="report-center.js"></script>
 
+
+
+
 </body>
+
 </html>
