@@ -2987,13 +2987,29 @@ async function addDashboardCharts(pdf, data){
 }
 
 
+// ============================================================
+// OPERATIONAL RISK REVIEW PAGE
+// UCDS v3.3
+// ============================================================
+
 function addRiskAnalysisPage(pdf,data){
+
 
     pdf.addPage();
 
+
     addHeader(pdf);
 
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
     pdf.setFontSize(18);
+
 
     pdf.text(
         "Operational Risk Review",
@@ -3002,26 +3018,48 @@ function addRiskAnalysisPage(pdf,data){
     );
 
 
+
     const tasks =
         getTaskPerformance(data);
 
 
-    const highRisk =
+
+    const critical =
         tasks.filter(
-            t=>t.compliance < 85
+            task =>
+            task.compliance < 80
         );
+
+
+
+    const attention =
+        tasks.filter(
+            task =>
+            task.compliance >=80 &&
+            task.compliance <95
+        );
+
 
 
     const stable =
         tasks.filter(
-            t=>t.compliance >= 95
+            task =>
+            task.compliance >=95
         );
+
 
 
     let y = 70;
 
 
+
+    // =====================================
+    // CRITICAL ATTENTION
+    // =====================================
+
+
     pdf.setFontSize(13);
+
 
     pdf.setTextColor(
         198,
@@ -3029,8 +3067,9 @@ function addRiskAnalysisPage(pdf,data){
         40
     );
 
+
     pdf.text(
-        "Attention Required",
+        "Critical Attention Required",
         15,
         y
     );
@@ -3042,15 +3081,12 @@ function addRiskAnalysisPage(pdf,data){
     pdf.setTextColor(0);
 
 
-    highRisk.forEach(task=>{
+
+    if(!critical.length){
 
 
         pdf.text(
-            "• "+
-            task.task+
-            " : "+
-            task.compliance+
-            "%",
+            "No critical issues identified.",
             20,
             y
         );
@@ -3058,11 +3094,123 @@ function addRiskAnalysisPage(pdf,data){
 
         y += 10;
 
-    });
+
+    }
+    else{
+
+
+        critical.forEach(task=>{
+
+
+            pdf.text(
+
+                "• " +
+                task.task +
+                " : " +
+                task.compliance +
+                "%",
+
+                20,
+                y
+
+            );
+
+
+            y += 10;
+
+
+        });
+
+
+    }
+
 
 
 
     y += 15;
+
+
+
+
+    // =====================================
+    // MONITORING REQUIRED
+    // =====================================
+
+
+    pdf.setTextColor(
+        249,
+        168,
+        37
+    );
+
+
+    pdf.text(
+        "Monitoring Required",
+        15,
+        y
+    );
+
+
+    y += 12;
+
+
+    pdf.setTextColor(0);
+
+
+
+    if(!attention.length){
+
+
+        pdf.text(
+            "No monitoring items.",
+            20,
+            y
+        );
+
+
+        y += 10;
+
+
+    }
+    else{
+
+
+        attention.forEach(task=>{
+
+
+            pdf.text(
+
+                "• " +
+                task.task +
+                " : " +
+                task.compliance +
+                "%",
+
+                20,
+                y
+
+            );
+
+
+            y += 10;
+
+
+        });
+
+
+    }
+
+
+
+
+    y += 15;
+
+
+
+
+    // =====================================
+    // STABLE PERFORMANCE
+    // =====================================
 
 
     pdf.setTextColor(
@@ -3086,27 +3234,49 @@ function addRiskAnalysisPage(pdf,data){
 
 
 
-    stable.forEach(task=>{
+    if(!stable.length){
 
 
         pdf.text(
-            "• "+
-            task.task+
-            " : "+
-            task.compliance+
-            "%",
+            "No stable items identified.",
             20,
             y
         );
 
 
-        y += 10;
+    }
+    else{
 
-    });
+
+        stable.forEach(task=>{
+
+
+            pdf.text(
+
+                "• " +
+                task.task +
+                " : " +
+                task.compliance +
+                "%",
+
+                20,
+                y
+
+            );
+
+
+            y += 10;
+
+
+        });
+
+
+    }
 
 
 
     addFooter(pdf);
+
 
 }
 
