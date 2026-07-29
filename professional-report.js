@@ -2880,6 +2880,129 @@ async function addDashboardCharts(pdf, data){
 
 }
 
+function addRiskAnalysisPage(pdf,data){
+
+    pdf.addPage();
+
+    addHeader(pdf);
+
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Operational Risk Review",
+        15,
+        45
+    );
+
+
+    const tasks =
+        getTaskPerformance(data);
+
+
+    const highRisk =
+        tasks.filter(
+            t=>t.compliance < 85
+        );
+
+
+    const stable =
+        tasks.filter(
+            t=>t.compliance >= 95
+        );
+
+
+    let y = 70;
+
+
+    pdf.setFontSize(13);
+
+    pdf.setTextColor(
+        198,
+        40,
+        40
+    );
+
+    pdf.text(
+        "Attention Required",
+        15,
+        y
+    );
+
+
+    y += 12;
+
+
+    pdf.setTextColor(0);
+
+
+    highRisk.forEach(task=>{
+
+
+        pdf.text(
+            "• "+
+            task.task+
+            " : "+
+            task.compliance+
+            "%",
+            20,
+            y
+        );
+
+
+        y += 10;
+
+    });
+
+
+
+    y += 15;
+
+
+    pdf.setTextColor(
+        46,
+        125,
+        50
+    );
+
+
+    pdf.text(
+        "Stable Performance",
+        15,
+        y
+    );
+
+
+    y += 12;
+
+
+    pdf.setTextColor(0);
+
+
+
+    stable.forEach(task=>{
+
+
+        pdf.text(
+            "• "+
+            task.task+
+            " : "+
+            task.compliance+
+            "%",
+            20,
+            y
+        );
+
+
+        y += 10;
+
+    });
+
+
+
+    addFooter(pdf);
+
+}
+
 
 // ============================================================
 // COMPLETE SURVEY RECORD TABLE
@@ -3297,6 +3420,8 @@ addShiftPerformance(pdf, reportData);
 
 await addDashboardCharts(pdf, reportData);
 
+addRiskAnalysisPage(pdf, reportData);       
+        
 addSurveyRecords(pdf, reportData);
 
 addManagementRecommendations(pdf, reportData);
