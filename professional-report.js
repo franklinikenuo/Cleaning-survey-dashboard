@@ -2385,9 +2385,15 @@ async function createChartImage(config){
 
 // ============================================================
 // ADD PROFESSIONAL ANALYTICS CHARTS TO PDF
+// UCDS v3.3 — GDI Executive Analytics
 // ============================================================
 
 async function addDashboardCharts(pdf, data){
+
+
+    // ========================================================
+    // PAGE 1 — ROOM + SHIFT ANALYTICS
+    // ========================================================
 
 
     pdf.addPage();
@@ -2419,7 +2425,7 @@ async function addDashboardCharts(pdf, data){
 
 
     // ========================================================
-    // ROOM COMPLIANCE CHART
+    // ROOM COMPLIANCE PERFORMANCE
     // ========================================================
 
 
@@ -2430,9 +2436,12 @@ async function addDashboardCharts(pdf, data){
 
 
 
+
     const roomImage = await createChartImage({
 
+
         type:"bar",
+
 
 
         data:{
@@ -2441,12 +2450,13 @@ async function addDashboardCharts(pdf, data){
             labels:
 
                 roomData.map(
-                    r => r.room
+                    room => room.room
                 ),
 
 
 
             datasets:[{
+
 
                 label:
                     "Compliance %",
@@ -2456,7 +2466,7 @@ async function addDashboardCharts(pdf, data){
                 data:
 
                     roomData.map(
-                        r => r.compliance
+                        room => room.compliance
                     ),
 
 
@@ -2468,6 +2478,8 @@ async function addDashboardCharts(pdf, data){
 
 
             }]
+
+
 
         },
 
@@ -2487,7 +2499,6 @@ async function addDashboardCharts(pdf, data){
                     display:false
 
                 }
-
 
 
             },
@@ -2535,7 +2546,6 @@ async function addDashboardCharts(pdf, data){
 
 
 
-
     pdf.addImage(
 
         roomImage,
@@ -2559,14 +2569,39 @@ async function addDashboardCharts(pdf, data){
 
 
 
+
     // ========================================================
-    // SHIFT PERFORMANCE CHART
+    // SHIFT COMPLIANCE DISTRIBUTION
     // ========================================================
+
 
 
     const shiftData =
 
         getShiftPerformance(data);
+
+
+
+
+    const shiftLabels =
+
+        Object.keys(
+            shiftData
+        );
+
+
+
+
+    const shiftValues =
+
+        Object.values(
+            shiftData
+        )
+        .map(
+            shift =>
+            shift.compliance
+        );
+
 
 
 
@@ -2583,9 +2618,7 @@ async function addDashboardCharts(pdf, data){
 
             labels:
 
-                Object.keys(
-                    shiftData
-                ),
+                shiftLabels,
 
 
 
@@ -2594,12 +2627,7 @@ async function addDashboardCharts(pdf, data){
 
                 data:
 
-                    Object.values(
-                        shiftData
-                    )
-                    .map(
-                        s => s.compliance
-                    ),
+                    shiftValues,
 
 
 
@@ -2649,7 +2677,9 @@ async function addDashboardCharts(pdf, data){
                 }
 
 
+
             }
+
 
 
         }
@@ -2675,7 +2705,6 @@ async function addDashboardCharts(pdf, data){
 
 
 
-
     pdf.addImage(
 
         shiftImage,
@@ -2694,6 +2723,7 @@ async function addDashboardCharts(pdf, data){
 
 
 
+
     addFooter(pdf);
 
 
@@ -2701,9 +2731,8 @@ async function addDashboardCharts(pdf, data){
 
 
     // ========================================================
-    // TASK COMPLIANCE CHART PAGE
+    // PAGE 2 — TASK COMPLIANCE ANALYSIS
     // ========================================================
-
 
 
     pdf.addPage();
@@ -2711,7 +2740,6 @@ async function addDashboardCharts(pdf, data){
 
 
     addHeader(pdf);
-
 
 
 
@@ -2757,10 +2785,10 @@ async function addDashboardCharts(pdf, data){
 
                 taskData.map(
 
-                    t => t.task
+                    task =>
+                    task.task
 
                 ),
-
 
 
 
@@ -2773,15 +2801,14 @@ async function addDashboardCharts(pdf, data){
 
 
 
-
                 data:
 
                     taskData.map(
 
-                        t => t.compliance
+                        task =>
+                        task.compliance
 
                     ),
-
 
 
 
@@ -2799,9 +2826,7 @@ async function addDashboardCharts(pdf, data){
 
 
 
-
         options:{
-
 
 
             responsive:false,
@@ -2811,7 +2836,6 @@ async function addDashboardCharts(pdf, data){
             plugins:{
 
 
-
                 legend:{
 
 
@@ -2819,6 +2843,7 @@ async function addDashboardCharts(pdf, data){
 
 
                 }
+
 
 
             },
@@ -2841,6 +2866,7 @@ async function addDashboardCharts(pdf, data){
 
 
             }
+
 
 
         }
@@ -2874,11 +2900,92 @@ async function addDashboardCharts(pdf, data){
 
 
 
+    // ========================================================
+    // TASK PERFORMANCE SUMMARY TABLE
+    // ========================================================
+
+
+    const taskRows =
+
+        taskData.map(task=>[
+
+
+            task.task,
+
+
+            task.completed,
+
+
+            task.total,
+
+
+            task.compliance+"%"
+
+
+        ]);
+
+
+
+
+    pdf.autoTable({
+
+
+        startY:155,
+
+
+        head:[
+
+
+            [
+
+                "Task",
+
+                "Completed",
+
+                "Audited",
+
+                "Compliance"
+
+            ]
+
+        ],
+
+
+
+        body:
+
+            taskRows,
+
+
+
+        theme:
+
+            "striped",
+
+
+
+        styles:{
+
+
+            fontSize:9
+
+
+        }
+
+
+
+    });
+
+
+
+
+
     addFooter(pdf);
 
 
 
 }
+
 
 function addRiskAnalysisPage(pdf,data){
 
