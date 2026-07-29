@@ -2415,22 +2415,6 @@ async function addDashboardCharts(pdf, data){
 
 
     // ========================================================
-    // GDI CORPORATE COLORS
-    // ========================================================
-
-    const GDI_BLUE = "#003B71";
-    const GDI_TEAL = "#00A6A6";
-    const GDI_GREEN = "#2E8B57";
-    const GDI_ORANGE = "#F39C12";
-
-
-
-
-    let y = 60;
-
-
-
-    // ========================================================
     // ROOM COMPLIANCE CHART
     // ========================================================
 
@@ -2472,7 +2456,7 @@ async function addDashboardCharts(pdf, data){
 
 
                     backgroundColor:
-                        GDI_BLUE
+                        GDI_COLORS.primary
 
                 }]
 
@@ -2568,15 +2552,12 @@ async function addDashboardCharts(pdf, data){
 
                     backgroundColor:[
 
-                        GDI_BLUE,
+                            GDI_COLORS.primary,
+    GDI_COLORS.secondary,
+    GDI_COLORS.success,
+    GDI_COLORS.warning
 
-                        GDI_TEAL,
-
-                        GDI_GREEN,
-
-                        GDI_ORANGE
-
-                    ]
+]
 
                 }]
 
@@ -2697,7 +2678,7 @@ async function addDashboardCharts(pdf, data){
 
 
                     backgroundColor:
-                        GDI_TEAL
+                        GDI_COLORS.secondary
 
 
                 }]
