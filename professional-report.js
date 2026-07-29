@@ -2414,93 +2414,144 @@ async function addDashboardCharts(pdf, data){
 
 
 
+    let y = 60;
+
+
+
     // ========================================================
     // ROOM COMPLIANCE CHART
     // ========================================================
 
 
     const roomData =
+
         getRoomPerformance(data)
         .slice(0,10);
 
 
 
-    const roomCanvas =
-        document.createElement("canvas");
+    const roomImage = await createChartImage({
+
+        type:"bar",
 
 
-    new Chart(
-        roomCanvas,
-        {
+        data:{
 
-            type:"bar",
 
-            data:{
+            labels:
 
-                labels:
+                roomData.map(
+                    r => r.room
+                ),
+
+
+
+            datasets:[{
+
+                label:
+                    "Compliance %",
+
+
+
+                data:
+
                     roomData.map(
-                        r=>r.room
+                        r => r.compliance
                     ),
 
 
-                datasets:[{
 
-                    label:
-                        "Compliance %",
+                backgroundColor:
 
-
-                    data:
-                        roomData.map(
-                            r=>r.compliance
-                        ),
+                    GDI_COLORS.primary
 
 
-                    backgroundColor:
-                        GDI_COLORS.primary
 
-                }]
+            }]
+
+        },
+
+
+
+        options:{
+
+
+            responsive:false,
+
+
+            plugins:{
+
+
+                legend:{
+
+                    display:false
+
+                }
+
+
 
             },
 
 
-            options:{
+            scales:{
 
-                responsive:false,
 
-                plugins:{
+                y:{
 
-                    legend:{
-                        display:false
-                    }
+
+                    beginAtZero:true,
+
+
+                    max:100
+
 
                 }
 
+
             }
+
 
         }
 
-    );
+
+    });
+
 
 
 
 
     pdf.setFontSize(12);
 
+
     pdf.text(
+
         "Room Compliance Performance",
+
         15,
+
         y
+
     );
+
+
 
 
     pdf.addImage(
-        roomCanvas.toDataURL("image/png"),
+
+        roomImage,
+
         "PNG",
+
         15,
+
         y+5,
+
         175,
+
         70
+
     );
+
 
 
     y += 90;
@@ -2514,83 +2565,120 @@ async function addDashboardCharts(pdf, data){
 
 
     const shiftData =
+
         getShiftPerformance(data);
 
 
 
-    const shiftCanvas =
-        document.createElement("canvas");
+
+    const shiftImage = await createChartImage({
+
+
+        type:"doughnut",
 
 
 
-    new Chart(
-        shiftCanvas,
-        {
+        data:{
 
 
-            type:"doughnut",
+            labels:
 
-
-            data:{
-
-
-                labels:Object.keys(
+                Object.keys(
                     shiftData
                 ),
 
 
-                datasets:[{
+
+            datasets:[{
 
 
-                    data:Object.values(
+                data:
+
+                    Object.values(
                         shiftData
                     )
                     .map(
-                        s=>s.compliance
+                        s => s.compliance
                     ),
 
 
-                    backgroundColor:[
 
-                            GDI_COLORS.primary,
-    GDI_COLORS.secondary,
-    GDI_COLORS.success,
-    GDI_COLORS.warning
-
-]
-
-                }]
+                backgroundColor:[
 
 
-            },
+                    GDI_COLORS.primary,
 
 
-            options:{
+                    GDI_COLORS.secondary,
 
-                responsive:false
+
+                    GDI_COLORS.success,
+
+
+                    GDI_COLORS.warning
+
+
+
+                ]
+
+
+
+            }]
+
+
+
+        },
+
+
+
+        options:{
+
+
+            responsive:false,
+
+
+            plugins:{
+
+
+                legend:{
+
+
+                    position:"bottom"
+
+
+                }
+
 
             }
 
 
         }
 
-    );
+
+
+    });
 
 
 
 
 
     pdf.text(
+
         "Shift Compliance Distribution",
+
         15,
+
         y
+
     );
+
+
 
 
 
     pdf.addImage(
 
-        shiftCanvas.toDataURL("image/png"),
+        shiftImage,
 
         "PNG",
 
@@ -2606,99 +2694,148 @@ async function addDashboardCharts(pdf, data){
 
 
 
-    y += 100;
+    addFooter(pdf);
+
 
 
 
 
     // ========================================================
-    // TASK COMPLIANCE CHART
+    // TASK COMPLIANCE CHART PAGE
     // ========================================================
+
 
 
     pdf.addPage();
+
 
 
     addHeader(pdf);
 
 
 
+
     pdf.setFontSize(18);
 
 
+
     pdf.text(
+
         "Task Compliance Analysis",
+
         15,
+
         45
+
     );
 
 
 
 
+
     const taskData =
+
         getTaskPerformance(data);
 
 
 
-    const taskCanvas =
-        document.createElement("canvas");
+
+
+    const taskImage = await createChartImage({
 
 
 
-    new Chart(
-        taskCanvas,
-        {
+        type:"bar",
 
 
-            type:"bar",
+
+        data:{
 
 
-            data:{
+
+            labels:
+
+                taskData.map(
+
+                    t => t.task
+
+                ),
 
 
-                labels:
+
+
+            datasets:[{
+
+
+                label:
+
+                    "Compliance %",
+
+
+
+
+                data:
+
                     taskData.map(
-                        t=>t.task
+
+                        t => t.compliance
+
                     ),
 
 
 
-                datasets:[{
 
+                backgroundColor:
 
-                    label:
-                        "Compliance %",
-
-
-                    data:
-                        taskData.map(
-                            t=>t.compliance
-                        ),
+                    GDI_COLORS.secondary
 
 
 
-                    backgroundColor:
-                        GDI_COLORS.secondary
+            }]
 
 
-                }]
+
+        },
+
+
+
+
+        options:{
+
+
+
+            responsive:false,
+
+
+
+            plugins:{
+
+
+
+                legend:{
+
+
+                    display:false
+
+
+                }
 
 
             },
 
 
-            options:{
+
+            scales:{
 
 
-                responsive:false,
+                y:{
 
 
-                plugins:{
+                    beginAtZero:true,
 
 
-                    legend:{
-                        display:false
-                    }
+                    max:100
+
 
                 }
 
@@ -2708,14 +2845,18 @@ async function addDashboardCharts(pdf, data){
 
         }
 
-    );
+
+
+    });
+
+
 
 
 
 
     pdf.addImage(
 
-        taskCanvas.toDataURL("image/png"),
+        taskImage,
 
         "PNG",
 
@@ -2728,6 +2869,8 @@ async function addDashboardCharts(pdf, data){
         80
 
     );
+
+
 
 
 
