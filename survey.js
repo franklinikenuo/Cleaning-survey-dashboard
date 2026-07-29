@@ -550,24 +550,10 @@ async(e)=>{
 
 
         const {
-
-            data,
-
-            error
-
-        } = await client
-
-
-        .from("surveys")
-
-
-        .insert([payload])
-
-
-        .select();
-
-
-
+    error
+} = await client
+.from("surveys")
+.insert([payload]);
 
 
 
