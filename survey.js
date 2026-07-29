@@ -20,8 +20,7 @@ const supabaseUrl =
 "https://cpbkdtcrimppsxlstlob.supabase.co";
 
 
-const supabaseKey =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0b2IiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDk0MTMxMywiZXhwIjoyMDk2NTE3MzEzfQ.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYmtkdGNyaW1wcHN4bHN0bG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDEzMTMsImV4cCI6MjA5NjUxNzMxM30.oWvz_eKGwP7Po0SfSCHDNStCJanpn-c-gqaOkAjCJMI";
 
 
 const client =
