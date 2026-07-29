@@ -1,16 +1,113 @@
 // ============================================================
 // UCDS AUTH CONTROL
-// Supabase Logout
+// Supabase Session Guard
+// ============================================================
+
+
+async function checkAuth(){
+
+
+    try{
+
+
+        const {
+            data,
+            error
+        } = await client.auth.getSession();
+
+
+
+        if(error){
+
+            console.error(
+                "Session check error:",
+                error
+            );
+
+            window.location.href =
+            "login.html";
+
+            return false;
+
+        }
+
+
+
+        if(!data.session){
+
+
+            console.warn(
+                "No active session"
+            );
+
+
+            window.location.href =
+            "login.html";
+
+
+            return false;
+
+        }
+
+
+
+        console.log(
+            "✅ Active session:",
+            data.session.user.email
+        );
+
+
+        return true;
+
+
+
+    }
+
+    catch(error){
+
+
+        console.error(
+            "Auth check failed:",
+            error
+        );
+
+
+        window.location.href =
+        "login.html";
+
+
+        return false;
+
+
+    }
+
+
+}
+
+
+
+// Run immediately
+
+checkAuth();
+
+
+
+
+
+// ============================================================
+// LOGOUT
 // ============================================================
 
 
 window.logout = async function(){
 
 
-    try {
+    try{
 
 
-        const { error } = await client.auth.signOut();
+        const {
+            error
+        } = await client.auth.signOut();
 
 
 
@@ -19,10 +116,6 @@ window.logout = async function(){
             console.error(
                 "Logout failed:",
                 error
-            );
-
-            alert(
-                "Unable to logout."
             );
 
             return;
@@ -36,10 +129,8 @@ window.logout = async function(){
         );
 
 
-
         window.location.href =
-            "login.html";
-
+        "login.html";
 
 
     }
@@ -47,12 +138,10 @@ window.logout = async function(){
 
     catch(error){
 
-
         console.error(
             "Logout error:",
             error
         );
-
 
     }
 
@@ -60,6 +149,9 @@ window.logout = async function(){
 };
 
 
+
+
+
 console.log(
-    "✅ Auth controls loaded"
+"✅ Auth controls loaded"
 );
