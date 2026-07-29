@@ -549,41 +549,26 @@ async(e)=>{
 
 
 
-        const {
-    error
-} = await client
-.from("surveys")
-.insert([payload]);
+const { error } = await client
+    .from("surveys")
+    .insert([payload]);
 
 
+if(error){
+
+    console.error(
+        "Supabase insert error:",
+        error
+    );
+
+    throw error;
+
+}
 
 
-        if(error){
-
-
-            console.error(
-                "Supabase insert error:",
-                error
-            );
-
-
-            throw error;
-
-
-        }
-
-
-
-
-
-
-        console.log(
-
-            "Survey saved:",
-
-            data
-
-        );
+console.log(
+    "✅ Survey saved successfully"
+);
 
 
 
