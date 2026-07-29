@@ -55,6 +55,21 @@ const REPORT = {
 
 };
 
+// ============================================================
+// GDI CORPORATE CHART COLORS
+// ============================================================
+
+const GDI_COLORS = {
+
+    primary: "#003B5C",     // GDI dark blue
+    secondary: "#00A3E0",   // GDI light blue
+    success: "#2E7D32",     // Compliance green
+    warning: "#F9A825",     // Attention yellow
+    danger: "#C62828",      // Low performance red
+    grey: "#607D8B"
+
+};
+
 
 // ============================================================
 // REPORT FILTER ENGINE
@@ -1857,151 +1872,110 @@ function getShiftPerformance(data){
 
 function addPerformanceDashboard(pdf,data){
 
-
-
     pdf.addPage();
-
-
 
     addHeader(pdf);
 
+    const kpi = calculateKPIs(data);
 
-
+    pdf.setFont("helvetica","bold");
     pdf.setFontSize(18);
 
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-
     pdf.text(
-        "Performance Dashboard",
+        "Executive Performance Dashboard",
         15,
         45
     );
 
-
-
-
-    const kpi =
-        calculateKPIs(data);
-
-
-
     const cards=[
 
+        {
+            title:"Compliance",
+            value:kpi.compliance+"%",
+            color:[34,197,94]
+        },
 
-        [
-            "Compliance",
-            kpi.compliance+"%"
-        ],
+        {
+            title:"Surveys",
+            value:kpi.totalSurveys,
+            color:[37,99,235]
+        },
 
+        {
+            title:"Rooms",
+            value:kpi.totalRooms,
+            color:[245,158,11]
+        },
 
-        [
-            "Surveys",
-            kpi.totalSurveys
-        ],
-
-
-        [
-            "Rooms",
-            kpi.totalRooms
-        ],
-
-
-        [
-            "Staff",
-            kpi.totalStaff
-        ]
-
+        {
+            title:"Staff",
+            value:kpi.totalStaff,
+            color:[147,51,234]
+        }
 
     ];
 
-
-
-
     let x=15;
-
-
 
     cards.forEach(card=>{
 
+        pdf.setFillColor(...card.color);
 
         pdf.roundedRect(
-
             x,
-
             60,
-
             40,
-
-            30,
-
+            34,
             3,
-
-            3
-
+            3,
+            "F"
         );
 
+        pdf.setTextColor(255);
 
-
-        pdf.setFontSize(10);
-
+        pdf.setFontSize(9);
 
         pdf.text(
-
-            card[0],
-
+            card.title,
             x+20,
-
             72,
-
-            {
-                align:"center"
-            }
-
+            {align:"center"}
         );
 
-
-
-        pdf.setFontSize(15);
-
-
+        pdf.setFontSize(17);
 
         pdf.text(
-
-            String(card[1]),
-
+            String(card.value),
             x+20,
-
-            84,
-
-            {
-                align:"center"
-            }
-
+            87,
+            {align:"center"}
         );
 
+        pdf.setTextColor(0);
 
-
-        x+=45;
-
+        x += 45;
 
     });
 
+    pdf.setFontSize(11);
 
+    pdf.text(
+        "Overall Status:",
+        15,
+        120
+    );
 
+    pdf.setFont("helvetica","bold");
+
+    pdf.text(
+        kpi.status,
+        55,
+        120
+    );
 
     addFooter(pdf);
 
-
 }
-
-
-
-
-
 
 
 
@@ -2381,17 +2355,42 @@ function addShiftPerformance(pdf,data){
 
 
 
+
+async function createChartImage(config){
+
+    const canvas=document.createElement("canvas");
+
+    canvas.width=1200;
+    canvas.height=700;
+
+    new Chart(canvas,{
+        ...config,
+        options:{
+            responsive:false,
+            animation:false,
+            plugins:{
+                legend:{
+                    position:"bottom"
+                }
+            }
+        }
+    });
+
+    await new Promise(resolve=>setTimeout(resolve,300));
+
+    return canvas.toDataURL("image/png");
+
+}
+
+
 // ============================================================
-// ADD DASHBOARD CHARTS TO PDF
+// ADD PROFESSIONAL ANALYTICS CHARTS TO PDF
 // ============================================================
 
-
-async function addDashboardCharts(pdf){
-
+async function addDashboardCharts(pdf, data){
 
 
     pdf.addPage();
-
 
 
     addHeader(pdf);
@@ -2407,16 +2406,22 @@ async function addDashboardCharts(pdf){
     pdf.setFontSize(18);
 
 
-
     pdf.text(
-
-        "Dashboard Visual Analytics",
-
+        "Cleaning Compliance Analytics",
         15,
-
         45
-
     );
+
+
+
+    // ========================================================
+    // GDI CORPORATE COLORS
+    // ========================================================
+
+    const GDI_BLUE = "#003B71";
+    const GDI_TEAL = "#00A6A6";
+    const GDI_GREEN = "#2E8B57";
+    const GDI_ORANGE = "#F39C12";
 
 
 
@@ -2425,126 +2430,331 @@ async function addDashboardCharts(pdf){
 
 
 
+    // ========================================================
+    // ROOM COMPLIANCE CHART
+    // ========================================================
+
+
+    const roomData =
+        getRoomPerformance(data)
+        .slice(0,10);
+
+
 
     const roomCanvas =
+        document.createElement("canvas");
 
-        document.getElementById(
-            "roomChart"
-        );
+
+    new Chart(
+        roomCanvas,
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:
+                    roomData.map(
+                        r=>r.room
+                    ),
+
+
+                datasets:[{
+
+                    label:
+                        "Compliance %",
+
+
+                    data:
+                        roomData.map(
+                            r=>r.compliance
+                        ),
+
+
+                    backgroundColor:
+                        GDI_BLUE
+
+                }]
+
+            },
+
+
+            options:{
+
+                responsive:false,
+
+                plugins:{
+
+                    legend:{
+                        display:false
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+
+
+
+    pdf.setFontSize(12);
+
+    pdf.text(
+        "Room Compliance Performance",
+        15,
+        y
+    );
+
+
+    pdf.addImage(
+        roomCanvas.toDataURL("image/png"),
+        "PNG",
+        15,
+        y+5,
+        175,
+        70
+    );
+
+
+    y += 90;
+
+
+
+
+    // ========================================================
+    // SHIFT PERFORMANCE CHART
+    // ========================================================
+
+
+    const shiftData =
+        getShiftPerformance(data);
 
 
 
     const shiftCanvas =
-
-        document.getElementById(
-            "shiftChart"
-        );
+        document.createElement("canvas");
 
 
 
+    new Chart(
+        shiftCanvas,
+        {
 
 
-    if(roomCanvas){
+            type:"doughnut",
 
 
-
-        pdf.setFontSize(13);
-
+            data:{
 
 
-        pdf.text(
-
-            "Room Activity",
-
-            15,
-
-            y
-
-        );
+                labels:Object.keys(
+                    shiftData
+                ),
 
 
-
-        pdf.addImage(
-
-            roomCanvas.toDataURL(
-                "image/png"
-            ),
-
-            "PNG",
-
-            15,
-
-            y+5,
-
-            175,
-
-            70
-
-        );
+                datasets:[{
 
 
-
-        y += 90;
-
-
-    }
-
-
-
+                    data:Object.values(
+                        shiftData
+                    )
+                    .map(
+                        s=>s.compliance
+                    ),
 
 
+                    backgroundColor:[
 
-    if(shiftCanvas){
+                        GDI_BLUE,
+
+                        GDI_TEAL,
+
+                        GDI_GREEN,
+
+                        GDI_ORANGE
+
+                    ]
+
+                }]
 
 
+            },
 
-        pdf.text(
 
-            "Shift Distribution",
+            options:{
 
-            15,
+                responsive:false
 
-            y
+            }
 
-        );
+
+        }
+
+    );
 
 
 
-        pdf.addImage(
-
-            shiftCanvas.toDataURL(
-                "image/png"
-            ),
-
-            "PNG",
-
-            30,
-
-            y+5,
-
-            120,
-
-            80
-
-        );
 
 
-    }
+    pdf.text(
+        "Shift Compliance Distribution",
+        15,
+        y
+    );
 
+
+
+    pdf.addImage(
+
+        shiftCanvas.toDataURL("image/png"),
+
+        "PNG",
+
+        35,
+
+        y+5,
+
+        120,
+
+        80
+
+    );
+
+
+
+    y += 100;
+
+
+
+
+    // ========================================================
+    // TASK COMPLIANCE CHART
+    // ========================================================
+
+
+    pdf.addPage();
+
+
+    addHeader(pdf);
+
+
+
+    pdf.setFontSize(18);
+
+
+    pdf.text(
+        "Task Compliance Analysis",
+        15,
+        45
+    );
+
+
+
+
+    const taskData =
+        getTaskPerformance(data);
+
+
+
+    const taskCanvas =
+        document.createElement("canvas");
+
+
+
+    new Chart(
+        taskCanvas,
+        {
+
+
+            type:"bar",
+
+
+            data:{
+
+
+                labels:
+                    taskData.map(
+                        t=>t.task
+                    ),
+
+
+
+                datasets:[{
+
+
+                    label:
+                        "Compliance %",
+
+
+                    data:
+                        taskData.map(
+                            t=>t.compliance
+                        ),
+
+
+
+                    backgroundColor:
+                        GDI_TEAL
+
+
+                }]
+
+
+            },
+
+
+            options:{
+
+
+                responsive:false,
+
+
+                plugins:{
+
+
+                    legend:{
+                        display:false
+                    }
+
+                }
+
+
+            }
+
+
+        }
+
+    );
+
+
+
+
+    pdf.addImage(
+
+        taskCanvas.toDataURL("image/png"),
+
+        "PNG",
+
+        15,
+
+        60,
+
+        175,
+
+        80
+
+    );
 
 
 
     addFooter(pdf);
 
 
+
 }
-
-
-
-
-
-
-
 
 
 // ============================================================
@@ -2945,103 +3155,27 @@ window.exportProfessionalPDF = async function(filters={}){
 
 
 
+// PAGE ORDER
 
+addCoverPage(pdf, reportData);
 
+addPerformanceDashboard(pdf, reportData);
 
-        // PAGE ORDER
+addExecutiveSummary(pdf, reportData);
 
-        addCoverPage(
+addRoomPerformance(pdf, reportData);
 
-            pdf,
+addStaffPerformance(pdf, reportData);
 
-            reportData
+addTaskPerformance(pdf, reportData);
 
-        );
+addShiftPerformance(pdf, reportData);
 
+await addDashboardCharts(pdf, reportData);
 
+addSurveyRecords(pdf, reportData);
 
-        addPerformanceDashboard(
-
-            pdf,
-
-            reportData
-
-        );
-
-
-
-        addExecutiveSummary(
-
-            pdf,
-
-            reportData
-
-        );
-
-
-
-        addRoomPerformance(
-
-            pdf,
-
-            reportData
-
-        );
-
-
-
-        addStaffPerformance(
-
-            pdf,
-
-            reportData
-
-        );
-
-        addTaskPerformance(
-    pdf,
-    reportData
-);
-
-        addShiftPerformance(
-    pdf,
-    reportData
-);
-
-        await addDashboardCharts(
-
-            pdf
-
-        );
-
-
-
-
-
-        addSurveyRecords(
-
-            pdf,
-
-            reportData
-
-        );
-
-
-
-
-
-        addManagementRecommendations(
-
-            pdf,
-
-            reportData
-
-        );
-
-
-
-
-
+addManagementRecommendations(pdf, reportData);
 
 
         pdf.save(
@@ -3059,10 +3193,6 @@ window.exportProfessionalPDF = async function(filters={}){
             ".pdf"
 
         );
-
-
-
-
 
 
 
