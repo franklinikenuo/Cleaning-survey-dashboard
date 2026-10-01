@@ -251,18 +251,14 @@ window.exportCSV = function(){
 
 // ============================================================
 // EXCEL EXPORT
+// MONTH-SPECIFIC RAW SURVEY DATA
 // ============================================================
 
+window.exportExcel = function(year, month){
 
-window.exportExcel = function(){
+    const allData = DataStore.getAll();
 
-
-    const data =
-        DataStore.getAll();
-
-
-
-    if(!data.length){
+    if(!allData.length){
 
         alert(
             "No survey data available."
@@ -271,7 +267,6 @@ window.exportExcel = function(){
         return;
 
     }
-
 
 
     if(typeof XLSX === "undefined"){
@@ -285,83 +280,118 @@ window.exportExcel = function(){
     }
 
 
+    // ========================================================
+    // DETERMINE REPORT PERIOD
+    // ========================================================
+
+    const now = new Date();
+
+    const selectedYear =
+        year
+        ? Number(year)
+        : now.getFullYear();
 
 
-    const rows =
-
-        data.map(row=>{
-
-
-            const stats =
-
-                AnalyticsUtils
-
-                .getTaskStats(row);
+    const selectedMonth =
+        month
+        ? Number(month)
+        : now.getMonth() + 1;
 
 
+    // ========================================================
+    // FILTER DATA TO SELECTED MONTH
+    // ========================================================
 
-            return {
+    const monthlyData = allData.filter(row => {
 
-
-                Date:
-
-                    row.work_date || "",
-
-
-                Room:
-
-                    row.room || "",
+        const dateValue =
+            row.work_date ||
+            row.created_at;
 
 
-                Staff:
+        if(!dateValue){
 
-                    row.staff || "",
+            return false;
 
-
-                Shift:
-
-                    row.shift || "",
+        }
 
 
-                CompletedTasks:
-
-                    stats.completed,
-
-
-                TotalTasks:
-
-                    stats.total,
+        const date =
+            new Date(dateValue);
 
 
-                Compliance:
+        if(isNaN(date.getTime())){
 
-                    stats.total
+            return false;
 
-                    ?
-
-                    Math.round(
-
-                        stats.completed /
-
-                        stats.total *
-
-                        100
-
-                    )
-
-                    :
-
-                    0
+        }
 
 
-            };
+        return (
+
+            date.getFullYear() === selectedYear &&
+
+            date.getMonth() + 1 === selectedMonth
+
+        );
+
+    });
 
 
-        });
+    // ========================================================
+    // NO DATA FOR SELECTED MONTH
+    // ========================================================
+
+    if(!monthlyData.length){
+
+        const monthName =
+
+            new Date(
+
+                selectedYear,
+
+                selectedMonth - 1,
+
+                1
+
+            ).toLocaleString(
+
+                "en-CA",
+
+                {
+                    month:"long"
+                }
+
+            );
 
 
+        alert(
+
+            `No survey data found for ${monthName} ${selectedYear}.`
+
+        );
+
+        return;
+
+    }
 
 
+    // ========================================================
+    // COPY RAW RECORDS
+    // ========================================================
+
+    const rows = monthlyData.map(row => {
+
+        return {
+            ...row
+        };
+
+    });
+
+
+    // ========================================================
+    // CREATE WORKSHEET
+    // ========================================================
 
     const ws =
 
@@ -370,11 +400,13 @@ window.exportExcel = function(){
         );
 
 
+    // ========================================================
+    // CREATE WORKBOOK
+    // ========================================================
 
     const wb =
 
         XLSX.utils.book_new();
-
 
 
     XLSX.utils.book_append_sheet(
@@ -383,25 +415,72 @@ window.exportExcel = function(){
 
         ws,
 
-        "Cleaning Report"
+        "Survey Data"
 
     );
 
 
+    // ========================================================
+    // MONTH NAME
+    // ========================================================
+
+    const monthName =
+
+        new Date(
+
+            selectedYear,
+
+            selectedMonth - 1,
+
+            1
+
+        ).toLocaleString(
+
+            "en-CA",
+
+            {
+                month:"long"
+            }
+
+        );
+
+
+    // ========================================================
+    // FILE NAME
+    // ========================================================
+
+    const fileName =
+
+        `Cleaning-Survey-Report-${monthName}-${selectedYear}.xlsx`;
+
+
+    // ========================================================
+    // DOWNLOAD
+    // ========================================================
 
     XLSX.writeFile(
 
         wb,
 
-        "Cleaning-Survey-Report.xlsx"
+        fileName
 
     );
 
 
+    console.log(
+
+        `✅ Excel report generated: ${fileName}`
+
+    );
+
+
+    console.log(
+
+        `📊 Records exported: ${monthlyData.length}`
+
+    );
+
 };
-
-
-
 
 
 
@@ -409,12 +488,19 @@ window.exportExcel = function(){
 // ANALYTICS EXCEL EXPORT
 // ============================================================
 
-
 window.exportAnalyticsExcel = function(){
 
+    const filters =
+        window.currentReportFilters || {};
 
-    exportExcel();
 
+    exportExcel(
+
+        filters.year,
+
+        filters.month
+
+    );
 
 };
 
