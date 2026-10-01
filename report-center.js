@@ -236,163 +236,139 @@ window.populateReportWeeks = function(){
 
 window.generateSelectedReport = async function(){
 
-    const filters = {
+    const typeElement = document.getElementById("reportType");
+    const yearElement = document.getElementById("reportYear");
+    const monthElement = document.getElementById("reportMonth");
+    const weekElement = document.getElementById("reportWeek");
 
-        type:
-            document.getElementById(
-                "reportType"
-            )?.value || "all",
+    const type = typeElement ? typeElement.value : "professional";
+    const year = yearElement ? Number(yearElement.value) : null;
+    const month = monthElement ? Number(monthElement.value) : null;
+    const week = weekElement ? Number(weekElement.value) : null;
 
-        year:
-            Number(
-                document.getElementById(
-                    "reportYear"
-                )?.value
-            ),
+    console.log("=================================");
+    console.log("REPORT CENTER SELECTION");
+    console.log("Type:", type);
+    console.log("Year:", year);
+    console.log("Month:", month);
+    console.log("Week:", week);
+    console.log("=================================");
 
-        month:
-            Number(
-                document.getElementById(
-                    "reportMonth"
-                )?.value
-            ),
+    // --------------------------------------------------------
+    // VALIDATE YEAR / MONTH
+    // --------------------------------------------------------
 
-        week:
-            Number(
-                document.getElementById(
-                    "reportWeek"
-                )?.value
-            )
+    if(!year || !month){
 
-    };
-
-
-    console.log(
-
-        "Selected report filters:",
-
-        filters
-
-    );
-
-
-    // ========================================================
-    // SAVE REPORT FILTERS
-    // ========================================================
-
-    if(
-        typeof updateReportFilters === "function"
-    ){
-
-        updateReportFilters(filters);
-
-    }
-
-
-    const status =
-        document.getElementById(
-            "reportStatus"
+        alert(
+            "Please select a year and month."
         );
 
-
-    if(status){
-
-        status.innerHTML =
-            "Generating report...";
-
+        return;
     }
 
+    // --------------------------------------------------------
+    // UPDATE GLOBAL REPORT FILTERS
+    // --------------------------------------------------------
 
-    try{
+    const filters = {
+        type: type,
+        year: year,
+        month: month,
+        week: week
+    };
 
+    if(typeof updateReportFilters === "function"){
+        updateReportFilters(filters);
+    }
 
-        // ====================================================
-        // MONTHLY EXCEL
-        // ====================================================
+    const status =
+        document.getElementById("reportStatus");
 
-        if(filters.type === "excel"){
+    if(status){
+        status.innerHTML =
+            "Generating report...";
+    }
 
-            if(
-                typeof exportExcel !== "function"
-            ){
+    // --------------------------------------------------------
+    // MONTHLY EXCEL REPORT
+    // --------------------------------------------------------
+
+    if(type === "excel"){
+
+        try{
+
+            if(typeof exportExcel !== "function"){
 
                 throw new Error(
-                    "Excel export engine is not available."
+                    "exportExcel function is not available."
                 );
 
             }
 
+            console.log(
+                "📊 Generating monthly Excel:",
+                year,
+                month
+            );
 
             exportExcel(
-
-                filters.year,
-
-                filters.month
-
+                year,
+                month
             );
-
 
             if(status){
-
                 status.innerHTML =
                     "✅ Monthly Excel report complete";
-
             }
-
-
-            console.log(
-
-                "✅ Monthly Excel report generated:",
-
-                filters.year,
-
-                filters.month
-
-            );
-
 
             return;
 
+        }catch(error){
+
+            console.error(
+                "Excel report error:",
+                error
+            );
+
+            if(status){
+                status.innerHTML =
+                    "❌ Excel report failed";
+            }
+
+            alert(
+                "Unable to generate Excel report."
+            );
+
+            return;
         }
+    }
 
+    // --------------------------------------------------------
+    // EXISTING PDF REPORTS
+    // --------------------------------------------------------
 
-        // ====================================================
-        // EXISTING PDF REPORTS
-        // ====================================================
+    try{
 
         await sendReport();
 
-
         if(status){
-
             status.innerHTML =
                 "✅ Report complete";
-
         }
 
-
-    }
-
-    catch(error){
+    }catch(error){
 
         console.error(
-
             "Report generation error:",
-
             error
-
         );
 
-
         if(status){
-
             status.innerHTML =
                 "❌ Report failed";
-
         }
-
     }
-
 };
 
 
