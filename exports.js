@@ -248,64 +248,270 @@ window.exportCSV = function(){
 // ============================================================
 // MONTHLY RAW EXCEL EXPORT
 // Exports ONLY the selected month
+// Reads directly from Executive Reporting Center when needed
 // ============================================================
 
 window.exportExcel = function(year, month){
 
-    const allData = DataStore.getAll();
+    console.log("=================================");
+    console.log("📊 EXCEL EXPORT STARTED");
+    console.log("=================================");
 
-    if(!allData.length){
-        alert("No survey data available.");
+
+    // --------------------------------------------------------
+    // GET DATA
+    // --------------------------------------------------------
+
+    const allData =
+        DataStore.getAll();
+
+
+    if(!allData || !allData.length){
+
+        alert(
+            "No survey data available."
+        );
+
+        console.error(
+            "❌ DataStore contains no survey records."
+        );
+
         return;
+
     }
+
+
+    // --------------------------------------------------------
+    // CHECK XLSX LIBRARY
+    // --------------------------------------------------------
 
     if(typeof XLSX === "undefined"){
-        alert("Excel library not loaded.");
+
+        alert(
+            "Excel library not loaded."
+        );
+
+        console.error(
+            "❌ XLSX library is not available."
+        );
+
         return;
+
     }
 
-    // Use selected Reporting Center values
-    const selectedYear = Number(year);
-    const selectedMonth = Number(month);
 
-    if(!selectedYear || !selectedMonth){
-        alert("Please select a year and month.");
-        return;
+    // --------------------------------------------------------
+    // GET YEAR
+    //
+    // Priority:
+    // 1. Function argument
+    // 2. Reporting Center #reportYear
+    // --------------------------------------------------------
+
+    let selectedYear =
+        year;
+
+
+    if(
+        selectedYear === undefined ||
+        selectedYear === null ||
+        selectedYear === ""
+    ){
+
+        const yearElement =
+            document.getElementById(
+                "reportYear"
+            );
+
+
+        if(yearElement){
+
+            selectedYear =
+                yearElement.value;
+
+        }
+
     }
+
+
+    // --------------------------------------------------------
+    // GET MONTH
+    //
+    // Priority:
+    // 1. Function argument
+    // 2. Reporting Center #reportMonth
+    // --------------------------------------------------------
+
+    let selectedMonth =
+        month;
+
+
+    if(
+        selectedMonth === undefined ||
+        selectedMonth === null ||
+        selectedMonth === ""
+    ){
+
+        const monthElement =
+            document.getElementById(
+                "reportMonth"
+            );
+
+
+        if(monthElement){
+
+            selectedMonth =
+                monthElement.value;
+
+        }
+
+    }
+
+
+    // --------------------------------------------------------
+    // NORMALIZE
+    // --------------------------------------------------------
+
+    selectedYear =
+        Number(selectedYear);
+
+
+    selectedMonth =
+        Number(selectedMonth);
+
+
+    // --------------------------------------------------------
+    // DEBUG
+    // --------------------------------------------------------
+
+    console.log(
+        "Selected Year:",
+        selectedYear
+    );
+
+    console.log(
+        "Selected Month:",
+        selectedMonth
+    );
+
+
+    // --------------------------------------------------------
+    // VALIDATE
+    // --------------------------------------------------------
+
+    if(
+        !Number.isInteger(selectedYear) ||
+        selectedYear < 2000
+    ){
+
+        alert(
+            "Please select a year."
+        );
+
+        console.error(
+            "❌ Invalid year:",
+            selectedYear
+        );
+
+        return;
+
+    }
+
+
+    if(
+        !Number.isInteger(selectedMonth) ||
+        selectedMonth < 1 ||
+        selectedMonth > 12
+    ){
+
+        alert(
+            "Please select a month."
+        );
+
+        console.error(
+            "❌ Invalid month:",
+            selectedMonth
+        );
+
+        return;
+
+    }
+
 
     // --------------------------------------------------------
     // FILTER BY DATE
-    // Use the YYYY-MM-DD portion directly.
-    // This avoids timezone problems with new Date("YYYY-MM-DD")
+    //
+    // Uses YYYY-MM-DD directly.
+    // Avoids timezone problems.
     // --------------------------------------------------------
 
-    const monthlyData = allData.filter(row => {
+    const monthlyData =
+        allData.filter(row => {
 
-        const dateValue =
-            row.work_date ||
-            row.created_at ||
-            "";
+            const dateValue =
+                row.work_date ||
+                row.created_at ||
+                "";
 
-        if(!dateValue){
-            return false;
-        }
 
-        const dateString = String(dateValue).substring(0,10);
+            if(!dateValue){
 
-        const parts = dateString.split("-");
+                return false;
 
-        if(parts.length !== 3){
-            return false;
-        }
+            }
 
-        const rowYear = Number(parts[0]);
-        const rowMonth = Number(parts[1]);
 
-        return (
-            rowYear === selectedYear &&
-            rowMonth === selectedMonth
+            const dateString =
+                String(dateValue)
+                .substring(0,10);
+
+
+            const parts =
+                dateString.split("-");
+
+
+            if(parts.length !== 3){
+
+                return false;
+
+            }
+
+
+            const rowYear =
+                Number(parts[0]);
+
+
+            const rowMonth =
+                Number(parts[1]);
+
+
+            return (
+
+                rowYear === selectedYear &&
+
+                rowMonth === selectedMonth
+
+            );
+
+        });
+
+
+    // --------------------------------------------------------
+    // MONTH NAME
+    // --------------------------------------------------------
+
+    const monthName =
+        new Date(
+            selectedYear,
+            selectedMonth - 1,
+            1
+        ).toLocaleString(
+            "en-CA",
+            {
+                month:"long"
+            }
         );
-    });
+
 
     // --------------------------------------------------------
     // NO DATA
@@ -313,49 +519,63 @@ window.exportExcel = function(year, month){
 
     if(!monthlyData.length){
 
-        const monthName = new Date(
-            selectedYear,
-            selectedMonth - 1,
-            1
-        ).toLocaleString("en-CA",{
-            month:"long"
-        });
-
         alert(
             `No survey data found for ${monthName} ${selectedYear}.`
         );
 
-        console.log(
-            `❌ No survey data found for ${monthName} ${selectedYear}`
+
+        console.warn(
+            `⚠️ No survey data found for ${monthName} ${selectedYear}`
         );
 
+
         console.log(
-            "Selected filters:",
+            "Export filters:",
             {
                 year:selectedYear,
                 month:selectedMonth
             }
         );
 
+
+        console.log(
+            "Total records available:",
+            allData.length
+        );
+
+
         return;
+
     }
 
-    // --------------------------------------------------------
-    // RAW DATA
-    // Keep the complete Supabase survey record
-    // --------------------------------------------------------
-
-    const rows = monthlyData.map(row => ({
-        ...row
-    }));
 
     // --------------------------------------------------------
-    // CREATE EXCEL
+    // CREATE RAW EXCEL DATA
     // --------------------------------------------------------
 
-    const ws = XLSX.utils.json_to_sheet(rows);
+    const rows =
+        monthlyData.map(row => ({
+            ...row
+        }));
 
-    const wb = XLSX.utils.book_new();
+
+    // --------------------------------------------------------
+    // CREATE WORKSHEET
+    // --------------------------------------------------------
+
+    const ws =
+        XLSX.utils.json_to_sheet(
+            rows
+        );
+
+
+    // --------------------------------------------------------
+    // CREATE WORKBOOK
+    // --------------------------------------------------------
+
+    const wb =
+        XLSX.utils.book_new();
+
 
     XLSX.utils.book_append_sheet(
         wb,
@@ -363,37 +583,62 @@ window.exportExcel = function(year, month){
         "Survey Data"
     );
 
+
     // --------------------------------------------------------
     // FILE NAME
     // --------------------------------------------------------
 
-    const monthName = new Date(
-        selectedYear,
-        selectedMonth - 1,
-        1
-    ).toLocaleString("en-CA",{
-        month:"long"
-    });
-
     const fileName =
         `Cleaning-Survey-Report-${monthName}-${selectedYear}.xlsx`;
+
+
+    // --------------------------------------------------------
+    // WRITE FILE
+    // --------------------------------------------------------
 
     XLSX.writeFile(
         wb,
         fileName
     );
 
+
     // --------------------------------------------------------
-    // LOG
+    // SUCCESS LOG
     // --------------------------------------------------------
 
     console.log(
-        `✅ Excel report generated: ${fileName}`
+        "================================="
     );
 
     console.log(
-        `📊 Records exported: ${monthlyData.length}`
+        "✅ EXCEL REPORT GENERATED"
     );
+
+    console.log(
+        "File:",
+        fileName
+    );
+
+    console.log(
+        "Year:",
+        selectedYear
+    );
+
+    console.log(
+        "Month:",
+        monthName
+    );
+
+    console.log(
+        "Records exported:",
+        monthlyData.length
+    );
+
+    console.log(
+        "================================="
+
+    );
+
 };
 
 
