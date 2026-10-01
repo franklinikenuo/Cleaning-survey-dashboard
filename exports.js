@@ -245,13 +245,9 @@ window.exportCSV = function(){
 };
 
 
-
-
-
-
 // ============================================================
-// EXCEL EXPORT
-// MONTH-SPECIFIC RAW SURVEY DATA
+// MONTHLY RAW EXCEL EXPORT
+// Exports ONLY the selected month
 // ============================================================
 
 window.exportExcel = function(year, month){
@@ -259,233 +255,151 @@ window.exportExcel = function(year, month){
     const allData = DataStore.getAll();
 
     if(!allData.length){
-
-        alert(
-            "No survey data available."
-        );
-
+        alert("No survey data available.");
         return;
-
     }
-
 
     if(typeof XLSX === "undefined"){
-
-        alert(
-            "Excel library not loaded."
-        );
-
+        alert("Excel library not loaded.");
         return;
-
     }
 
+    // Use selected Reporting Center values
+    const selectedYear = Number(year);
+    const selectedMonth = Number(month);
 
-    // ========================================================
-    // DETERMINE REPORT PERIOD
-    // ========================================================
+    if(!selectedYear || !selectedMonth){
+        alert("Please select a year and month.");
+        return;
+    }
 
-    const now = new Date();
-
-    const selectedYear =
-        year
-        ? Number(year)
-        : now.getFullYear();
-
-
-    const selectedMonth =
-        month
-        ? Number(month)
-        : now.getMonth() + 1;
-
-
-    // ========================================================
-    // FILTER DATA TO SELECTED MONTH
-    // ========================================================
+    // --------------------------------------------------------
+    // FILTER BY DATE
+    // Use the YYYY-MM-DD portion directly.
+    // This avoids timezone problems with new Date("YYYY-MM-DD")
+    // --------------------------------------------------------
 
     const monthlyData = allData.filter(row => {
 
         const dateValue =
             row.work_date ||
-            row.created_at;
-
+            row.created_at ||
+            "";
 
         if(!dateValue){
-
             return false;
-
         }
 
+        const dateString = String(dateValue).substring(0,10);
 
-        const date =
-            new Date(dateValue);
+        const parts = dateString.split("-");
 
-
-        if(isNaN(date.getTime())){
-
+        if(parts.length !== 3){
             return false;
-
         }
 
+        const rowYear = Number(parts[0]);
+        const rowMonth = Number(parts[1]);
 
         return (
-
-            date.getFullYear() === selectedYear &&
-
-            date.getMonth() + 1 === selectedMonth
-
+            rowYear === selectedYear &&
+            rowMonth === selectedMonth
         );
-
     });
 
-
-    // ========================================================
-    // NO DATA FOR SELECTED MONTH
-    // ========================================================
+    // --------------------------------------------------------
+    // NO DATA
+    // --------------------------------------------------------
 
     if(!monthlyData.length){
 
-        const monthName =
-
-            new Date(
-
-                selectedYear,
-
-                selectedMonth - 1,
-
-                1
-
-            ).toLocaleString(
-
-                "en-CA",
-
-                {
-                    month:"long"
-                }
-
-            );
-
+        const monthName = new Date(
+            selectedYear,
+            selectedMonth - 1,
+            1
+        ).toLocaleString("en-CA",{
+            month:"long"
+        });
 
         alert(
-
             `No survey data found for ${monthName} ${selectedYear}.`
+        );
 
+        console.log(
+            `❌ No survey data found for ${monthName} ${selectedYear}`
+        );
+
+        console.log(
+            "Selected filters:",
+            {
+                year:selectedYear,
+                month:selectedMonth
+            }
         );
 
         return;
-
     }
 
+    // --------------------------------------------------------
+    // RAW DATA
+    // Keep the complete Supabase survey record
+    // --------------------------------------------------------
 
-    // ========================================================
-    // COPY RAW RECORDS
-    // ========================================================
+    const rows = monthlyData.map(row => ({
+        ...row
+    }));
 
-    const rows = monthlyData.map(row => {
+    // --------------------------------------------------------
+    // CREATE EXCEL
+    // --------------------------------------------------------
 
-        return {
-            ...row
-        };
+    const ws = XLSX.utils.json_to_sheet(rows);
 
-    });
-
-
-    // ========================================================
-    // CREATE WORKSHEET
-    // ========================================================
-
-    const ws =
-
-        XLSX.utils.json_to_sheet(
-            rows
-        );
-
-
-    // ========================================================
-    // CREATE WORKBOOK
-    // ========================================================
-
-    const wb =
-
-        XLSX.utils.book_new();
-
+    const wb = XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(
-
         wb,
-
         ws,
-
         "Survey Data"
-
     );
 
-
-    // ========================================================
-    // MONTH NAME
-    // ========================================================
-
-    const monthName =
-
-        new Date(
-
-            selectedYear,
-
-            selectedMonth - 1,
-
-            1
-
-        ).toLocaleString(
-
-            "en-CA",
-
-            {
-                month:"long"
-            }
-
-        );
-
-
-    // ========================================================
+    // --------------------------------------------------------
     // FILE NAME
-    // ========================================================
+    // --------------------------------------------------------
+
+    const monthName = new Date(
+        selectedYear,
+        selectedMonth - 1,
+        1
+    ).toLocaleString("en-CA",{
+        month:"long"
+    });
 
     const fileName =
-
         `Cleaning-Survey-Report-${monthName}-${selectedYear}.xlsx`;
 
-
-    // ========================================================
-    // DOWNLOAD
-    // ========================================================
-
     XLSX.writeFile(
-
         wb,
-
         fileName
-
     );
 
+    // --------------------------------------------------------
+    // LOG
+    // --------------------------------------------------------
 
     console.log(
-
         `✅ Excel report generated: ${fileName}`
-
     );
-
 
     console.log(
-
         `📊 Records exported: ${monthlyData.length}`
-
     );
-
 };
-
 
 
 // ============================================================
 // ANALYTICS EXCEL EXPORT
+// Uses Reporting Center year/month
 // ============================================================
 
 window.exportAnalyticsExcel = function(){
@@ -493,19 +407,11 @@ window.exportAnalyticsExcel = function(){
     const filters =
         window.currentReportFilters || {};
 
-
     exportExcel(
-
         filters.year,
-
         filters.month
-
     );
-
 };
-
-
-
 
 
 
