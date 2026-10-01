@@ -230,75 +230,249 @@ window.populateReportWeeks = function(){
 };
 
 
+```javascript
 // ============================================================
 // GENERATE REPORT
 // ============================================================
 
 window.generateSelectedReport = async function(){
 
-    const typeElement = document.getElementById("reportType");
-    const yearElement = document.getElementById("reportYear");
-    const monthElement = document.getElementById("reportMonth");
-    const weekElement = document.getElementById("reportWeek");
-
-    const type = typeElement ? typeElement.value : "professional";
-    const year = yearElement ? Number(yearElement.value) : null;
-    const month = monthElement ? Number(monthElement.value) : null;
-    const week = weekElement ? Number(weekElement.value) : null;
-
     console.log("=================================");
-    console.log("REPORT CENTER SELECTION");
-    console.log("Type:", type);
-    console.log("Year:", year);
-    console.log("Month:", month);
-    console.log("Week:", week);
+    console.log("📊 REPORT CENTER GENERATE");
     console.log("=================================");
 
+
     // --------------------------------------------------------
-    // VALIDATE YEAR / MONTH
+    // GET REPORTING CENTER CONTROLS
     // --------------------------------------------------------
 
-    if(!year || !month){
+    const typeElement =
+        document.getElementById("reportType");
+
+    const yearElement =
+        document.getElementById("reportYear");
+
+    const monthElement =
+        document.getElementById("reportMonth");
+
+    const weekElement =
+        document.getElementById("reportWeek");
+
+
+    // --------------------------------------------------------
+    // VERIFY CONTROLS EXIST
+    // --------------------------------------------------------
+
+    if(!yearElement){
+
+        console.error(
+            "❌ reportYear element not found."
+        );
 
         alert(
-            "Please select a year and month."
+            "The reporting year selector could not be found."
         );
 
         return;
+
     }
+
+
+    if(!monthElement){
+
+        console.error(
+            "❌ reportMonth element not found."
+        );
+
+        alert(
+            "The reporting month selector could not be found."
+        );
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // READ VALUES DIRECTLY FROM DROPDOWNS
+    // --------------------------------------------------------
+
+    const type =
+        typeElement
+            ? typeElement.value
+            : "professional";
+
+
+    const yearRaw =
+        yearElement.value;
+
+
+    const monthRaw =
+        monthElement.value;
+
+
+    const weekRaw =
+        weekElement
+            ? weekElement.value
+            : "1";
+
+
+    const year =
+        Number(yearRaw);
+
+
+    const month =
+        Number(monthRaw);
+
+
+    const week =
+        Number(weekRaw);
+
+
+    // --------------------------------------------------------
+    // DEBUG
+    // --------------------------------------------------------
+
+    console.log(
+        "Report Type:",
+        type
+    );
+
+    console.log(
+        "Year raw:",
+        yearRaw
+    );
+
+    console.log(
+        "Month raw:",
+        monthRaw
+    );
+
+    console.log(
+        "Year:",
+        year
+    );
+
+    console.log(
+        "Month:",
+        month
+    );
+
+    console.log(
+        "Week:",
+        week
+    );
+
+
+    // --------------------------------------------------------
+    // VALIDATE YEAR
+    // --------------------------------------------------------
+
+    if(
+        yearRaw === "" ||
+        yearRaw === null ||
+        yearRaw === undefined ||
+        !Number.isInteger(year)
+    ){
+
+        alert(
+            "Please select a year."
+        );
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // VALIDATE MONTH
+    // --------------------------------------------------------
+
+    if(
+        monthRaw === "" ||
+        monthRaw === null ||
+        monthRaw === undefined ||
+        !Number.isInteger(month) ||
+        month < 1 ||
+        month > 12
+    ){
+
+        alert(
+            "Please select a month."
+        );
+
+        return;
+
+    }
+
 
     // --------------------------------------------------------
     // UPDATE GLOBAL REPORT FILTERS
     // --------------------------------------------------------
 
-    const filters = {
+    window.currentReportFilters = {
+
         type: type,
+
         year: year,
+
         month: month,
+
         week: week
+
     };
 
-    if(typeof updateReportFilters === "function"){
-        updateReportFilters(filters);
+
+    console.log(
+        "✅ currentReportFilters:",
+        window.currentReportFilters
+    );
+
+
+    // --------------------------------------------------------
+    // ALSO CALL EXISTING FILTER HANDLER
+    // --------------------------------------------------------
+
+    if(
+        typeof updateReportFilters === "function"
+    ){
+
+        updateReportFilters(
+            window.currentReportFilters
+        );
+
     }
+
+
+    // --------------------------------------------------------
+    // REPORT STATUS
+    // --------------------------------------------------------
 
     const status =
-        document.getElementById("reportStatus");
+        document.getElementById(
+            "reportStatus"
+        );
+
 
     if(status){
+
         status.innerHTML =
             "Generating report...";
+
     }
 
-    // --------------------------------------------------------
+
+    // ========================================================
     // MONTHLY EXCEL REPORT
-    // --------------------------------------------------------
+    // ========================================================
 
     if(type === "excel"){
 
         try{
 
-            if(typeof exportExcel !== "function"){
+            if(
+                typeof exportExcel !== "function"
+            ){
 
                 throw new Error(
                     "exportExcel function is not available."
@@ -306,71 +480,112 @@ window.generateSelectedReport = async function(){
 
             }
 
+
             console.log(
-                "📊 Generating monthly Excel:",
-                year,
+                "📊 Generating monthly Excel report"
+            );
+
+            console.log(
+                "Selected year:",
+                year
+            );
+
+            console.log(
+                "Selected month:",
                 month
             );
+
+
+            // ------------------------------------------------
+            // DIRECT EXPORT
+            // ------------------------------------------------
 
             exportExcel(
                 year,
                 month
             );
 
+
             if(status){
+
                 status.innerHTML =
                     "✅ Monthly Excel report complete";
+
             }
+
+
+            console.log(
+                "✅ Monthly Excel export completed"
+            );
+
 
             return;
 
-        }catch(error){
+
+        }
+        catch(error){
 
             console.error(
-                "Excel report error:",
+                "❌ Excel report error:",
                 error
             );
 
+
             if(status){
+
                 status.innerHTML =
                     "❌ Excel report failed";
+
             }
+
 
             alert(
                 "Unable to generate Excel report."
             );
 
+
             return;
+
         }
+
     }
 
-    // --------------------------------------------------------
+
+    // ========================================================
     // EXISTING PDF REPORTS
-    // --------------------------------------------------------
+    // ========================================================
 
     try{
 
         await sendReport();
 
+
         if(status){
+
             status.innerHTML =
                 "✅ Report complete";
+
         }
 
-    }catch(error){
+    }
+    catch(error){
 
         console.error(
             "Report generation error:",
             error
         );
 
+
         if(status){
+
             status.innerHTML =
                 "❌ Report failed";
-        }
-    }
-};
 
+        }
+
+    }
+
+};
 
 // ============================================================
 // READY
